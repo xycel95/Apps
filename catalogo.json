@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "repository": "xycel95/Apps",
+  "applications": [
+    {
+      "id": "ssh-backup",
+      "name": "SSH Backup",
+      "branch": "ssh-backup",
+      "path": "apps/ssh-backup",
+      "manifest_url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/app.json",
+      "project_url": "https://github.com/xycel95/Apps/tree/ssh-backup/apps/ssh-backup"
+    }
+  ]
+}

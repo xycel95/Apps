@@ -22,3 +22,10 @@
 - Las claves privadas de firma de actualizaciones se guardan fuera de GitHub. Conservar la compatibilidad de sus claves públicas; no rotarlas sin un plan explícito.
 - No incorporar archivos del repositorio privado de la web ni de servicios ajenos. Este repositorio contiene únicamente las aplicaciones que el usuario pida publicar.
 - La publicación de código y archivos no configura por sí sola la actualización automática de una aplicación ni autoriza ejecutarla en los equipos o servidores del usuario.
+
+## Catálogo y organización de cada programa
+
+- Mantener README.md como índice humano y catalogo.json como índice de metadatos. Las entradas enlazan el app.json de la rama de cada programa; no inventar disponibilidad de descargas.
+- Cada aplicación reúne README.md, DESCRIPCION.md, docs/, descargas/, notas-de-parche/, Codigo/, CONTEXTO.md, AGENTS.md y app.json dentro de apps/<nombre>/.
+- Las notas nuevas se añaden arriba y las anteriores se conservan. Una actualización coordina paquete comprobado, versión, hash, enlaces y notas. Corregir una descripción no crea una versión nueva.
+- Mantener el código de la aplicación en su rama y reflejar sus enlaces en el índice de main. El repositorio privado de la web y el canal del actualizador requieren su configuración propia; no afirmar que se actualizan por el mero hecho de publicar aquí.
