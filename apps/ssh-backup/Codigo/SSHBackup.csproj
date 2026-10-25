@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>SSHBackup</AssemblyName>
+    <RootNamespace>SSHBackup</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>assets\app.ico</ApplicationIcon>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Tests*.cs" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Security" />
+    <Reference Include="Renci.SshNet">
+      <HintPath>deps\lib\Renci.SshNet.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <EmbeddedResource Include="deps\lib\*.dll">
+      <LogicalName>deps.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="assets\app.ico"><LogicalName>assets.app.ico</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="assets\Plantilla_Servidores_SSH.xlsx"><LogicalName>assets.Plantilla_Servidores_SSH.xlsx</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="assets\Plantilla_Exportacion_SSH.xlsx"><LogicalName>assets.Plantilla_Exportacion_SSH.xlsx</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="GUIA.txt"><LogicalName>assets.GUIA.txt</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="LICENCIAS.txt"><LogicalName>assets.LICENCIAS.txt</LogicalName></EmbeddedResource>
+  </ItemGroup>
+</Project>

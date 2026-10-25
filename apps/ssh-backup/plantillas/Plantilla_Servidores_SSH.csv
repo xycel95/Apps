@@ -1,0 +1,3 @@
+﻿alias;host;puerto;usuario;contrasena;carpeta_origen;carpeta_destino
+Sede_Madrid;192.0.2.11;22;backup;;/srv/datos;D:\Copias_SSH
+Sede_Cordoba;192.0.2.12;22;backup;;/srv/datos;D:\Copias_SSH

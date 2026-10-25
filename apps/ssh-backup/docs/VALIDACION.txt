@@ -1,0 +1,18 @@
+SSH BACKUP 2.1.0 - VALIDACIÓN
+Entorno: Linux/Mono; SSH/SFTP local. No usa servidores de producción.
+
+Importación, configuración y credenciales: 17 comprobaciones superadas.
+Exportación/importación de 50 servidores: 30 comprobaciones superadas.
+Programación y migración de días: 34 comprobaciones superadas.
+Paquetes firmados y herramientas: 19 comprobaciones superadas.
+Limitador global y transporte: 6 comprobaciones superadas.
+Interfaz de herramientas, temas y tamaños: 18 comprobaciones superadas.
+Copias SSH reales, reanudación, novedades y comparación: 53 comprobaciones superadas.
+Carpetas de Windows por SFTP y ZIPs originales: 99 comprobaciones superadas; origen intacto y cero solicitudes de escritura.
+Interfaz general, exportación y persistencia: 7 comprobaciones superadas.
+EXE autónomo: arranque correcto con dependencias incluidas.
+
+Pendiente: Windows nativo, Programador de tareas y arranque nativo tras instalar.
+En un ensayo inicial la validación detuvo una copia al detectar distinta lista de origen. Dos ejecuciones completas posteriores pasaron; el mensaje ahora detalla los nombres añadidos o ausentes. Se mantiene el rechazo seguro ante cambios.
+
+EXE SHA-256: 2b9936b40e9a7676d38359db0921b96100ea892a61b32523de4bf40ff47358c9

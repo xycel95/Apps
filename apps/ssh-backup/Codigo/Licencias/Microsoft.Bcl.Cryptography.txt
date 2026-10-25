@@ -1,0 +1,3 @@
+Microsoft.Bcl.Cryptography 10.0.10
+Licencia: MIT
+https://api.nuget.org/v3-flatcontainer/microsoft.bcl.cryptography/10.0.10/microsoft.bcl.cryptography.10.0.10.nupkg

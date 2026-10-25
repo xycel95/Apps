@@ -1,0 +1,3 @@
+SSH.NET 2026.0.0
+Licencia: MIT
+https://api.nuget.org/v3-flatcontainer/ssh.net/2026.0.0/ssh.net.2026.0.0.nupkg

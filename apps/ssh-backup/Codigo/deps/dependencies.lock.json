@@ -1,0 +1,80 @@
+[
+  {
+    "id": "SSH.NET",
+    "version": "2026.0.0",
+    "sha256": "b2515de616821198f5cf5530f5ea198912730bbe3504ef4c6aee00a661fecac2",
+    "url": "https://api.nuget.org/v3-flatcontainer/ssh.net/2026.0.0/ssh.net.2026.0.0.nupkg"
+  },
+  {
+    "id": "BouncyCastle.Cryptography",
+    "version": "2.7.0",
+    "sha256": "f091ffccab4d03993e660bace277659a79dee0972f54d7f1f4bd46d680966241",
+    "url": "https://api.nuget.org/v3-flatcontainer/bouncycastle.cryptography/2.7.0/bouncycastle.cryptography.2.7.0.nupkg"
+  },
+  {
+    "id": "Microsoft.Bcl.Cryptography",
+    "version": "10.0.10",
+    "sha256": "4b8eb4562ddc2066e352c0be51325d5536df2ee75a15c76daf809b0b4b19b22d",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.bcl.cryptography/10.0.10/microsoft.bcl.cryptography.10.0.10.nupkg"
+  },
+  {
+    "id": "Microsoft.Extensions.Logging.Abstractions",
+    "version": "8.0.3",
+    "sha256": "e4c498d5a13051b4577a148f1d8c3470167215c507e2392069b75dc61322bb74",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/8.0.3/microsoft.extensions.logging.abstractions.8.0.3.nupkg"
+  },
+  {
+    "id": "System.Formats.Asn1",
+    "version": "10.0.10",
+    "sha256": "21963ab1dfee2b2b87e7b6348a3a23a4772af500247e4401b0bbe3156cedb29c",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.formats.asn1/10.0.10/system.formats.asn1.10.0.10.nupkg"
+  },
+  {
+    "id": "System.Memory",
+    "version": "4.6.3",
+    "sha256": "26078aeb758c9ae985e8bf851f973026061da6a5eb4837204d0c2d2204c72955",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.memory/4.6.3/system.memory.4.6.3.nupkg"
+  },
+  {
+    "id": "System.Runtime.CompilerServices.Unsafe",
+    "version": "6.1.2",
+    "sha256": "5f6a7f53af3465f92beb6da873ebe0e496206c313313b98badee4355a6b25937",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.runtime.compilerservices.unsafe/6.1.2/system.runtime.compilerservices.unsafe.6.1.2.nupkg"
+  },
+  {
+    "id": "Microsoft.Extensions.DependencyInjection.Abstractions",
+    "version": "8.0.2",
+    "sha256": "51f2df1100245f10da54f0bb7e813f277155117777d4fbbab902214e27372606",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg"
+  },
+  {
+    "id": "System.Buffers",
+    "version": "4.5.1",
+    "sha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.buffers/4.5.1/system.buffers.4.5.1.nupkg"
+  },
+  {
+    "id": "System.ValueTuple",
+    "version": "4.6.2",
+    "sha256": "76fd0e366a2b90655fd15d557b0b79504197748358cb578fe3193f6d97bdd9aa",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.valuetuple/4.6.2/system.valuetuple.4.6.2.nupkg"
+  },
+  {
+    "id": "System.Numerics.Vectors",
+    "version": "4.6.1",
+    "sha256": "2bc500a86dcb02f2032d6d877f9e2d6e9e4a79080e57239b4198679d4031f2c7",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.numerics.vectors/4.6.1/system.numerics.vectors.4.6.1.nupkg"
+  },
+  {
+    "id": "Microsoft.Bcl.AsyncInterfaces",
+    "version": "8.0.0",
+    "sha256": "f5a5a68b03092ab2abf68843d4a4aea25dfbcbe8dd0f13c625cb779b6fc1927c",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.bcl.asyncinterfaces/8.0.0/microsoft.bcl.asyncinterfaces.8.0.0.nupkg"
+  },
+  {
+    "id": "System.Threading.Tasks.Extensions",
+    "version": "4.5.4",
+    "sha256": "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg"
+  }
+]

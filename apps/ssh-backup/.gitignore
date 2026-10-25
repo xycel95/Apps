@@ -1,0 +1,32 @@
+# Resultados locales de compilación y pruebas
+Codigo/build/
+Codigo/entrega/
+Codigo/verificacion/
+Codigo/bin/
+Codigo/obj/
+**/__pycache__/
+*.pyc
+.vs/
+*.user
+*.suo
+
+# Datos privados y cachés de la aplicación
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+settings.xml
+settings.xml.*
+history.xml
+history.xml.*
+known-hosts.xml
+*.log
+*.part
+*.partial
+.sshbackup-resume/
+mantenimiento/
+
+# Las dependencias fijadas en Codigo/deps/lib están incluidas para compilar.
+# Las entregas verificadas se guardan explícitamente en descargas/.
