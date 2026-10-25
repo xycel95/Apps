@@ -49,3 +49,11 @@ La migración no cambia el programa ni su versión. Para cambios nuevos, leer la
 - El ZIP supera la comprobación CRC de todos sus archivos y conserva el SHA-256 `d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed`. El EXE incluido conserva el SHA-256 `2b9936b40e9a7676d38359db0921b96100ea892a61b32523de4bf40ff47358c9`.
 - El código y el ejecutable no han cambiado durante la migración. Se reutiliza la validación documentada en `docs/VALIDACION.txt`; siguen pendientes las pruebas en Windows nativo.
 - La portada general enlaza la rama de esta aplicación, su descarga y la guía. Las futuras aplicaciones deben incorporarse en ramas propias siguiendo la misma organización.
+
+## Estado pendiente de la publicación binaria
+
+El código y los documentos de texto ya se han publicado en `ssh-backup`. No se ha cambiado el código de la aplicación ni la entrega 2.1.0. El ZIP, las DLL, las plantillas y los PDF todavía no se han incorporado al árbol de la rama.
+
+La revisión automática ha rechazado dos veces una parte de `BouncyCastle.Cryptography.dll` al exigir autorización explícita del usuario para el archivo y el destino público. Antes del segundo intento se verificó que la DLL era idéntica a `lib/net461/BouncyCastle.Cryptography.dll` del paquete oficial de NuGet 2.7.0, y que el paquete coincidía con el hash del archivo de dependencias. Esa comprobación no desbloqueó la acción. No continuar ni cambiar de vía de subida hasta resolver esa autorización.
+
+Se ha retirado el flujo temporal de reconstrucción de binarios; no hay ninguna publicación pendiente que vaya a ejecutarse automáticamente. La portada general y esta rama muestran el estado real de la descarga. La entrega original permanece preparada para continuar tras resolver el bloqueo.

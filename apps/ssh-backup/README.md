@@ -4,14 +4,18 @@ Aplicación de escritorio para Windows 10 y 11 que crea copias locales por SSH/S
 
 Este directorio contiene el proyecto de la aplicación. Para continuarlo desde otra conversación, leer primero [AGENTS.md](AGENTS.md) y [CONTEXTO.md](CONTEXTO.md) desde esta misma rama, además de las instrucciones generales del repositorio Apps.
 
-## Descargar y actualizar
+## Estado de publicación
 
-- [Paquete completo 2.1.0](descargas/SSHBackup_Completo_2.1.0.zip): programa portátil, actualización firmada, código, plantillas y documentación. En GitHub, abre el archivo y pulsa **Download raw file** o el icono de descarga.
-- [Guía de uso](docs/SSHBackup_Guia_de_uso.pdf).
-- [Notas de la versión](docs/SSHBackup_Notas_del_parche_2.1.0.pdf).
+El código y la documentación en texto están publicados. El paquete con el EXE y los archivos binarios de la entrega 2.1.0 están preparados, pero **su publicación todavía no se ha completado**. Las dependencias DLL, plantillas y documentos PDF aún no están disponibles en esta rama.
+
+## Documentación y actualización
+
+- [Guía de uso en texto](Codigo/GUIA.txt).
+- [Notas de la versión en texto](Codigo/NOTAS_DEL_PARCHE.txt).
 - [Resumen de las comprobaciones](docs/VALIDACION.txt).
+- Descarga del paquete ZIP y documentos PDF: pendientes de publicación.
 
-El repositorio es público y los archivos pueden compartirse mediante sus enlaces de GitHub. Esta migración no configura por sí sola un canal automático del actualizador.
+El repositorio es público. La migración no configura por sí sola un canal automático del actualizador. Los siguientes pasos de actualización se aplican al paquete una vez esté disponible.
 
 Desde la versión 2.0: extraer el ZIP y abrir `SSHBackup_2.1.0.sshupdate` dentro de **Herramientas → Actualizaciones → Abrir paquete**. Esperar a que terminen las copias antes de instalar. También se puede cerrar el programa y sustituir `SSHBackup.exe` en la misma ubicación, con el mismo usuario de Windows.
 
@@ -39,7 +43,7 @@ La clave privada de firma se conserva de forma privada fuera del repositorio. `C
 
 Pruebas locales en Linux/Mono superadas: interfaz en claro/oscuro y tamaño mínimo, programación y migración, SSH/SFTP, reanudación, novedades, comparación, búsqueda, límite agregado, importación/exportación y paquetes firmados. **Sigue pendiente la validación en Windows nativo**, especialmente el Programador de tareas y el arranque posterior a instalar una actualización. No se garantiza ausencia de fallos.
 
-La migración a GitHub conserva los bytes de la entrega: no añade funciones ni cambia la versión. El paquete se puede descargar públicamente desde GitHub; la consulta automática de novedades sigue sin canal web configurado.
+La migración a GitHub conserva los bytes de la entrega: no añade funciones ni cambia la versión. La descarga del paquete está pendiente de publicación; la consulta automática de novedades sigue sin canal web configurado.
 
 ## Integridad de la entrega
 
@@ -51,4 +55,4 @@ SSHBackup.exe (dentro del ZIP)
 SHA-256 2b9936b40e9a7676d38359db0921b96100ea892a61b32523de4bf40ff47358c9
 ```
 
-![Pantalla de programación implementada](docs/SSHBackup_Programacion_moderna.png)
+La captura de programación se incorporará al completar la publicación de los archivos de la entrega.
