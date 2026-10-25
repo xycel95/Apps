@@ -21,7 +21,7 @@ Actualizado el 25 de octubre de 2026 para continuar el proyecto desde GitHub.
 - `Bandwidth.cs`: límite agregado del transporte SSH recibido.
 - `Updates.cs`: manifiesto, firma RSA, SHA-256 y sustitución del ejecutable.
 - `Tests.cs`, `Tests2.cs`, `verify.py`, `verify2.py`: comprobaciones locales.
-- `descargas/README.md`: estado de la entrega. El archivo previsto es SSHBackup_Completo_2.1.0.zip, todavía pendiente de incorporarse.
+- `descargas/README.md`: estado de la entrega. El archivo disponible es SSHBackup_Completo_2.1.0.zip, con la entrega original verificada.
 
 ## Límites conocidos
 
@@ -65,12 +65,20 @@ La portada de main actúa como índice de aplicaciones. No fusionar automáticam
 
 ## Estado actual de la entrega descargable
 
-El código y los documentos de texto están en GitHub. El ZIP completo, el ejecutable y las dependencias binarias de la entrega original todavía no están incorporados a esta rama.
+La entrega original **2.1.0**, del 23 de octubre, se recuperó y publicó el 25 de octubre de 2026. El bloqueo anterior por falta del ZIP queda resuelto. No se ha recompilado el programa ni creado una versión nueva.
 
-La migración anterior registró dos rechazos de la revisión automática al publicar una parte de BouncyCastle.Cryptography.dll, por falta de autorización explícita para el archivo y el destino público. Después de conocer ese motivo, el propietario ha pedido expresamente continuar y subir el programa con sus archivos al repositorio Apps. La autorización humana para esta publicación ya está dada; no se ha realizado aquí un nuevo intento de publicación binaria, porque no se ha podido recuperar el ZIP original.
+- Paquete completo: [SSHBackup_Completo_2.1.0.zip](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip), **10.013.485 bytes**.
+- ZIP SHA-256: `d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed`.
+- EXE SHA-256: `2b9936b40e9a7676d38359db0921b96100ea892a61b32523de4bf40ff47358c9`.
+- Los 72 archivos del ZIP superan la comprobación CRC. El paquete SSHBackup_2.1.0.sshupdate contiene el mismo ejecutable; su manifiesto se ha verificado con RSA PKCS1v15 y SHA-256 usando la clave pública existente.
+- Se han incorporado el ejecutable, el paquete y manifiesto firmados, las DLL originales, los recursos, las guías PDF, la captura de programación y la plantilla XLSX. Las licencias y el código existentes se conservan. Siete archivos de texto solo difieren del ZIP en BOM o saltos de línea; se mantienen sus copias ya publicadas.
+- La descarga desde GitHub se comprueba contra el hash original. `app.json`, las portadas y el apartado de descargas muestran la entrega disponible. `descargas/SHA256SUMS.txt` recoge los hashes de los archivos descargables.
+- No se han incluido claves privadas ni configuraciones personales. La fuente privada utilizada para recuperar la entrega no se publica en el repositorio.
 
-El siguiente paso es obtener SSHBackup_Completo_2.1.0.zip y comprobarlo contra el hash registrado d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed, su contenido y la firma del paquete de actualización. No reconstruir una entrega distinta y presentarla como si fueran los mismos bytes de la original. No solicitar ni publicar la clave privada de firma.
+Las comprobaciones de esta recuperación son de integridad, firma y publicación. Se mantienen las limitaciones de las pruebas históricas Linux/Mono: Windows nativo, el Programador de tareas y el arranque tras actualizar siguen pendientes. La publicación no configura un canal online del actualizador ni modifica WordPress, Minecraft o Pterodactyl.
 
-Se ha retirado el flujo temporal de reconstrucción previo. No existe una publicación binaria que vaya a ejecutarse automáticamente. Si una revisión automática vuelve a rechazar una acción, registrar su motivo y respetar el bloqueo; no cambiar de vía para eludirla.
+## Continuar a partir de aquí
 
-La estructura y los metadatos permiten preparar el enlace con la web. Publicar esta rama no modifica por sí solo WordPress ni configura un canal online dentro del actualizador.
+La entrega completa ya está en esta rama; no hace falta abrir las conversaciones antiguas ni volver a pedir el ZIP al propietario. Para una actualización futura, seguir `PUBLICAR-ACTUALIZACION.md`, conservar los bytes de las entregas anteriores mientras se valida la nueva y añadir las notas de la nueva versión arriba del historial. Leer siempre el estado remoto actual antes de escribir.
+
+La revisión automática había rechazado dos intentos antiguos de publicación por falta de autorización para un archivo y su destino público. El propietario autorizó expresamente publicar el programa y sus dependencias en Apps. La recuperación y publicación actuales se han realizado por las vías normales de los conectores, sin modificar permisos ni eludir rechazos.

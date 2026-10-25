@@ -19,12 +19,14 @@
   "changelog_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/notas-de-parche/README.md",
   "source_url": "https://github.com/xycel95/Apps/tree/ssh-backup/apps/ssh-backup/Codigo",
   "download": {
-    "available": false,
+    "available": true,
     "filename": "SSHBackup_Completo_2.1.0.zip",
     "path": "apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip",
-    "url": null,
-    "sha256": null,
-    "expected_original_sha256": "d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed"
+    "url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip",
+    "sha256": "d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed",
+    "expected_original_sha256": "d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed",
+    "size_bytes": 10013485,
+    "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SHA256SUMS.txt"
   },
   "validation": {
     "report_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/docs/VALIDACION.txt",

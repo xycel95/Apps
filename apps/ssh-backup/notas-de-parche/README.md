@@ -31,4 +31,4 @@ Entorno: Linux/Mono. La ejecución nativa Windows, el Programador de tareas y el
 
 ---
 
-La organización del repositorio del 25 de octubre de 2026 no es una versión nueva del programa ni cambia su código. La descarga original 2.1.0 sigue pendiente de incorporarse.
+La organización del repositorio del 25 de octubre de 2026 no es una versión nueva del programa ni cambia su código. La [descarga original 2.1.0](../descargas/README.md) está disponible; se han comprobado su integridad y el paquete firmado.

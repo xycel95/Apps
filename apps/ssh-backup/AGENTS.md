@@ -19,5 +19,7 @@
 - Mantener DESCRIPCION.md para explicar la aplicación; docs/README.md para el uso; descargas/ para la entrega; notas-de-parche/README.md para el historial y app.json para los metadatos públicos.
 - Añadir las versiones nuevas arriba del historial y conservar las notas anteriores. Editar una descripción no crea por sí solo un parche ni una versión.
 - Al publicar una actualización real, coordinar su paquete, versión, hash, notas y metadatos en un commit coherente. No anunciar una descarga hasta que exista y se haya comprobado.
-- El usuario ya ha pedido expresamente publicar esta aplicación y su entrega original en el repositorio público Apps. El archivo binario sigue pendiente de recuperación; no confundir esa falta con una nueva petición de permiso.
+- El usuario ya ha pedido expresamente publicar esta aplicación y su entrega original en el repositorio público Apps. La entrega original 2.1.0 ya está publicada con sus hashes verificados; no volver a pedir al propietario el ZIP para continuar.
 - Conservar las comprobaciones históricas con su alcance real. No presentar Linux/Mono como una validación en Windows nativo.
+
+- La navegación principal de cada programa utiliza, en este orden: **Descripción del programa**, **Cómo funciona y guía**, **Descargar** y **Notas de parche**. Código, licencias y contexto son documentación complementaria.
