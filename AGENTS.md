@@ -29,3 +29,10 @@
 - Cada aplicación reúne README.md, DESCRIPCION.md, docs/, descargas/, notas-de-parche/, Codigo/, CONTEXTO.md, AGENTS.md y app.json dentro de apps/<nombre>/.
 - Las notas nuevas se añaden arriba y las anteriores se conservan. Una actualización coordina paquete comprobado, versión, hash, enlaces y notas. Corregir una descripción no crea una versión nueva.
 - Mantener el código de la aplicación en su rama y reflejar sus enlaces en el índice de main. El repositorio privado de la web y el canal del actualizador requieren su configuración propia; no afirmar que se actualizan por el mero hecho de publicar aquí.
+
+## Presentación común de las aplicaciones
+
+- La portada de `main` empieza con una lista numerada de programas reales, con una descripción breve y enlaces a sus apartados. Conservar las entradas existentes y añadir las nuevas cuando el usuario las incorpore; no inventar aplicaciones futuras.
+- Mantener cuatro accesos públicos en este orden y con estos nombres: **Descripción del programa**, **Cómo funciona y guía**, **Descargar** y **Notas de parche**. Usar esta organización en todas las aplicaciones.
+- Código, licencias, contexto e instrucciones de desarrollo son documentación complementaria. Conservarla, dejando los cuatro apartados anteriores como navegación principal.
+- La portada general enlaza el apartado de descargas de cada aplicación; la versión y la disponibilidad se mantienen en la aplicación y su `app.json`, sin duplicar un estado que pueda quedar desactualizado en el índice.
