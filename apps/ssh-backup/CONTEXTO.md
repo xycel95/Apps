@@ -21,7 +21,7 @@ Actualizado el 25 de octubre de 2026 para continuar el proyecto desde GitHub.
 - `Bandwidth.cs`: límite agregado del transporte SSH recibido.
 - `Updates.cs`: manifiesto, firma RSA, SHA-256 y sustitución del ejecutable.
 - `Tests.cs`, `Tests2.cs`, `verify.py`, `verify2.py`: comprobaciones locales.
-- `descargas/SSHBackup_Completo_2.1.0.zip`: entrega original íntegra, con EXE y paquete `.sshupdate`.
+- `descargas/README.md`: estado de la entrega. El archivo previsto es SSHBackup_Completo_2.1.0.zip, todavía pendiente de incorporarse.
 
 ## Límites conocidos
 
@@ -50,10 +50,27 @@ La migración no cambia el programa ni su versión. Para cambios nuevos, leer la
 - El código y el ejecutable no han cambiado durante la migración. Se reutiliza la validación documentada en `docs/VALIDACION.txt`; siguen pendientes las pruebas en Windows nativo.
 - La portada general enlaza la rama de esta aplicación, su descarga y la guía. Las futuras aplicaciones deben incorporarse en ramas propias siguiendo la misma organización.
 
-## Estado pendiente de la publicación binaria
+## Organización vigente desde el 25 de octubre de 2026
 
-El código y los documentos de texto ya se han publicado en `ssh-backup`. No se ha cambiado el código de la aplicación ni la entrega 2.1.0. El ZIP, las DLL, las plantillas y los PDF todavía no se han incorporado al árbol de la rama.
+El propietario ha pedido gestionar todas sus aplicaciones desde el repositorio Apps, con una rama permanente para cada programa. SSH Backup conserva la rama ssh-backup y la carpeta apps/ssh-backup.
 
-La revisión automática ha rechazado dos veces una parte de `BouncyCastle.Cryptography.dll` al exigir autorización explícita del usuario para el archivo y el destino público. Antes del segundo intento se verificó que la DLL era idéntica a `lib/net461/BouncyCastle.Cryptography.dll` del paquete oficial de NuGet 2.7.0, y que el paquete coincidía con el hash del archivo de dependencias. Esa comprobación no desbloqueó la acción. No continuar ni cambiar de vía de subida hasta resolver esa autorización.
+- DESCRIPCION.md explica el propósito y los requisitos.
+- docs/README.md introduce el uso y enlaza la guía completa original.
+- descargas/README.md muestra los archivos disponibles y lo pendiente.
+- notas-de-parche/README.md conserva las notas, con las versiones nuevas arriba.
+- app.json reúne los datos y enlaces públicos de la aplicación; download.available solo debe ser true cuando el paquete exista y se haya comprobado su descarga.
+- Codigo y las licencias existentes se conservan sin modificar el programa ni su versión.
 
-Se ha retirado el flujo temporal de reconstrucción de binarios; no hay ninguna publicación pendiente que vaya a ejecutarse automáticamente. La portada general y esta rama muestran el estado real de la descarga. La entrega original permanece preparada para continuar tras resolver el bloqueo.
+La portada de main actúa como índice de aplicaciones. No fusionar automáticamente el código de una rama de aplicación en main.
+
+## Estado actual de la entrega descargable
+
+El código y los documentos de texto están en GitHub. El ZIP completo, el ejecutable y las dependencias binarias de la entrega original todavía no están incorporados a esta rama.
+
+La migración anterior registró dos rechazos de la revisión automática al publicar una parte de BouncyCastle.Cryptography.dll, por falta de autorización explícita para el archivo y el destino público. Después de conocer ese motivo, el propietario ha pedido expresamente continuar y subir el programa con sus archivos al repositorio Apps. La autorización humana para esta publicación ya está dada; no se ha realizado aquí un nuevo intento de publicación binaria, porque no se ha podido recuperar el ZIP original.
+
+El siguiente paso es obtener SSHBackup_Completo_2.1.0.zip y comprobarlo contra el hash registrado d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed, su contenido y la firma del paquete de actualización. No reconstruir una entrega distinta y presentarla como si fueran los mismos bytes de la original. No solicitar ni publicar la clave privada de firma.
+
+Se ha retirado el flujo temporal de reconstrucción previo. No existe una publicación binaria que vaya a ejecutarse automáticamente. Si una revisión automática vuelve a rechazar una acción, registrar su motivo y respetar el bloqueo; no cambiar de vía para eludirla.
+
+La estructura y los metadatos permiten preparar el enlace con la web. Publicar esta rama no modifica por sí solo WordPress ni configura un canal online dentro del actualizador.

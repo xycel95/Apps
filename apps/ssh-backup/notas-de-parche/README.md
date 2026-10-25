@@ -1,0 +1,34 @@
+# Notas de parche de SSH Backup
+
+Las versiones nuevas se añaden arriba. Se conserva el historial anterior.
+
+## 2.1.0 — 23 de octubre de 2026
+
+**Diseño renovado y programación por días.**
+
+NOVEDADES
+- Menú lateral con iconos y sección seleccionada visible.
+- Tipografía más clara, botones y paneles redondeados, campos renovados.
+- Estilo común en Copias, Servidores, Historial, Ajustes, Herramientas y diálogos.
+- Modo claro y oscuro; se conserva la preferencia guardada.
+- Siete casillas independientes para programar: lunes a domingo.
+- Cualquier combinación, con accesos Todos los días y Ninguno.
+- Resumen de la selección y de la hora; no permite activar sin días.
+- Las selecciones anteriores de la versión 2.0 se migran automáticamente.
+- Los ajustes largos permiten desplazarse al reducir la ventana.
+- Los avisos de cambios en el origen detallan qué nombres han aparecido o desaparecido.
+
+SE MANTIENEN LAS FUNCIONES DE LA VERSIÓN 2.0
+Reanudación de descargas, copiar solo novedades opcional, copias programadas opcionales, comparador, buscador histórico, actualizaciones firmadas y límite opcional de descarga SSH en Mbps o MB/s. El límite es compartido entre conexiones. La programación usa la hora del ordenador; requiere PC encendido y sesión de Windows iniciada. No hay un canal público de actualizaciones preconfigurado.
+
+ACTUALIZAR
+Desde 2.0: extrae SSHBackup_2.1.0.sshupdate y ábrelo en Herramientas > Actualizaciones > Abrir paquete. Espera a que terminen las copias antes de instalar.
+Alternativa y versiones 1.x: cierra el programa, sustituye SSHBackup.exe en su ubicación habitual y abre con el mismo usuario Windows. Se conservan servidores, accesos, huellas, historial y ajustes. Si mueves el EXE, vuelve a guardar la programación.
+
+PRUEBAS
+Pruebas locales de interfaz en claro, oscuro y tamaño mínimo, navegación, programación y migración, copias reales SSH/SFTP, reanudación, novedades, comparación, búsqueda, límite agregado, importación/exportación y actualización firmada con restauración del EXE anterior.
+Entorno: Linux/Mono. La ejecución nativa Windows, el Programador de tareas y el arranque tras actualizar quedan pendientes de validación en el equipo de destino.
+
+---
+
+La organización del repositorio del 25 de octubre de 2026 no es una versión nueva del programa ni cambia su código. La descarga original 2.1.0 sigue pendiente de incorporarse.

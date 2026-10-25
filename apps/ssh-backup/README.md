@@ -2,16 +2,30 @@
 
 Aplicación de escritorio para Windows 10 y 11 que crea copias locales por SSH/SFTP, con varios servidores, alias, progreso e historial. Versión migrada: **2.1.0**, entregada el 23 de octubre de 2026. Requiere .NET Framework 4.8 para ejecutarse.
 
+## Apartados
+
+| Apartado | Contenido |
+| --- | --- |
+| [Descripción](DESCRIPCION.md) | Para qué sirve y sus requisitos |
+| [Cómo funciona](docs/README.md) | Primeros pasos y guía detallada |
+| [Descargas](descargas/README.md) | Paquete instalable, integridad y disponibilidad |
+| [Notas de parche](notas-de-parche/README.md) | Cambios de cada versión, con lo más reciente arriba |
+| [Código](Codigo/) | Fuentes y herramientas de compilación |
+| [Contexto](CONTEXTO.md) | Estado y pendientes para continuar desde otro chat |
+
+El archivo [app.json](app.json) reúne la versión, los enlaces y el estado de la descarga para que la web o una conversación futura puedan consultarlos.
+
 Este directorio contiene el proyecto de la aplicación. Para continuarlo desde otra conversación, leer primero [AGENTS.md](AGENTS.md) y [CONTEXTO.md](CONTEXTO.md) desde esta misma rama, además de las instrucciones generales del repositorio Apps.
 
 ## Estado de publicación
 
-El código y la documentación en texto están publicados. El paquete con el EXE y los archivos binarios de la entrega 2.1.0 están preparados, pero **su publicación todavía no se ha completado**. Las dependencias DLL, plantillas y documentos PDF aún no están disponibles en esta rama.
+El código y la documentación en texto están publicados y organizados. **Falta incorporar el ZIP original de la entrega 2.1.0**, con el ejecutable, dependencias y documentos de la distribución. Mientras falte, el apartado de descargas y app.json lo indican como no disponible.
 
 ## Documentación y actualización
 
 - [Guía de uso en texto](Codigo/GUIA.txt).
-- [Notas de la versión en texto](Codigo/NOTAS_DEL_PARCHE.txt).
+- [Historial de notas de parche](notas-de-parche/README.md).
+- [Notas originales de la entrega en texto](Codigo/NOTAS_DEL_PARCHE.txt).
 - [Resumen de las comprobaciones](docs/VALIDACION.txt).
 - Descarga del paquete ZIP y documentos PDF: pendientes de publicación.
 
@@ -33,7 +47,7 @@ Los ZIP originales del servidor se guardan íntegros dentro de la copia; no se d
 
 ## Código y compilación
 
-Las fuentes, dependencias incluidas y sus licencias están en [Codigo/](Codigo/). En Windows, usar `Codigo/compilar.ps1` con las herramientas de compilación de .NET Framework 4.8, según sus comprobaciones iniciales. `Codigo/SSHBackup.csproj` es el proyecto .NET Framework; el ejecutable incorpora las DLL necesarias.
+Las fuentes, el registro de dependencias fijadas y las licencias están en [Codigo/](Codigo/). Las DLL aún no se han incorporado a esta rama. En Windows, usar `Codigo/compilar.ps1` con las herramientas de compilación de .NET Framework 4.8, según sus comprobaciones iniciales. `Codigo/SSHBackup.csproj` es el proyecto .NET Framework; el ejecutable incorpora las DLL necesarias.
 
 `build.py` y las comprobaciones Python se usaron con un runtime Mono local, no incluido aquí. `build.py` admite `SSHBACKUP_MONO_ROOT` y `SSHBACKUP_NET48_REFS`; los verificadores esperan el runtime en las rutas locales que definen al principio. Para reproducirlos en otro entorno hay que preparar ese runtime y ajustar dichas rutas. No hace falta Python para ejecutar el programa portátil.
 

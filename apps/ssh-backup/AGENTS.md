@@ -13,3 +13,11 @@
 - No enviar correos, invitar colaboradores ni cambiar la visibilidad del repositorio sin petición del usuario. Subir el proyecto público no configura un canal web del actualizador.
 - Antes de sustituir una descarga, comprobar versión, hash y firma del nuevo paquete. Mantener licencias y documentación. No incluir artefactos de pruebas, cachés ni claves en la entrega.
 - Actualizar `CONTEXTO.md` al terminar con el estado verificado y lo pendiente, sin copiar conversaciones completas.
+
+## Organización de archivos y actualizaciones
+
+- Mantener DESCRIPCION.md para explicar la aplicación; docs/README.md para el uso; descargas/ para la entrega; notas-de-parche/README.md para el historial y app.json para los metadatos públicos.
+- Añadir las versiones nuevas arriba del historial y conservar las notas anteriores. Editar una descripción no crea por sí solo un parche ni una versión.
+- Al publicar una actualización real, coordinar su paquete, versión, hash, notas y metadatos en un commit coherente. No anunciar una descarga hasta que exista y se haya comprobado.
+- El usuario ya ha pedido expresamente publicar esta aplicación y su entrega original en el repositorio público Apps. El archivo binario sigue pendiente de recuperación; no confundir esa falta con una nueva petición de permiso.
+- Conservar las comprobaciones históricas con su alcance real. No presentar Linux/Mono como una validación en Windows nativo.

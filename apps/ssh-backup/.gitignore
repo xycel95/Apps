@@ -28,5 +28,5 @@ known-hosts.xml
 .sshbackup-resume/
 mantenimiento/
 
-# Las dependencias fijadas en Codigo/deps/lib están incluidas para compilar.
+# El registro de dependencias está en Codigo/deps/dependencies.lock.json.
 # Las entregas verificadas se guardan explícitamente en descargas/.

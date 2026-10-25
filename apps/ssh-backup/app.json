@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "id": "ssh-backup",
+  "name": "SSH Backup",
+  "version": "2.1.0",
+  "release_date": "2026-10-23",
+  "summary": "Copias locales de carpetas remotas mediante SSH/SFTP, con varios servidores, historial y programación opcional.",
+  "platforms": [
+    "Windows 10",
+    "Windows 11"
+  ],
+  "requirements": [
+    ".NET Framework 4.8"
+  ],
+  "repository": "xycel95/Apps",
+  "branch": "ssh-backup",
+  "description_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/DESCRIPCION.md",
+  "guide_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/docs/README.md",
+  "changelog_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/notas-de-parche/README.md",
+  "source_url": "https://github.com/xycel95/Apps/tree/ssh-backup/apps/ssh-backup/Codigo",
+  "download": {
+    "available": false,
+    "filename": "SSHBackup_Completo_2.1.0.zip",
+    "path": "apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip",
+    "url": null,
+    "sha256": null,
+    "expected_original_sha256": "d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed"
+  },
+  "validation": {
+    "report_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/docs/VALIDACION.txt",
+    "environment": "Linux/Mono",
+    "native_windows_verified": false
+  },
+  "online_updates_configured": false
+}
