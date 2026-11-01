@@ -11,7 +11,7 @@ Copias locales de carpetas remotas por SSH/SFTP para Windows 10/11 y .NET Framew
 
 En **Herramientas → Actualizaciones**, pulsa **Comprobar actualizaciones**, revisa las novedades y elige **Instalar actualización**. El canal oficial ya está preparado. La descarga muestra su progreso, permite cancelar y se valida con firma RSA y SHA-256 antes de instalar.
 
-Desde 2.0/2.1, abre el [paquete firmado 2.2.0](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_2.2.0.sshupdate) con **Abrir paquete** para dar el salto inicial. También puedes pegar el [canal oficial](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml) una vez. Desde 1.x, cierra la app y sustituye el EXE.
+Para este primer salto desde 2.0/2.1, termina las copias, cierra el programa y sustituye `SSHBackup.exe` por el nuevo en su ubicación habitual. Con el mismo usuario Windows se conservan los datos. La entrega 2.1 tiene un fallo en su instalador antiguo; desde 2.2 el canal y la instalación desde la app quedan preparados.
 
 Se conservan los servidores, accesos, huellas, historial, tema y ajustes. Espera a que terminen las copias; mantén la ubicación del EXE y el mismo usuario Windows. El ejecutable anterior se conserva como `.previous`; se restaura si falla el lanzamiento de la nueva versión.
 

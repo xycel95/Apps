@@ -23,6 +23,7 @@ namespace SSHBackup
             {
                 string root = Path.GetFullPath(args[1]); Directory.CreateDirectory(root);
                 if (args[0] == "gui") Gui(root);
+                else if (args[0] == "online") Online(root);
                 else Unit(root, Path.GetFullPath(args[2]), Path.GetFullPath(args[3]));
                 Console.WriteLine("ACTUALIZACIONES: " + checks + " comprobaciones correctas"); return 0;
             }
@@ -61,6 +62,19 @@ namespace SSHBackup
             Assert(progress.Percent == 30, "Porcentaje de descarga calculado en bytes");
         }
         static ZipArchive ZipFileOpen(string path) { return new ZipArchive(File.OpenRead(path), ZipArchiveMode.Read); }
+        sealed class DownloadCounter : IProgress<UpdateProgress>
+        {
+            public long Bytes;
+            public void Report(UpdateProgress value) { Interlocked.Exchange(ref Bytes, value.Received); }
+        }
+        static void Online(string root)
+        {
+            var release = Updates.CheckAsync(Updates.OfficialChannel, CancellationToken.None).GetAwaiter().GetResult();
+            Assert(release.Version == "2.2.0", "Canal HTTPS público consultado y firma verificada en Windows");
+            var counter = new DownloadCounter();
+            string package = Updates.DownloadPackageAsync(release, root, CancellationToken.None, counter).GetAwaiter().GetResult();
+            Assert(Updates.ReadPackage(package).Sha256 == release.Sha256 && counter.Bytes == new FileInfo(package).Length, "Descarga real desde la app con progreso, firma y SHA-256 correctos");
+        }
         static void Gui(string root)
         {
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);

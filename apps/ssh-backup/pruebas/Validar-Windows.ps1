@@ -42,12 +42,16 @@ try {
     } finally { $archive.Dispose() }
     $legacyQuote = $false
     try { $legacy = [Reflection.Assembly]::LoadFile((Join-Path $stage 'old.exe')); $quoted = $legacy.GetType('SSHBackup.Updates').GetMethod('Quote').Invoke($null, @('C:\Ruta de prueba\SSHBackup.exe')); $legacyQuote = $quoted.StartsWith('"') } catch { Write-Host 'El cliente anterior necesita sustituir el EXE manualmente para el salto inicial.' }
-    $tests = Join-Path $stage 'TestsUpdates.exe' 
+    $tests = Join-Path $stage 'TestsUpdates.exe'
     Compile $tests @((Join-Path $code 'TestsUpdates.cs')) @('/target:exe','/main:SSHBackup.TestsUpdates',"/r:$exe")
     & $tests unit (Join-Path $stage 'unit') $env:SSHBACKUP_TEST_PACKAGE (Join-Path $stage 'old.exe')
     CheckExit 'firma, integridad, migración, sustitución y restauración'
     & $tests gui (Join-Path $stage 'gui')
     CheckExit 'interfaz de actualizaciones'
+    if ($env:GITHUB_REF_NAME -eq 'ssh-backup') {
+        & $tests online (Join-Path $stage 'online')
+        CheckExit 'consulta y descarga HTTPS pública desde la aplicación'
+    }
     # El host con versión 2.1 ensaya el saludo listo/confirmación/salida/reemplazo/reinicio.
     $probe = Join-Path $stage 'SSH Backup ensayo.exe'
     Compile $probe @((Join-Path $PSScriptRoot 'NativeUpdateProbe.cs'),(Join-Path $code 'Updates.cs')) @('/target:exe','/main:SSHBackup.Program')
@@ -59,11 +63,11 @@ try {
     $restarted = $null
     do {
         Start-Sleep -Milliseconds 400
-        $restarted = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $probe -and $_.Id -ne $parent.Id -and $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+        $restarted = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $probe -and $_.Id -ne $parent.Id -and $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -like 'SSH Backup 2.2.0*' } | Select-Object -First 1
     } while (!$restarted -and [DateTime]::UtcNow -lt $deadline)
     if (!$restarted -or (Get-FileHash $probe -Algorithm SHA256).Hash -ne $expected) { throw 'No se ha confirmado el reinicio de la entrega real.' }
     if ((Get-FileHash ($probe + '.previous') -Algorithm SHA256).Hash -ne $before) { throw 'No se conserva el ejecutable anterior.' }
-    $report = [ordered]@{ version='2.2.0'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=14; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false; legacy_package_quote_supported=$legacyQuote }
+    $report = [ordered]@{ version='2.2.0'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=14; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false; legacy_package_quote_supported=$legacyQuote; online_publication_tested=($env:GITHUB_REF_NAME -eq 'ssh-backup') }
     $report | ConvertTo-Json | Set-Content (Join-Path $PSScriptRoot 'VALIDACION-WINDOWS.json') -Encoding utf8
     Write-Host ($report | ConvertTo-Json)
 } finally {

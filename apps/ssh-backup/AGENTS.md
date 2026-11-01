@@ -26,7 +26,7 @@
 
 ## Desde 2.2.0
 
-- El canal oficial está preparado en `Updates.OfficialChannel`; un ajuste vacío utiliza ese canal. Conservar canales personalizados y .sshupdate para clientes 2.0/2.1.
+- El canal oficial está preparado en `Updates.OfficialChannel`; un ajuste vacío utiliza ese canal. Conservar canales personalizados y el formato de firma .sshupdate. El primer salto desde la entrega 2.1 publicada se hace sustituyendo el EXE por su incompatibilidad de compilación heredada.
 - Paquetes y EXE de versión son fijos; publicar el XML firmado en `actualizaciones/stable.xml`. Mantener la clave pública original.
 - El instalador nuevo espera preparado/confirmación y no permite iniciar copias durante la instalación. No retirar la compatibilidad con `--apply-update` de clientes antiguos.
 - Compilar con Roslyn y verificar el manifiesto PE mediante `winres.py`; no distribuir una compilación mcs sin ese manifiesto.

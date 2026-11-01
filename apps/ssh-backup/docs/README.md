@@ -9,7 +9,7 @@
 
 Desde 2.2, **Herramientas → Actualizaciones → Comprobar actualizaciones** utiliza el canal oficial preparado. Revisa las novedades firmadas y pulsa **Instalar actualización**. Muestra el progreso y permite cancelar antes de instalar; después reinicia el programa.
 
-Desde 2.0/2.1, abre el paquete `SSHBackup_2.2.0.sshupdate` para instalar esta primera entrega con el canal preparado. También puedes pegar una sola vez el canal oficial y comprobar novedades. Desde 1.x, cierra el programa y sustituye el EXE.
+Para pasar desde 2.0/2.1, termina las copias, cierra el programa y sustituye `SSHBackup.exe` por el nuevo en su ubicación habitual. Usa el mismo usuario Windows. Este primer salto se hace manualmente porque el instalador de la entrega 2.1 tiene una incompatibilidad previa. Desde 2.2 las próximas versiones se instalan desde la app. Desde 1.x también se sustituye el EXE con el programa cerrado.
 
 No debe haber copias en marcha. La configuración, los accesos, las huellas, el historial y el tema se conservan usando el mismo usuario de Windows y ubicación. Si mueves el EXE, vuelve a guardar la programación. Se guarda `.previous` y se restaura si no se puede iniciar el proceso nuevo.
 

@@ -6,9 +6,9 @@ Código: `Updates.cs` y `ToolsPage.cs`; `Program.cs` reconoce tanto el instalado
 
 Canal: `actualizaciones/stable.xml`; paquetes y EXE fijos en `descargas/versiones/2.2.0/`. La clave privada original se recupera de su archivo privado; nunca se publica ni rota. La firma del canal queda dentro del XML para mantener compatibilidad.
 
-90 comprobaciones locales Linux/Mono correctas y revisión visual claro/oscuro. Compilación Roslyn con manifiesto PE verificado. La comprobación Windows está en `.github/workflows/ssh-backup-windows.yml` y `pruebas/Validar-Windows.ps1`; consultar su resultado real. Programador de tareas y servidores reales no se prueban en esta entrega.
+90 comprobaciones locales Linux/Mono correctas y revisión visual claro/oscuro. Compilación Roslyn con manifiesto PE verificado. Windows Server 2025 / Framework 4.8: 20 pruebas correctas y preparado/reemplazo/reinicio real verificados en Actions 41266607684. La compilación usa referencias oficiales, evitando una sobrecarga String de Mono incompatible con Windows. La comprobación reproducible está en `.github/workflows/ssh-backup-windows.yml` y `pruebas/Validar-Windows.ps1`; consultar su resultado real. Programador de tareas y servidores reales no se prueban en esta entrega.
 
-Desde 2.0/2.1, instalar el paquete 2.2.0 o pegar una vez el canal oficial; desde 2.2 viene preparado. La ficha web y la comunicación solicitada se publican después de comprobar la entrega, por la autorización expresa de esta petición. Registrar sus resultados observados al completar.
+Desde 2.0/2.1, cerrar y sustituir el EXE una sola vez, conservando usuario y ubicación. La entrega 2.1 publicada falla en Quote al usar una sobrecarga de String no disponible en Framework 4.8. Desde 2.2 el instalador está corregido y el canal preparado. La ficha y la comunicación solicitada se actualizan tras comprobar la entrega.
 
 ---
 

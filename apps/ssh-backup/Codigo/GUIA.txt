@@ -49,8 +49,8 @@ ACTUALIZADOR INTEGRADO
 En Herramientas > Actualizaciones, pulsa Comprobar actualizaciones. El canal oficial ya está preparado. Revisa la versión y sus novedades y pulsa Instalar actualización. Verás el progreso de la descarga y podrás cancelarla antes de instalar.
 La firma RSA y la huella SHA-256 se validan antes de sustituir el ejecutable. El instalador se inicia y confirma que está preparado antes de cerrar la aplicación. Se conserva SSHBackup.exe.previous y se restaura si no puede lanzar la nueva versión. Los servidores, accesos, huellas, historial y ajustes se conservan.
 Espera a que terminen las copias. Durante la instalación no se inician nuevas copias manuales ni programadas. No se instala nada sin pulsar Instalar actualización y confirmar.
-Desde versiones 2.0/2.1: abre SSHBackup_2.2.0.sshupdate en Herramientas > Actualizaciones > Abrir paquete para dar el salto inicial. También puedes introducir una sola vez este canal web y comprobar novedades:
-https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml
+Para instalar esta primera entrega desde 2.0/2.1: espera a que terminen las copias, cierra SSH Backup y sustituye SSHBackup.exe por el nuevo en la misma ubicación. Abre con el mismo usuario de Windows; se conservan servidores, credenciales, huellas, historial y ajustes.
+La entrega 2.1 publicada tiene una incompatibilidad en su instalador antiguo. Por eso el salto inicial se hace sustituyendo el EXE. Desde 2.2 el canal está preparado y las próximas actualizaciones se instalan desde la app.
 Desde 1.x: cierra el programa y sustituye SSHBackup.exe por el nuevo en la misma ubicación, con el mismo usuario de Windows.
 Se mantiene Abrir paquete para instalaciones sin conexión y el canal personalizado avanzado. Usar canal oficial permite volver al canal predeterminado.
 Novedades y descargas: https://xycel95.es/aplicaciones/ssh-backup/

@@ -23,21 +23,21 @@
     "filename": "SSHBackup_Completo_2.2.0.zip",
     "path": "apps/ssh-backup/descargas/SSHBackup_Completo_2.2.0.zip",
     "url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.2.0.zip",
-    "sha256": "48f5428701e782a65a7276cd15c28f2214ed79e90041cc38b74f24a3bb5b7fa5",
-    "size_bytes": 9766333,
+    "sha256": "cffffb2aefe7d8ec943bdd342020bcad7b3655563884a93a3e94414cc0d0cfe9",
+    "size_bytes": 9767665,
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SHA256SUMS.txt"
   },
   "validation": {
     "report_url": "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/docs/VALIDACION-2.2.0.md",
-    "environment": "Linux/Mono; Windows Actions pendiente de resultado",
-    "native_windows_verified": false,
+    "environment": "Linux/Mono y Windows Server 2025 / .NET Framework 4.8 (GitHub Actions)",
+    "native_windows_verified": true,
     "local_checks": 90
   },
   "online_updates_configured": true,
   "online_updates": {
     "channel_url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml",
     "package_url": "https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/versiones/2.2.0/SSHBackup_2.2.0.sshupdate",
-    "package_sha256": "c5c8d02c4ca386c495205027a46b4ca80bad4b9fa374a4cee6a541822f9714e9",
+    "package_sha256": "c6b7c2626ed5afab6d858e96007113d28f876639dbda2d22dbb407e663c6fec6",
     "manual_check": true,
     "signature": "RSA-SHA256 (clave original)",
     "website_url": "https://xycel95.es/aplicaciones/ssh-backup/"

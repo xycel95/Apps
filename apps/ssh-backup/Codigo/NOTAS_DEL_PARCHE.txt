@@ -10,7 +10,7 @@ SSH BACKUP 2.2.0 - ACTUALIZACIONES EN LÍNEA
 - Se conservan la clave pública original, la configuración, las credenciales, las huellas y el historial.
 
 PARA PASAR DESDE 2.0/2.1
-Abrir SSHBackup_2.2.0.sshupdate en Herramientas > Actualizaciones > Abrir paquete. También sirve introducir el canal oficial y comprobar novedades una vez. Desde 2.2 el canal queda preparado.
+Espera a que terminen las copias, cierra SSH Backup y sustituye SSHBackup.exe por el nuevo en su ubicación habitual. Abre con el mismo usuario Windows para conservar todos tus datos. La versión 2.1 publicada tiene un fallo en el instalador antiguo; este primer salto se hace manualmente. Desde 2.2, comprueba e instala las próximas versiones desde la propia aplicación.
 
 Las comprobaciones realizadas y sus límites figuran en docs/VALIDACION-2.2.0.md. La validación del Programador de tareas y del uso con servidores reales en el equipo de destino sigue siendo independiente.
 

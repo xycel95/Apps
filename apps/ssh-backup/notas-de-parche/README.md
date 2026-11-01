@@ -13,7 +13,7 @@ Las versiones nuevas se añaden arriba. Se conserva el historial anterior.
 - Durante la instalación no arrancan copias manuales ni programadas.
 - Continúan los canales personalizados, los paquetes `.sshupdate` y los enlaces a las novedades de la web y GitHub.
 
-**Salto inicial desde 2.0/2.1:** abre `SSHBackup_2.2.0.sshupdate` en **Herramientas → Actualizaciones → Abrir paquete**. También puedes introducir el [canal oficial](../../ssh-backup/actualizaciones/stable.xml) una sola vez y comprobar novedades. Desde 2.2 ya viene preparado. Desde 1.x, sustituye el EXE con la app cerrada.
+**Salto inicial desde 2.0/2.1:** termina las copias, cierra SSH Backup y sustituye `SSHBackup.exe` por el nuevo en la misma ubicación, con el mismo usuario Windows. La entrega 2.1 tiene un fallo en su instalador antiguo; este primer salto se hace manualmente. Desde 2.2, comprueba e instala las próximas versiones desde la app.
 
 Comprueba que no haya copias en marcha. Mantén el EXE en la misma ubicación y utiliza el mismo usuario de Windows. Si lo mueves, vuelve a guardar la programación.
 

@@ -10,4 +10,4 @@
 8. Comprobar la descarga pública del ZIP, EXE, paquete y [canal oficial](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml) y sus hashes. `main` enlaza el apartado de descargas sin duplicar la versión.
 9. Si el propietario lo solicita, actualizar por separado la ficha y la nota de versión en Web-XyceL y verificar el recibo de WordPress. Enviar comunicaciones solo cuando las haya pedido.
 
-Desde 2.2 el canal oficial se utiliza si el ajuste está vacío. Se conservan los canales personalizados. Desde 2.0/2.1 se puede instalar el paquete o introducir una vez el canal oficial para dar el salto inicial.
+Desde 2.2 el canal oficial se utiliza si el ajuste está vacío. Se conservan los canales personalizados. La entrega original 2.1 tiene una incompatibilidad en Quote: recomendar sustitución manual del EXE para el primer salto, conservando usuario y ubicación. La firma .sshupdate sigue siendo compatible, pero el instalador del cliente antiguo no es fiable en Windows.
