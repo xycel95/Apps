@@ -8,11 +8,21 @@ New-Item $OutputDirectory -ItemType Directory -Force | Out-Null
 $report = [ordered]@{ version='1.1.1'; source_commit=$env:GITHUB_SHA; environment=[Environment]::OSVersion.VersionString; build='pending'; defender='pending'; core='pending'; updater='pending'; gui='pending'; native_update_cycle='pending' }
 
 function Run-Checked([string]$Exe,[string[]]$Arguments,[string]$Log) {
-  $result = & $Exe @Arguments 2>&1
-  $exit = $LASTEXITCODE
-  $result | Out-File $Log -Encoding utf8
-  $result | ForEach-Object { Write-Output $_ }
-  if ($exit -ne 0) { throw ($Exe + ' terminó con código ' + $exit) }
+  # Windows PowerShell 5.1 can turn redirected native stderr into a terminating
+  # NativeCommandError before the executable's exit code or full error is read.
+  $stderr = $Log + '.stderr'
+  $options = @{ FilePath=$Exe; PassThru=$true; NoNewWindow=$true; RedirectStandardOutput=$Log; RedirectStandardError=$stderr }
+  if ($Arguments.Count) { $options.ArgumentList = @($Arguments | ForEach-Object { '"' + ($_ -replace '(\\+)$','$1$1') + '"' }) }
+  $process = Start-Process @options
+  if (-not $process.WaitForExit(60000)) {
+    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+    throw ($Exe + ' superó el tiempo máximo de 60 segundos; revisar ' + $Log)
+  }
+  $process.WaitForExit()
+  foreach ($path in @($Log,$stderr)) {
+    if (Test-Path $path) { Get-Content -LiteralPath $path | ForEach-Object { Write-Output $_ } }
+  }
+  if ($process.ExitCode -ne 0) { throw ($Exe + ' terminó con código ' + $process.ExitCode + '; revisar ' + $Log + ' y ' + $stderr) }
 }
 
 try {
@@ -124,6 +134,7 @@ try {
   }
 } catch {
   $report.result='failed';$report.error=$_.Exception.Message
+  $report.error_detail=$_.ToString();$report.script_stack=$_.ScriptStackTrace
   throw
 } finally {
   $json=$report|ConvertTo-Json -Depth 8 -Compress

@@ -11,7 +11,21 @@ namespace Guarda
     internal static class GuiSmoke
     {
         [STAThread]
-        public static void Main(string[] args)
+        public static int Main(string[] args)
+        {
+            try
+            {
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
+                Run(args);
+                return 0;
+            }
+            catch (Exception error)
+            {
+                Console.Error.WriteLine(error.ToString());
+                return 1;
+            }
+        }
+        private static void Run(string[] args)
         {
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
             using (MainForm form = new MainForm())
