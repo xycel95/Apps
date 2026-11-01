@@ -1,3 +1,11 @@
+# Estado vigente — parche 2.2.1, 1 de noviembre de 2026
+
+Corrección de los botones web/GitHub: utilizan `Updates.OpenLink` para abrir HTTPS en el navegador, en vez del abridor de rutas locales. Se añaden dos comprobaciones de encaminamiento de enlaces. El flujo de 2.2.0, su firma original y su configuración se conservan. La entrega 2.2.0 ya publicada permanece en sus archivos fijos y su ZIP histórico.
+
+La versión vigente es 2.2.1; el canal estable apunta a su paquete fijo. Las pruebas Windows de esta revisión se consultan en Actions. Las pruebas anteriores de 2.2.0 conservan su alcance histórico. El primer salto desde la entrega 2.1 se realiza cerrando y sustituyendo el EXE, por su incompatibilidad heredada.
+
+---
+
 # Estado vigente — SSH Backup 2.2.0, 1 de noviembre de 2026
 
 Por petición del propietario se incorpora el flujo de actualizaciones de GUARDA: canal oficial preparado, novedades firmadas, progreso/cancelación y descarga/instalación desde la app. Se conserva el formato .sshupdate y la clave pública original para compatibilidad con 2.0/2.1.

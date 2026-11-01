@@ -4,7 +4,7 @@ $code = Join-Path $app 'Codigo'
 $stage = Join-Path $env:RUNNER_TEMP ('SSH Backup prueba ' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $stage | Out-Null
 $env:SSHBACKUP_DATA_DIR = Join-Path $stage 'configuracion'
-$env:SSHBACKUP_TEST_PACKAGE = Join-Path $app 'descargas/versiones/2.2.0/SSHBackup_2.2.0.sshupdate'
+$env:SSHBACKUP_TEST_PACKAGE = Join-Path $app 'descargas/versiones/2.2.1/SSHBackup_2.2.1.sshupdate'
 $sdk = (& dotnet --version).Trim()
 $dotnet = (Get-Command dotnet).Source
 $csc = Join-Path (Split-Path $dotnet -Parent) "sdk/$sdk/Roslyn/bincore/csc.dll"
@@ -31,7 +31,7 @@ try {
     Copy-Item (Join-Path $code 'bin/Release/net48/SSHBackup.exe') (Join-Path $compiled 'SSHBackup.exe')
     $exe = Join-Path $stage 'SSHBackup.exe'
     Copy-Item (Join-Path $app 'descargas/SSHBackup.exe') $exe
-    if ([Reflection.AssemblyName]::GetAssemblyName($exe).Version.ToString() -ne '2.2.0.0') { throw 'Versión de entrega incorrecta.' }
+    if ([Reflection.AssemblyName]::GetAssemblyName($exe).Version.ToString() -ne '2.2.1.0') { throw 'Versión de entrega incorrecta.' }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $app 'descargas/SSHBackup_Completo_2.1.0.zip'))
     try {
@@ -63,11 +63,11 @@ try {
     $restarted = $null
     do {
         Start-Sleep -Milliseconds 400
-        $restarted = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $probe -and $_.Id -ne $parent.Id -and $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -like 'SSH Backup 2.2.0*' } | Select-Object -First 1
+        $restarted = Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $probe -and $_.Id -ne $parent.Id -and $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -like 'SSH Backup 2.2.1*' } | Select-Object -First 1
     } while (!$restarted -and [DateTime]::UtcNow -lt $deadline)
     if (!$restarted -or (Get-FileHash $probe -Algorithm SHA256).Hash -ne $expected) { throw 'No se ha confirmado el reinicio de la entrega real.' }
     if ((Get-FileHash ($probe + '.previous') -Algorithm SHA256).Hash -ne $before) { throw 'No se conserva el ejecutable anterior.' }
-    $report = [ordered]@{ version='2.2.0'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=14; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false; legacy_package_quote_supported=$legacyQuote; online_publication_tested=($env:GITHUB_REF_NAME -eq 'ssh-backup') }
+    $report = [ordered]@{ version='2.2.1'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=16; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false; legacy_package_quote_supported=$legacyQuote; online_publication_tested=($env:GITHUB_REF_NAME -eq 'ssh-backup') }
     $report | ConvertTo-Json | Set-Content (Join-Path $PSScriptRoot 'VALIDACION-WINDOWS.json') -Encoding utf8
     Write-Host ($report | ConvertTo-Json)
 } finally {

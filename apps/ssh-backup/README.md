@@ -1,6 +1,6 @@
 # SSH Backup
 
-Copias locales de carpetas remotas por SSH/SFTP para Windows 10/11 y .NET Framework 4.8. **Versión 2.2.0 · 1 de noviembre de 2026.**
+Copias locales de carpetas remotas por SSH/SFTP para Windows 10/11 y .NET Framework 4.8. **Versión 2.2.1 · 1 de noviembre de 2026.**
 
 1. [Descripción del programa](DESCRIPCION.md)
 2. [Cómo funciona y guía](docs/README.md)
@@ -23,11 +23,11 @@ Se conservan los servidores, accesos, huellas, historial, tema y ajustes. Espera
 - Comparación por hashes, búsqueda por nombre/ruta y límite opcional agregado de descarga SSH.
 - Modo claro/oscuro, canal de actualizaciones preparado y paquetes firmados sin conexión.
 
-[Paquete completo 2.2.0](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.2.0.zip) · [Novedades en la web](https://xycel95.es/aplicaciones/ssh-backup/) · [Metadatos](app.json)
+[Paquete completo 2.2.0](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.2.1.zip) · [Novedades en la web](https://xycel95.es/aplicaciones/ssh-backup/) · [Metadatos](app.json)
 
 ## Desarrollo y comprobaciones
 
-[Código y licencias](Codigo/) · [Contexto](CONTEXTO.md) · [Validación 2.2.0](docs/VALIDACION-2.2.0.md) · [Publicar una versión](PUBLICAR-ACTUALIZACION.md)
+[Código y licencias](Codigo/) · [Contexto](CONTEXTO.md) · [Validación 2.2.0](docs/VALIDACION-2.2.1.md) · [Publicar una versión](PUBLICAR-ACTUALIZACION.md)
 
 El EXE incorpora sus dependencias. Para compilar en Windows usa `Codigo/compilar.ps1`. La compilación Linux utiliza Roslyn y las referencias de Framework indicadas por `SSHBACKUP_DOTNET_ROOT`, `SSHBACKUP_MONO_ROOT` y `SSHBACKUP_NET48_REFS`; `winres.py` comprueba el manifiesto nativo. Mono se utiliza para las pruebas locales. La clave privada de firma se conserva fuera de GitHub.
 

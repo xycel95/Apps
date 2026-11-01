@@ -2,6 +2,14 @@
 
 Las versiones nuevas se añaden arriba. Se conserva el historial anterior.
 
+## 2.2.1 — 1 de noviembre de 2026
+
+Corrige los botones **Novedades en la web** y **Notas en GitHub** para abrir sus URL en el navegador. El flujo de actualización en línea de 2.2.0 se conserva.
+
+Para el primer salto desde 2.0/2.1, cierra el programa y sustituye `SSHBackup.exe` en su ubicación habitual, usando el mismo usuario Windows. Desde 2.2, **Herramientas → Actualizaciones → Comprobar actualizaciones** permite descargar e instalar desde la app.
+
+[Descargar](../descargas/README.md) · [Validación](../docs/VALIDACION-2.2.1.md)
+
 ## 2.2.0 — 1 de noviembre de 2026
 
 **Actualizaciones en línea desde la aplicación, como en GUARDA.**

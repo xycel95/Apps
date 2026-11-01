@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<UpdateRelease><Version>2.2.1</Version><Sha256>42842e9a1090b72b4e9b302cee30ca985edd73dcb1ee1a512612161c9d51919a</Sha256><DownloadUrl>https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/versiones/2.2.1/SSHBackup_2.2.1.sshupdate</DownloadUrl><Notes>SSH BACKUP 2.2.1 - ENLACES DE NOVEDADES CORREGIDOS
+1 de noviembre de 2026
+
+- Corrige los botones Novedades en la web y Notas en GitHub: ahora abren el navegador, sin tratarlos como archivos locales.
+- Conserva el canal oficial preparado, las novedades firmadas, la descarga con progreso/cancelación y la instalación desde la app de 2.2.0.
+- Se mantienen la clave original, servidores, accesos, huellas, historial y ajustes.
+
+PRIMER SALTO DESDE 2.0/2.1
+Termina las copias, cierra SSH Backup y sustituye SSHBackup.exe por el nuevo en la misma ubicación, con el mismo usuario Windows. El instalador de la entrega 2.1 tiene una incompatibilidad previa. Desde 2.2 las siguientes versiones se instalan desde la aplicación.
+
+Las pruebas verificadas y sus límites se documentan en docs/VALIDACION-2.2.1.md.
+</Notes><Signature>NNd8kT48YMsz584VoLoMYk6FpsEFXL9lgHIvsYiw6U7Ux5v+CC2hZEajABNRREKHyKXt2Lv26zFTwy4DH13N6CDvTMNY7cSqR035ITj00i8G7R5BA3B2riGBU9qjEn3HmoZvrMq421mhdcnRZdkVokM21fqgLoD8dFJeFeA2wDsmBD+GfEsSHGarNiiw+JQ9gWgn0DCKeATlczGsWdNCHBCLZmVwOFhsnrxvmQMxtm+wiapXn78kXkxn61bqwlGRu6C5w8pCWnXILBJ7Cusgtr+i5BQwgNsA+I3KtkHH7bE9ERQ7CfZUvC8Yh4YDxNJK0I0wuTRs109GRpgegthqYNLafS2uAwFK46sXBepytamGHyHlySmSNRu4Ilt804+itVTOLMPF6nQ3fz527bDl56pwBL9Mde2rJa56FuD6Kc+Qbp+yWc/Li6GiPLHGsSxP2NGdteZZ8QzSeK5+RCotiAXranvDIfH6pB6eFDGvF5Ffj6dPe8a4WI2JEaLu8MvG</Signature></UpdateRelease>

@@ -14,15 +14,15 @@ using System.Runtime.Versioning;
 [assembly: AssemblyDescription("Copias de carpetas por SSH/SFTP, organizadas por alias")]
 [assembly: AssemblyCompany("SSH Backup")]
 [assembly: AssemblyProduct("SSH Backup")]
-[assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyFileVersion("2.2.0.0")]
+[assembly: AssemblyVersion("2.2.1.0")]
+[assembly: AssemblyFileVersion("2.2.1.0")]
 [assembly: TargetFramework(".NETFramework,Version=v4.8", FrameworkDisplayName=".NET Framework 4.8")]
 
 namespace SSHBackup
 {
     public static class Program
     {
-        public const string Version = "2.2.0";
+        public const string Version = "2.2.1";
         static bool scheduledLaunch;
         static readonly object resolveLock = new object();
         public static Icon AppIcon

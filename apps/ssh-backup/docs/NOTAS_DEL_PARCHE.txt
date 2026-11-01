@@ -1,3 +1,16 @@
+SSH BACKUP 2.2.1 - ENLACES DE NOVEDADES CORREGIDOS
+1 de noviembre de 2026
+
+- Corrige los botones Novedades en la web y Notas en GitHub: ahora abren el navegador, sin tratarlos como archivos locales.
+- Conserva el canal oficial preparado, las novedades firmadas, la descarga con progreso/cancelación y la instalación desde la app de 2.2.0.
+- Se mantienen la clave original, servidores, accesos, huellas, historial y ajustes.
+
+PRIMER SALTO DESDE 2.0/2.1
+Termina las copias, cierra SSH Backup y sustituye SSHBackup.exe por el nuevo en la misma ubicación, con el mismo usuario Windows. El instalador de la entrega 2.1 tiene una incompatibilidad previa. Desde 2.2 las siguientes versiones se instalan desde la aplicación.
+
+Las pruebas verificadas y sus límites se documentan en docs/VALIDACION-2.2.1.md.
+
+
 SSH BACKUP 2.2.0 - ACTUALIZACIONES EN LÍNEA
 1 de noviembre de 2026
 

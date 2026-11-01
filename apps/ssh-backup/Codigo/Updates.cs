@@ -39,6 +39,12 @@ namespace SSHBackup
         public const string Website = "https://xycel95.es/aplicaciones/ssh-backup/";
         public const string Changelog = "https://github.com/xycel95/Apps/blob/ssh-backup/apps/ssh-backup/notas-de-parche/README.md";
         public static string ResolveChannel(string value) { return string.IsNullOrWhiteSpace(value) ? OfficialChannel : value.Trim(); }
+        public static void OpenLink(string url, Action<string> launch = null)
+        {
+            RequireHttps(url);
+            if (launch != null) launch(url);
+            else Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
         public static string CacheRoot { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SSHBackup", "Actualizaciones"); } }
         public const string PublicKey = "<RSAKeyValue><Modulus>olhkOgYH6HrmNcrDBfojoUqRun7aNW+sDg0d7AfH9k5ExOPITaJ7cnjPhbww0GKYFBDmXLaG/fh2wGX5EZ63iKDywE9nd4D5mEodROCUXmontJnCKpswfDyj8RtBJdKsnU2lK2Nxgmvz4fobSwMILeQLb+fSXxbDetKDYLPvDvUpO4fi6C5d/+Sc0sCkH1eNVCZq2lbhA7F3ZglGTC5FvsKYP3nK451gBNvudHdXiaxLhcKaWAgCahRy6mywn0fINFIIdEH/JVqGtHsnjIulw0y9Uyr20kZ+mNEGICtiqRQVh4ss9sDAUtPnRAP081pjISWFMBASoZmQndArtJA9nrB/5pnN8FqvMNjRhkiV2LK4XanRPBvWmWtNzM7Hk7CZCwVig367HsdZQgOkIUfY+B9bIKEO+RnyE5goOhSTrjU8FoAuQ9+nzlxmuBHA3c2hDNWxusZXImzq9I6NDIRjtZcvYhly85OUbRVT9IO1K/cdecrStmC5Mm6P0bBhK2zL</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
         public static byte[] SignedData(UpdateRelease release)

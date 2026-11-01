@@ -308,7 +308,7 @@ namespace SSHBackup
             foreach (var link in new[] { new[] { "Novedades en la web", Updates.Website + "#updates-title" }, new[] { "Notas en GitHub", Updates.Changelog } })
             {
                 string url = link[1]; var button = Ui.Button(link[0], false, 195);
-                button.Click += (s, e) => OpenPath(url); links.Controls.Add(button);
+                button.Click += (s, e) => { try { Updates.OpenLink(url); } catch (Exception error) { Ui.Error(this, error.Message); } }; links.Controls.Add(button);
             }
             var official = Ui.Button("Usar canal oficial", false, 170);
             official.Click += (s, e) => { if (!updateBusy) { updateUrl.Text = Updates.OfficialChannel; store.Settings.UpdateManifestUrl = Updates.OfficialChannel; TrySave(); pendingRelease = null; pendingPackage = null; installUpdate.Enabled = false; updateStatus.Text = "Canal oficial seleccionado. Comprueba las actualizaciones."; } };

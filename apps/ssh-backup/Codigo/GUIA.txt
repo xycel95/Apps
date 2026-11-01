@@ -1,4 +1,4 @@
-SSH BACKUP 2.2.0 - GUÍA DE USO
+SSH BACKUP 2.2.1 - GUÍA DE USO
 
 DISEÑO RENOVADO
 Menú lateral, botones redondeados, controles y campos más claros, y tipografía con mejor jerarquía. El cambio se aplica a Copias, Servidores, Historial, Ajustes, Herramientas y los diálogos. El modo claro y oscuro se conservan. La programación permite marcar cada día de la semana por separado.

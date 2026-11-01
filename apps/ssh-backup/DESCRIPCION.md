@@ -19,7 +19,7 @@ Windows 10 u 11 y .NET Framework 4.8. El uso normal no requiere Python ni Micros
 
 ## Versión documentada
 
-2.2.0, del 1 de noviembre de 2026. El canal oficial está preparado para consultar e instalar desde la aplicación. Se han superado 90 comprobaciones locales Linux/Mono. El informe de validación distingue las pruebas nativas de Windows que confirme Actions de lo que sigue pendiente en el equipo de destino.
+2.2.1, del 1 de noviembre de 2026. El canal oficial está preparado para consultar e instalar desde la aplicación. Se han superado 90 comprobaciones locales Linux/Mono. El informe de validación distingue las pruebas nativas de Windows que confirme Actions de lo que sigue pendiente en el equipo de destino.
 
 La programación requiere que el ordenador esté encendido y que la sesión de Windows esté iniciada.
 

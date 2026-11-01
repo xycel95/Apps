@@ -33,10 +33,15 @@ namespace SSHBackup
         {
             Assert(Updates.ResolveChannel(null) == Updates.OfficialChannel && Updates.ResolveChannel("  ") == Updates.OfficialChannel, "Canal oficial para instalaciones nuevas y ajustes antiguos vacíos");
             Assert(Updates.ResolveChannel(" https://example.invalid/estable.xml ") == "https://example.invalid/estable.xml", "Se conserva un canal personalizado existente");
+            string opened = null;
+            Updates.OpenLink(Updates.Website, url => opened = url);
+            Assert(opened == Updates.Website, "Novedades web se abre como URL sin comprobar archivos locales");
+            Updates.OpenLink(Updates.Changelog, url => opened = url);
+            Assert(opened == Updates.Changelog, "Notas de GitHub se abre como URL sin comprobar archivos locales");
             foreach (string url in new[] { "http://example.invalid/", "file:///tmp/exe", "https://user:pass@example.invalid/" })
             { bool rejected = false; try { Updates.RequireHttps(url); } catch (ArgumentException) { rejected = true; } Assert(rejected, "URL insegura rechazada: " + url.Split(':')[0]); }
             var release = Updates.ReadPackage(package);
-            Assert(release.Version == "2.2.0" && release.DownloadUrl.Contains("/versiones/2.2.0/"), "Paquete oficial 2.2.0 con firma original y URL fija verificado");
+            Assert(release.Version == "2.2.1" && release.DownloadUrl.Contains("/versiones/2.2.1/"), "Paquete oficial 2.2.1 con firma original y URL fija verificado");
             release.Notes += " alterado"; bool invalid = false; try { Updates.Validate(release); } catch (InvalidDataException) { invalid = true; }
             Assert(invalid, "No se aceptan novedades alteradas tras firmar");
             string damaged = Path.Combine(root, "dañado.sshupdate");
@@ -70,7 +75,7 @@ namespace SSHBackup
         static void Online(string root)
         {
             var release = Updates.CheckAsync(Updates.OfficialChannel, CancellationToken.None).GetAwaiter().GetResult();
-            Assert(release.Version == "2.2.0", "Canal HTTPS público consultado y firma verificada en Windows");
+            Assert(release.Version == "2.2.1", "Canal HTTPS público consultado y firma verificada en Windows");
             var counter = new DownloadCounter();
             string package = Updates.DownloadPackageAsync(release, root, CancellationToken.None, counter).GetAwaiter().GetResult();
             Assert(Updates.ReadPackage(package).Sha256 == release.Sha256 && counter.Bytes == new FileInfo(package).Length, "Descarga real desde la app con progreso, firma y SHA-256 correctos");
