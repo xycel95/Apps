@@ -10,19 +10,33 @@ $report = [ordered]@{ version='1.1.1'; source_commit=$env:GITHUB_SHA; environmen
 function Run-Checked([string]$Exe,[string[]]$Arguments,[string]$Log) {
   # Windows PowerShell 5.1 can turn redirected native stderr into a terminating
   # NativeCommandError before the executable's exit code or full error is read.
-  $stderr = $Log + '.stderr'
-  $options = @{ FilePath=$Exe; PassThru=$true; NoNewWindow=$true; RedirectStandardOutput=$Log; RedirectStandardError=$stderr }
-  if ($Arguments.Count) { $options.ArgumentList = @($Arguments | ForEach-Object { '"' + ($_ -replace '(\\+)$','$1$1') + '"' }) }
-  $process = Start-Process @options
-  if (-not $process.WaitForExit(60000)) {
-    Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-    throw ($Exe + ' superó el tiempo máximo de 60 segundos; revisar ' + $Log)
+  $process = New-Object System.Diagnostics.Process
+  $process.StartInfo.FileName = $Exe
+  $process.StartInfo.Arguments = (@($Arguments | ForEach-Object { '"' + ($_ -replace '(\\+)$','$1$1') + '"' }) -join ' ')
+  $process.StartInfo.UseShellExecute = $false
+  $process.StartInfo.CreateNoWindow = $true
+  $process.StartInfo.RedirectStandardOutput = $true
+  $process.StartInfo.RedirectStandardError = $true
+  $process.StartInfo.StandardOutputEncoding = [Text.Encoding]::UTF8
+  $process.StartInfo.StandardErrorEncoding = [Text.Encoding]::UTF8
+  try {
+    [void]$process.Start()
+    $stdout = $process.StandardOutput.ReadToEndAsync()
+    $stderr = $process.StandardError.ReadToEndAsync()
+    if (-not $process.WaitForExit(60000)) {
+      $process.Kill()
+      throw ($Exe + ' superó el tiempo máximo de 60 segundos; revisar ' + $Log)
+    }
+    $process.WaitForExit()
+    $outputText=$stdout.Result; $errorText=$stderr.Result; $exitCode=$process.ExitCode
+    [IO.File]::WriteAllText($Log,$outputText,[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText(($Log+'.stderr'),$errorText,[Text.UTF8Encoding]::new($false))
+    if ($outputText) { Write-Output $outputText.TrimEnd() }
+    if ($errorText) { Write-Output $errorText.TrimEnd() }
+    if ($exitCode -ne 0) { throw ($Exe + ' terminó con código ' + $exitCode + '; revisar ' + $Log + ' y ' + $Log + '.stderr') }
+  } finally {
+    $process.Dispose()
   }
-  $process.WaitForExit()
-  foreach ($path in @($Log,$stderr)) {
-    if (Test-Path $path) { Get-Content -LiteralPath $path | ForEach-Object { Write-Output $_ } }
-  }
-  if ($process.ExitCode -ne 0) { throw ($Exe + ' terminó con código ' + $process.ExitCode + '; revisar ' + $Log + ' y ' + $stderr) }
 }
 
 try {
@@ -80,8 +94,7 @@ try {
   $oldExe=Join-Path $oldFolder 'Guarda.exe'
   & $csc @common @refs $testResource /target:winexe /main:Guarda.NativeUpdateProbe ('/out:'+$oldExe) $oldProgram @otherSources (Join-Path $tests 'NativeUpdateProbe.cs')
   if ($LASTEXITCODE -ne 0) { throw 'No se compila el arranque de prueba de la versión anterior.' }
-  $probe=Start-Process $oldExe -ArgumentList @(('"'+$manifest+'"'),('"'+$exe+'"')) -PassThru
-  if (-not $probe.WaitForExit(20000) -or $probe.ExitCode -ne 0) { throw 'La versión anterior no ha entregado la actualización al instalador.' }
+  Run-Checked $oldExe @($manifest,$exe) (Join-Path $OutputDirectory 'native-update.txt')
   $started=$null;$watch=[Diagnostics.Stopwatch]::StartNew()
   while($watch.ElapsedMilliseconds -lt 40000) {
     $started=@(Get-Process -Name Guarda -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $oldExe -and $_.MainWindowHandle -ne 0 }) | Select-Object -First 1
