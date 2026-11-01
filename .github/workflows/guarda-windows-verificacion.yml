@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   validar:
-    runs-on: windows-2025
+    runs-on: windows-11-arm
     timeout-minutes: 20
     steps:
       - name: Recuperar solo el codigo y las pruebas de esta revision
