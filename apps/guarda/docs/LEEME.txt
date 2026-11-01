@@ -1,0 +1,105 @@
+GUARDA · 1.0.1
+Copias de carpetas con fecha para Windows.
+
+EMPEZAR
+1. Abre Guarda.exe. No necesita instalación ni permisos de administrador.
+2. Pulsa «Elegir…» en ORIGEN y selecciona la carpeta que quieres copiar.
+3. En DESTINO, elige el pendrive, disco o carpeta donde guardar la copia.
+4. Revisa el nombre propuesto. Puedes cambiarlo.
+5. Pulsa «Crear copia» y espera a «Copia terminada».
+
+EJEMPLO
+Origen: C:\Users\Rafa\Documents\Facturas
+Destino: E:\Copias
+Nombre: Facturas
+Resultado: E:\Copias\2026_11_01_Facturas
+
+Se utiliza la fecha local de tu ordenador al iniciar la copia, con formato
+aaaa_mm_dd. El nombre original de la carpeta de origen no se cambia.
+Si repites la copia el mismo día, se crea ..._Facturas_02, ..._Facturas_03, etc.
+Cada ejecución crea una copia completa e independiente.
+
+QUÉ INCLUYE
+- El contenido de la carpeta, sus subcarpetas y las carpetas vacías.
+- Archivos ocultos, si tu usuario tiene permiso para leerlos.
+- Archivos de tamaño cero y nombres con tildes o caracteres Unicode.
+- Fechas de creación y modificación cuando el sistema de archivos lo permite.
+- Origen y destino en unidades locales, USB o carpetas de red accesibles.
+- Verificación del contenido mediante SHA-256, activada por defecto.
+- Barra de progreso, cancelación y un informe de cada intento.
+- Recuerda las últimas carpetas, el nombre y la opción de verificación.
+
+COMPROBACIÓN
+Con «Comprobar el contenido después de copiar» activado, la app calcula
+un SHA-256 del contenido que lee del original y vuelve a leer cada archivo
+guardado para comparar su huella. Este segundo paso necesita tiempo adicional.
+Si desactivas la casilla, se copian los archivos sin esa segunda comprobación.
+La aplicación también vuelve a revisar el origen para detectar archivos que
+se hayan añadido, quitado o modificado durante la operación.
+
+COPIAS CANCELADAS O CON ERRORES
+Mientras trabaja, la carpeta lleva el sufijo _EN_CURSO_ y un identificador.
+Al terminar correctamente, ese sufijo desaparece.
+Si falla o cancelas, se intenta marcar la carpeta como _INCOMPLETA.
+Los archivos que ya estaban terminados se conservan. El archivo que se estaba
+escribiendo se elimina de esa nueva copia si es posible, para evitar dejarlo
+a medias. Si la unidad se desconecta, puede conservar el nombre _EN_CURSO_.
+Ninguno de esos dos nombres indica una copia terminada.
+Si cancelas antes de comenzar a escribir, puede no crearse ninguna carpeta.
+No se reanuda una copia incompleta: el siguiente intento crea una copia nueva.
+
+Los enlaces simbólicos, uniones y otros puntos de reanálisis no se siguen.
+Se indican en el informe y la copia se marca como incompleta si los contiene.
+Algunos archivos de servicios en la nube pueden ser puntos de reanálisis.
+Elige para esta versión carpetas de archivos normales almacenados en el disco.
+
+ABRIR LA COPIA Y EL INFORME
+Al terminar, «Abrir copia» abre la carpeta creada y «Ver informe» abre el
+registro de esa ejecución. El informe identifica los archivos copiados y,
+cuando ocurre un problema, su motivo.
+Los informes y preferencias se guardan normalmente en:
+%LOCALAPPDATA%\Guarda
+Si habías usado la versión llamada Copia Fácil, recupera sus preferencias
+automáticamente al abrir Guarda por primera vez.
+Si los informes quedarían dentro del propio origen, se guardan en una carpeta
+_Informes_Guarda del destino para que el registro no cambie el origen.
+
+ALCANCE
+Es una app de copia de carpetas de usuario. No es una imagen del sistema ni
+una copia de restauración de Windows. Copia el contenido principal de los
+archivos, no permisos NTFS, flujos alternativos, cifrado, enlaces o historial
+de versiones. No usa VSS: cierra archivos o aplicaciones que cambien los datos
+mientras se copian. Si un archivo está bloqueado o no se puede leer, falla esa
+ejecución y la copia queda incompleta.
+
+El destino debe existir y estar conectado. No puede ser el propio origen ni
+estar dentro de él. Se comprueba el espacio disponible cuando la unidad lo
+permite y el límite de archivos individuales en unidades FAT32.
+
+Se intenta conservar las fechas. En algunos destinos, como FAT32 o ciertas
+carpetas de red, la precisión o compatibilidad puede ser diferente.
+Expulsa la unidad desde Windows cuando hayas terminado de utilizarla.
+
+REQUISITOS
+Windows 10/11 con .NET Framework 4.8 o 4.8.1. El ejecutable es AnyCPU y utiliza
+las bibliotecas de .NET Framework del equipo. No incluye dependencias de SSH
+Backup, no usa SSH y no requiere conexión a Internet para hacer las copias.
+
+ENTREGA
+Guarda.exe                  Ejecutable portable.
+LEEME.txt                       Esta guía.
+COMPROBACIONES.txt              Validación realizada y sus límites.
+SHA256.txt                      Huella del ejecutable entregado.
+Codigo\                       Código fuente, icono y compilación.
+pruebas\                      Código de las pruebas.
+
+Para recompilar en Windows, abre Codigo\Compilar_Windows.bat.
+También se proporciona build.py para un entorno de desarrollo Linux con Mono
+extraído y las referencias necesarias. La ubicación se establece con
+GUARDA_MONO_ROOT. Esa herramienta es de desarrollo; no hace falta para
+usar el ejecutable en Windows.
+
+Referencias oficiales:
+https://learn.microsoft.com/es-es/dotnet/framework/install/on-windows-and-server
+https://learn.microsoft.com/en-us/dotnet/api/system.io.filestream.flush?view=netframework-4.8
+https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison

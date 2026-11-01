@@ -1,0 +1,42 @@
+GUARDA 1.0.1 · COMPROBACIONES
+
+Versión 1.0.1: cambio de nombre a Guarda en ventana, ejecutable, metadatos,
+informes y documentación. Conserva las preferencias de la versión anterior.
+Se recompiló y se comprobó la ventana con una copia real desde el botón.
+Las comprobaciones funcionales del motor que se describen a continuación
+se realizaron para la entrega inicial; el algoritmo de copia no ha cambiado.
+
+Compilación: ejecutable PE administrado de Windows, AnyCPU, interfaz WinForms
+y destino declarado .NET Framework 4.8. Manifiesto sin elevación, con soporte
+de DPI y rutas largas. No se incluyen bibliotecas de terceros en la entrega.
+
+Validación funcional: motor ejecutado bajo Mono en Linux con archivos reales.
+Pruebas de la interfaz: WinForms bajo Mono con una pantalla virtual X11.
+Se abrió la ventana y se hizo una copia real pulsando su botón «Crear copia»;
+se comprobó el archivo guardado y que los controles volvieran a estar activos.
+Se revisó visualmente la ventana normal, terminada y con el tamaño mínimo.
+
+Se comprueban:
+- Contenido binario y Unicode; archivos ocultos y vacíos; carpetas vacías.
+- Conservación de fecha de modificación en el entorno de pruebas.
+- Verificación del contenido de destino y detección de una alteración.
+- Numeración de varias copias en un día y conservación de copias anteriores.
+- Colisión con un archivo que ya exista en el destino.
+- Rechazo de destino igual al origen o anidado, también mediante un enlace.
+- Destinos hermanos y destinos padres del origen.
+- Destino ausente, sin crear implícitamente la unidad que falta.
+- Cancelación previa y durante una escritura, con carpeta incompleta.
+- Cambio de contenido del origen durante una copia.
+- Copia vacía y modo sin verificación.
+- Informe fuera del origen para evitar copiar un registro en escritura.
+- Rechazo de nombres que intenten salir del destino.
+- Fecha gregoriana incluso con otra configuración de calendario.
+- Enlaces y bucles: no se siguen; la omisión queda indicada e incompleta.
+
+LÍMITES DE LA VALIDACIÓN
+No se ha ejecutado en un Windows real ni con un pendrive físico. Queda por
+validar allí el selector nativo, las llamadas de Windows que resuelven rutas
+reales, los permisos y bloqueos de archivos, las rutas de red, los metadatos
+en FAT32/exFAT/NTFS, el comportamiento ante una desconexión física y las rutas
+largas según la configuración del sistema. Las pruebas de enlaces en Linux
+no sustituyen una prueba de uniones o enlaces de Windows.
