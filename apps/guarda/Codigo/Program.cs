@@ -12,10 +12,10 @@ using System.Xml.Serialization;
 
 [assembly: AssemblyTitle("Guarda")]
 [assembly: AssemblyDescription("Copias de carpetas a unidades USB, discos y otras carpetas con fecha y verificación.")]
-[assembly: AssemblyCompany("Rafa")]
+[assembly: AssemblyCompany("XYCEL")]
 [assembly: AssemblyProduct("Guarda")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.1.1.0")]
+[assembly: AssemblyFileVersion("1.1.1.0")]
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.8", FrameworkDisplayName = ".NET Framework 4.8")]
 
 namespace Guarda

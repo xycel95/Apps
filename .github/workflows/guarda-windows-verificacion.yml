@@ -1,4 +1,4 @@
-name: Guarda - comprobacion de Windows
+name: Guarda - compilacion y antivirus de Windows
 on:
   push:
     branches: [guarda-verificacion-windows]
@@ -7,16 +7,23 @@ on:
 permissions:
   contents: read
 jobs:
-  entorno:
+  validar:
     runs-on: windows-2025
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
-      - name: Comprobar compilador y Microsoft Defender
+      - name: Recuperar solo el codigo y las pruebas de esta revision
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-          $csc = @(& $vswhere -latest -products '*' -find 'MSBuild\**\Bin\Roslyn\csc.exe') | Select-Object -First 1
-          if (-not $csc) { throw 'Compilador Microsoft C# no disponible' }
-          & $csc /version
-          Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, AntivirusSignatureVersion, AntivirusSignatureLastUpdated | ConvertTo-Json
+          git init .
+          git remote add origin https://github.com/xycel95/Apps.git
+          git sparse-checkout init --no-cone
+          git sparse-checkout set '/apps/guarda/Codigo/' '/apps/guarda/pruebas/'
+          git fetch --depth=1 origin $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo recuperar la revision' }
+          git checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar el codigo' }
+      - name: Compilar con Microsoft CSharp y comprobar Defender, copias, temas y actualizaciones
+        shell: powershell
+        run: |
+          & ./apps/guarda/Codigo/Validar_Windows.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'Guarda-validacion')
