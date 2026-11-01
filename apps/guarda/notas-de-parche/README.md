@@ -10,6 +10,7 @@
 - Documentación que diferencia la firma RSA del canal de actualizaciones y un certificado Authenticode del ejecutable.
 - Corrección de las pruebas gráficas para ejecutarse también en Windows y registro del número real de casos ejecutados en cada plataforma.
 - Prueba de la ventana con el bucle de mensajes de Windows, para esperar correctamente la finalización de las operaciones asíncronas. Captura completa de errores y códigos de salida de los procesos de prueba.
+- Análisis obligatorio con la herramienta oficial MpCmdRun y el servicio Defender activo. Los fallos del proveedor de consulta CIM se registran por separado; no sustituyen ni omiten el análisis del ejecutable.
 
 Se conserva el diseño y la funcionalidad de 1.1.0. El motivo exacto del bloqueo mostrado en el equipo del usuario sigue pendiente de identificar: Defender tampoco informa de amenazas en el archivo anterior de la prueba.
 

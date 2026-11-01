@@ -112,23 +112,29 @@ try {
     Start-Service -Name WinDefend -ErrorAction Stop
     $defenderService.WaitForStatus('Running',[TimeSpan]::FromSeconds(20))
   }
-  try { Update-MpSignature -ErrorAction Stop } catch { $report.signature_update_note=$_.Exception.Message }
-  $status=Get-MpComputerStatus
-  if (-not $status -or -not $status.AMServiceEnabled -or -not $status.AntivirusEnabled -or -not $status.AntivirusSignatureVersion) {
-    $report.defender='unavailable'
-    throw 'Microsoft Defender no está activo o no informa de sus firmas; no se considera un análisis válido.'
-  }
-  $report.defender_signature=$status.AntivirusSignatureVersion
-  if ($status.AntivirusSignatureLastUpdated) { $report.defender_signature_updated=$status.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('o') }
+  $defenderService.Refresh()
+  if ($defenderService.Status -ne 'Running') { throw 'El servicio de Microsoft Defender no está activo.' }
+  $report.defender_service=$defenderService.Status.ToString()
   $scanner=@(Get-ChildItem (Join-Path $env:ProgramData 'Microsoft\Windows Defender\Platform') -Filter MpCmdRun.exe -Recurse -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
   if (-not $scanner) { $scanner=Join-Path $env:ProgramFiles 'Windows Defender\MpCmdRun.exe' }
-  $scan=& $scanner -Scan -ScanType 3 -File $exe -DisableRemediation 2>&1
-  $scanExit=$LASTEXITCODE
-  $scan | Out-File (Join-Path $OutputDirectory 'defender.txt') -Encoding utf8
-  $scan | ForEach-Object { Write-Output $_ }
-  $report.defender_scan_exit=$scanExit
-  $report.defender_output=($scan | Out-String).Trim()
-  if ($scanExit -ne 0) { $report.defender='not-clean'; throw 'El análisis de Defender no ha terminado sin incidencias.' }
+  $report.defender_scanner_version=[Diagnostics.FileVersionInfo]::GetVersionInfo($scanner).ProductVersion
+  try { Run-Checked $scanner @('-SignatureUpdate') (Join-Path $OutputDirectory 'defender-update.txt') } catch { $report.signature_update_note=$_.Exception.Message }
+  # The CIM management provider can fail independently of the scanning engine.
+  # Record that limitation, but require the running service AND a successful,
+  # explicit scan with an affirmative no-threats result from Microsoft's CLI.
+  $status=$null
+  try { $status=Get-MpComputerStatus -ErrorAction Stop } catch { $report.defender_status_note=$_.Exception.Message }
+  if ($status) {
+    if (-not $status.AMServiceEnabled -or -not $status.AntivirusEnabled) { throw 'Microsoft Defender informa de que el antivirus no está activo.' }
+    $report.defender_signature=$status.AntivirusSignatureVersion
+    if ($status.AntivirusSignatureLastUpdated) { $report.defender_signature_updated=$status.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('o') }
+  }
+  $scanLog=Join-Path $OutputDirectory 'defender.txt'
+  $report.defender='scanning'
+  try { Run-Checked $scanner @('-Scan','-ScanType','3','-File',$exe,'-DisableRemediation') $scanLog } catch { $report.defender='not-clean';throw }
+  $report.defender_scan_exit=0
+  $report.defender_output=[IO.File]::ReadAllText($scanLog).Trim()
+  if ($report.defender_output -notmatch '(?i)found no threats|no threats found') { $report.defender='unconfirmed';throw 'El analizador no ha confirmado un resultado sin amenazas.' }
   if (-not (Test-Path $exe) -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $report.sha256) { throw 'El ejecutable no está intacto después del análisis.' }
   $report.defender='no-threats-reported'
 
