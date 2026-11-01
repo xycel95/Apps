@@ -41,23 +41,6 @@ try {
   $common=@('/nologo','/noconfig','/nostdlib+','/codepage:65001','/langversion:5','/platform:anycpu','/optimize+','/deterministic+','/debug-')
   $sources=@(Get-ChildItem $code -Filter '*.cs' | Sort-Object Name | ForEach-Object { $_.FullName })
 
-  try { Update-MpSignature -ErrorAction Stop } catch { $report.signature_update_note=$_.Exception.Message }
-  $status=Get-MpComputerStatus
-  $report.defender_signature=$status.AntivirusSignatureVersion
-  $report.defender_signature_updated=$status.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('o')
-  if (-not $status.AMServiceEnabled -or -not $status.AntivirusEnabled) { throw 'Microsoft Defender no está activo; no se considera un análisis válido.' }
-  $scanner=@(Get-ChildItem (Join-Path $env:ProgramData 'Microsoft\Windows Defender\Platform') -Filter MpCmdRun.exe -Recurse -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
-  if (-not $scanner) { $scanner=Join-Path $env:ProgramFiles 'Windows Defender\MpCmdRun.exe' }
-  $scan=& $scanner -Scan -ScanType 3 -File $exe -DisableRemediation 2>&1
-  $scanExit=$LASTEXITCODE
-  $scan | Out-File (Join-Path $OutputDirectory 'defender.txt') -Encoding utf8
-  $scan | ForEach-Object { Write-Output $_ }
-  $report.defender_scan_exit=$scanExit
-  $report.defender_output=($scan | Out-String).Trim()
-  if ($scanExit -ne 0) { $report.defender='not-clean'; throw 'El análisis de Defender no ha terminado sin incidencias.' }
-  if (-not (Test-Path $exe) -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $report.sha256) { throw 'El ejecutable no está intacto después del análisis.' }
-  $report.defender='no-threats-reported'
-
   $coreExe=Join-Path $OutputDirectory 'Tests.exe'
   & $csc @common @refs /target:exe /main:Guarda.Tests ('/out:'+$coreExe) (Join-Path $code 'BackupEngine.cs') (Join-Path $tests 'Tests.cs')
   if ($LASTEXITCODE -ne 0) { throw 'No se compilan las pruebas del motor.' }
@@ -110,6 +93,31 @@ try {
   [void]$started.CloseMainWindow();if(-not $started.WaitForExit(5000)) { Stop-Process -Id $started.Id -Force }
   $report.native_update_cycle='parent-exit-replace-restart-passed'
   $rsa.Dispose()
+
+  $defenderService=Get-Service -Name WinDefend -ErrorAction Stop
+  if ($defenderService.Status -ne 'Running') {
+    Start-Service -Name WinDefend -ErrorAction Stop
+    $defenderService.WaitForStatus('Running',[TimeSpan]::FromSeconds(20))
+  }
+  try { Update-MpSignature -ErrorAction Stop } catch { $report.signature_update_note=$_.Exception.Message }
+  $status=Get-MpComputerStatus
+  if (-not $status -or -not $status.AMServiceEnabled -or -not $status.AntivirusEnabled -or -not $status.AntivirusSignatureVersion) {
+    $report.defender='unavailable'
+    throw 'Microsoft Defender no está activo o no informa de sus firmas; no se considera un análisis válido.'
+  }
+  $report.defender_signature=$status.AntivirusSignatureVersion
+  if ($status.AntivirusSignatureLastUpdated) { $report.defender_signature_updated=$status.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('o') }
+  $scanner=@(Get-ChildItem (Join-Path $env:ProgramData 'Microsoft\Windows Defender\Platform') -Filter MpCmdRun.exe -Recurse -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+  if (-not $scanner) { $scanner=Join-Path $env:ProgramFiles 'Windows Defender\MpCmdRun.exe' }
+  $scan=& $scanner -Scan -ScanType 3 -File $exe -DisableRemediation 2>&1
+  $scanExit=$LASTEXITCODE
+  $scan | Out-File (Join-Path $OutputDirectory 'defender.txt') -Encoding utf8
+  $scan | ForEach-Object { Write-Output $_ }
+  $report.defender_scan_exit=$scanExit
+  $report.defender_output=($scan | Out-String).Trim()
+  if ($scanExit -ne 0) { $report.defender='not-clean'; throw 'El análisis de Defender no ha terminado sin incidencias.' }
+  if (-not (Test-Path $exe) -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $report.sha256) { throw 'El ejecutable no está intacto después del análisis.' }
+  $report.defender='no-threats-reported'
 
   try {
     $previous=Join-Path $OutputDirectory 'Guarda-1.1.0-anterior.exe'
