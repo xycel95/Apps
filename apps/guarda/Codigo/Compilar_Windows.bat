@@ -10,7 +10,7 @@ if not exist "%GUARDA_CSC%" (
   exit /b 1
 )
 if not exist "..\entrega" mkdir "..\entrega"
-"%GUARDA_CSC%" /nologo /codepage:65001 /target:winexe /platform:anycpu /optimize+ /win32manifest:app.manifest /win32icon:app.ico /out:..\entrega\Guarda.exe /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Xml.dll Program.cs BackupEngine.cs
+"%GUARDA_CSC%" /nologo /codepage:65001 /target:winexe /platform:anycpu /optimize+ /win32manifest:app.manifest /win32icon:app.ico /out:..\entrega\Guarda.exe /r:System.dll /r:System.Core.dll /r:System.Drawing.dll /r:System.Windows.Forms.dll /r:System.Xml.dll /resource:update-public-key.xml,Guarda.UpdatePublicKey Program.cs BackupEngine.cs Design.cs MainLayout.cs Updates.cs UpdateForm.cs
 if errorlevel 1 (
   echo Error al compilar.
   pause

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<GuardaUpdate schema="1" app="guarda">
+  <Version>1.1.0</Version>
+  <Url>https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/versiones/1.1.0/Guarda.exe</Url>
+  <Sha256>6612811bda01e43ec46ea52023f6797fa9d79f2fc8765c57cd3239c4d0ba9df4</Sha256>
+  <Size>86528</Size>
+  <Notes>Nuevo diseño con vista previa de la copia.
+Modo oscuro y tema claro con preferencia guardada.
+Buscar actualizaciones, descarga firmada y reinicio conservando ajustes.
+</Notes>
+</GuardaUpdate>

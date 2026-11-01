@@ -19,11 +19,18 @@ namespace Guarda
                 form.Show(); Application.DoEvents();
                 TextBox source = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de origen");
                 TextBox destination = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de destino");
-                source.Text = @"C:\Users\Rafa\Documents\Mis documentos"; destination.Text = @"E:\Copias de seguridad";
-                TextBox name = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Nombre de la copia"); name.Text = "Mis documentos";
+                source.Text = @"C:\Datos\Facturas"; destination.Text = @"E:\Copias de seguridad";
+                TextBox name = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Nombre de la copia"); name.Text = "Facturas";
+                if (Theme.Light) All(form).OfType<Button>().Single(b => b.Text == "Modo oscuro").PerformClick();
+                All(form).OfType<Label>().Single(l => l.Text.StartsWith("/workspace/")).Text = @"E:\Copias de seguridad";
                 Pump(250);
                 Directory.CreateDirectory(args[0]);
                 Capture(form, Path.Combine(args[0], "ventana.png"));
+                All(form).OfType<Button>().Single(b => b.Text == "Tema claro").PerformClick();
+                if (!Theme.Light || !Preferences.Load().LightTheme) throw new Exception("El tema claro no se conserva.");
+                Pump(120); Capture(form, Path.Combine(args[0], "ventana-clara.png"));
+                All(form).OfType<Button>().Single(b => b.Text == "Modo oscuro").PerformClick();
+                using (UpdateForm updates = new UpdateForm()) { updates.Show(); Pump(100); Capture(updates, Path.Combine(args[0], "actualizaciones.png")); updates.Close(); }
                 Console.WriteLine("GUI abierta: " + form.ClientSize + "; controles: " + All(form).Count());
                 string testRoot = Path.Combine(Path.GetTempPath(), "guarda-gui-" + Guid.NewGuid().ToString("N"));
                 try {

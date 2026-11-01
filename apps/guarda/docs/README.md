@@ -41,4 +41,25 @@ Se guardan normalmente en `%LOCALAPPDATA%\Guarda`. Guarda recupera las preferenc
 
 Si el informe quedaría dentro del origen, se guarda en `_Informes_Guarda` dentro del destino, para evitar copiar un registro que la aplicación está escribiendo.
 
+## Modo oscuro y tema claro
+
+Utiliza **Tema claro** para pasar al tema claro y **Modo oscuro** para volver al oscuro. La app recuerda la elección. La copia y sus opciones son las mismas en ambos temas.
+
+![Tema claro de Guarda](diseno-claro.png)
+
+## Actualizar desde la propia app
+
+1. Cuando no haya una copia en curso, pulsa **Actualizaciones**.
+2. Pulsa **Buscar** para consultar el canal oficial.
+3. Si hay una nueva versión, revisa sus novedades y pulsa **Actualizar y reiniciar**.
+4. Espera a que finalice la descarga y su comprobación. Guarda prepara la instalación antes de cerrar la ventana; después sustituye el programa y lo abre de nuevo.
+
+Las preferencias se conservan. El anuncio debe estar firmado con la clave oficial de Guarda y el archivo debe coincidir en versión, identidad, tamaño y SHA-256. Se conserva una copia anterior del ejecutable junto al programa. Si falla su apertura, se intenta restaurar la anterior.
+
+![Ventana de actualizaciones](actualizaciones.png)
+
+La búsqueda y descarga necesitan Internet. Si no hay conexión o no se puede escribir en la carpeta del programa, se muestra un mensaje; puedes seguir utilizando la app o descargar el ejecutable desde [Descargar](../descargas/README.md). No hay instalación silenciosa al iniciar.
+
+**Importante para 1.0.1 y Copia Fácil:** esas versiones aún no tenían el actualizador. Descarga la versión 1.1.0 manualmente una vez; a partir de ella tendrás el botón integrado.
+
 [Guía completa en texto](LEEME.txt) · [Comprobaciones y limitaciones](VALIDACION.txt) · [Descargar](../descargas/README.md).

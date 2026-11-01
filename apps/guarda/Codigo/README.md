@@ -1,6 +1,10 @@
 # Código de Guarda
 
 - `Program.cs`: ventana WinForms, preferencias y arranque. Conserva compatibilidad con las preferencias de Copia Fácil.
+- `MainLayout.cs` y `Design.cs`: nueva composición, controles y temas oscuro/claro.
+- `Updates.cs` y `UpdateForm.cs`: consulta del canal firmado, descarga, verificación e instalación con reinicio y restauración ante fallo.
+- `update-public-key.xml`: clave pública integrada en los clientes. No rotarla en una actualización normal.
+- `firmar_actualizacion.py`: firma con la clave privada conservada fuera del repositorio. Ver [Publicar una actualización](../docs/PUBLICAR-ACTUALIZACION.md).
 - `BackupEngine.cs`: análisis, copia, comprobación SHA-256, cancelación, informes y finalización de carpetas.
 - `app.manifest` y `app.ico`: manifiesto e icono nativos de Windows.
 - `Compilar_Windows.bat`: compila con el compilador de .NET Framework instalado en Windows y deja `entrega/Guarda.exe`.
@@ -15,5 +19,7 @@ Con .NET Framework 4.8 instalado, ejecuta `Compilar_Windows.bat` desde esta carp
 `build.py` necesita un entorno Mono extraído con `mono-sgen`, `mcs.exe` y sus referencias. Establece `GUARDA_MONO_ROOT` con su ruta y ejecuta `python3 build.py`. No se incluye ese entorno de desarrollo en las descargas de la aplicación.
 
 Las pruebas están en `../pruebas/`. La prueba de interfaz requiere una pantalla X11 y Mono WinForms. Su ejecución no sustituye la validación nativa en Windows.
+
+`UpdateTests.exe` recibe el canal firmado y su ejecutable: `UpdateTests.exe RUTA/stable.xml RUTA/Guarda.exe`. Comprueba firma, archivo y sustitución con restauración. Las pruebas no incluyen la clave privada.
 
 Para publicar una nueva versión, coordina versión, binarios, huellas, `app.json`, notas de parche y contexto. La compilación por sí sola no actualiza las descargas publicadas ni el equipo del usuario.

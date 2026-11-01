@@ -1,4 +1,4 @@
-GUARDA · 1.0.1
+GUARDA · 1.1.0
 Copias de carpetas con fecha para Windows.
 
 EMPEZAR
@@ -9,7 +9,7 @@ EMPEZAR
 5. Pulsa «Crear copia» y espera a «Copia terminada».
 
 EJEMPLO
-Origen: C:\Users\Rafa\Documents\Facturas
+Origen: C:\Datos\Facturas
 Destino: E:\Copias
 Nombre: Facturas
 Resultado: E:\Copias\2026_11_01_Facturas
@@ -28,6 +28,35 @@ QUÉ INCLUYE
 - Verificación del contenido mediante SHA-256, activada por defecto.
 - Barra de progreso, cancelación y un informe de cada intento.
 - Recuerda las últimas carpetas, el nombre y la opción de verificación.
+
+DISEÑO Y TEMA
+La ventana muestra origen y destino a la izquierda y una vista previa del
+nombre de la nueva carpeta a la derecha. «Tema claro» cambia al tema claro;
+«Modo oscuro» vuelve al oscuro. La elección se recuerda al abrir de nuevo.
+El modo oscuro es el predeterminado cuando no hay preferencias anteriores.
+
+ACTUALIZACIONES DESDE GUARDA
+1. Pulsa «Actualizaciones», en la esquina superior derecha.
+2. Pulsa «Buscar». La app consulta el canal oficial de GitHub.
+3. Si hay una versión más reciente, lee sus novedades y pulsa
+   «Actualizar y reiniciar».
+4. Guarda descarga y comprueba la actualización. Después se cierra y vuelve
+   a abrir, conservando tus carpetas seleccionadas, nombre, verificación y tema.
+
+Se comprueban la firma RSA del anuncio, el tamaño, el SHA-256, la identidad y
+la versión del ejecutable. Si hay una diferencia, no se instala. El instalador
+espera a que la app termine y conserva una copia anterior junto al ejecutable.
+Si no se puede abrir el nuevo ejecutable, intenta restaurar el anterior.
+La carpeta del programa debe permitir escritura. La actualización no requiere
+permisos de administrador por sí misma. Si Windows impide sustituir el archivo,
+puedes descargar el nuevo Guarda.exe desde la página de GitHub y reemplazarlo
+con la app cerrada.
+
+La búsqueda y descarga necesitan Internet; las copias de carpetas no.
+No se buscan ni se instalan versiones de forma silenciosa al iniciar.
+Mientras se hace una copia no se puede abrir el actualizador.
+Las versiones 1.0.0 y 1.0.1 todavía no tenían este botón: descarga manualmente
+esta versión 1.1.0 una vez. Las siguientes podrán instalarse desde la app.
 
 COMPROBACIÓN
 Con «Comprobar el contenido después de copiar» activado, la app calcula

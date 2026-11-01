@@ -19,6 +19,8 @@ def resources(executable):
     section_start = optional + struct.unpack_from('<H', data, pe + 20)[0]
     section_list = [struct.unpack_from('<IIII', data, section_start + i * 40 + 8)
                     for i in range(count)]
+    if any(raw + raw_size > len(data) for virtual_size, virtual, raw_size, raw in section_list):
+        raise ValueError('Ejecutable PE incompleto: hay secciones truncadas.')
 
     def offset(rva):
         for virtual_size, virtual, raw_size, raw in section_list:

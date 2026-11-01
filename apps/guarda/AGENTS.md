@@ -27,4 +27,8 @@ Aplicar también las instrucciones generales de `AGENTS.md` en la raíz del repo
 - `Codigo/build.py` incorpora y verifica el manifiesto de Windows mediante `winres.py`. No omitir esta comprobación cuando se compile con Mono.
 - Reutilizar comprobaciones vigentes si los bytes no cambian. No afirmar ejecución nativa en Windows ni una prueba de USB físico sin haberla realizado.
 - Una nueva entrega coordina las versiones declaradas, ejecutable, paquete completo, `descargas/SHA256SUMS.txt`, `app.json`, notas y contexto. Las notas se añaden arriba.
-- No hay programación, copia incremental, SSH ni actualizador en línea. No describirlos como funcionalidades existentes.
+- No hay programación, copia incremental ni SSH. No describirlos como funcionalidades existentes.
+- Desde 1.1.0 hay modo oscuro/claro y actualizador en línea manual. Mantener el canal firmado, la copia anterior y los ajustes del usuario.
+- Actualizador en `Codigo/Updates.cs` y `UpdateForm.cs`; diseño en `Design.cs` y `MainLayout.cs`. Las pruebas nuevas están en `pruebas/UpdateTests.cs`.
+- No rotar `Codigo/update-public-key.xml`: está integrada en los clientes. La clave privada se conserva fuera de GitHub en el archivo privado **Guarda_Clave_de_Firma_PRIVADA.zip**. Recuperarla de su almacenamiento privado para firmar una entrega; nunca publicarla ni generar una sustituta automáticamente.
+- Publicar `actualizaciones/stable.xml` y `stable.xml.sig` junto a la descarga fija `descargas/versiones/<versión>/Guarda.exe`. Firmar con `Codigo/firmar_actualizacion.py`. Ver `docs/PUBLICAR-ACTUALIZACION.md`.

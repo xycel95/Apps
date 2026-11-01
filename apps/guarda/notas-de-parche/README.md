@@ -1,5 +1,19 @@
 # Notas de parche
 
+## 1.1.0 · 1 de noviembre de 2026
+
+- Nueva interfaz con tarjetas, selección por pasos, vista previa del nombre y progreso separado.
+- Modo oscuro predeterminado y tema claro; la elección se conserva.
+- Botón **Actualizaciones**, búsqueda manual de versiones y novedades.
+- Descarga e instalación desde la app con reinicio y conservación de preferencias.
+- Canal oficial firmado RSA/SHA-256 y comprobación de longitud, huella, identidad y versión del ejecutable.
+- Preparación del instalador antes de cerrar, espera a la salida de Guarda y copia del ejecutable anterior. Restauración si falla la apertura de la nueva versión.
+- No se permite abrir el actualizador durante una copia.
+- Documentación, imágenes, metadatos, descargas y canal actualizados.
+- 16 pruebas del motor y 13 del actualizador en Linux/Mono; revisión de ambos temas y una copia real desde la ventana.
+
+El proceso completo de actualización en un Windows real sigue pendiente de validación. Desde 1.0.1 hay que descargar esta versión manualmente una vez para disponer del botón integrado.
+
 ## 1.0.1 · 1 de noviembre de 2026
 
 - Nombre definitivo **Guarda** en la ventana, el ejecutable, los metadatos, los informes y la documentación.

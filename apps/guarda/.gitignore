@@ -1,0 +1,10 @@
+entrega/
+.build/
+__pycache__/
+**/__pycache__/
+pruebas/*.exe
+pruebas/*.mdb
+*.pem
+*.pfx
+*PRIVADA*
+.guarda-signing/

@@ -2,9 +2,9 @@
   "schema": 1,
   "id": "guarda",
   "name": "Guarda",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "release_date": "2026-11-01",
-  "summary": "Copias completas de carpetas a unidades USB, discos u otras carpetas, con fecha al principio del nombre y verificación SHA-256 opcional.",
+  "summary": "Copias de carpetas con fecha y verificación, diseño renovado, temas oscuro/claro y actualizaciones firmadas desde la app.",
   "platforms": [
     "Windows 10",
     "Windows 11"
@@ -20,11 +20,11 @@
   "source_url": "https://github.com/xycel95/Apps/tree/guarda/apps/guarda/Codigo",
   "download": {
     "available": true,
-    "filename": "Guarda_v1.0.1_Completo.zip",
-    "path": "apps/guarda/descargas/Guarda_v1.0.1_Completo.zip",
-    "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda_v1.0.1_Completo.zip",
-    "sha256": "2555fad531fa2318639cc1b342cb9e57529b04afe99aeef87199067a392d6da4",
-    "size_bytes": 68398,
+    "filename": "Guarda_v1.1.0_Completo.zip",
+    "path": "apps/guarda/descargas/Guarda_v1.1.0_Completo.zip",
+    "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda_v1.1.0_Completo.zip",
+    "sha256": "0821f45d54fdfeb9687edac1fc343bb73aa3bddcb23196759401c4f6ed9a7c68",
+    "size_bytes": 100988,
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/SHA256SUMS.txt"
   },
   "executable": {
@@ -32,8 +32,8 @@
     "filename": "Guarda.exe",
     "path": "apps/guarda/descargas/Guarda.exe",
     "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda.exe",
-    "sha256": "1531af7e7bc7dbc70817da60b2d1a66b6d802d59ac3733937eab96f629c09557",
-    "size_bytes": 57856,
+    "sha256": "6612811bda01e43ec46ea52023f6797fa9d79f2fc8765c57cd3239c4d0ba9df4",
+    "size_bytes": 86528,
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/SHA256SUMS.txt"
   },
   "validation": {
@@ -42,8 +42,27 @@
     "native_windows_verified": false,
     "physical_usb_verified": false,
     "core_tests_passed": 16,
-    "core_tested_version": "1.0.0",
-    "gui_tested_version": "1.0.1"
+    "core_tested_version": "1.1.0",
+    "gui_tested_version": "1.1.0",
+    "updater_tests_passed": 13,
+    "native_update_cycle_verified": false,
+    "transport": "controlled fixtures; published channel verified through GitHub"
   },
-  "online_updates_configured": false
+  "online_updates_configured": true,
+  "updates": {
+    "available": true,
+    "channel_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/actualizaciones/stable.xml",
+    "signature_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/actualizaciones/stable.xml.sig",
+    "public_key_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/actualizaciones/public-key.xml",
+    "public_key_sha256_spki": "26d888e61ea526cb999975986e199b2e265c0e8b32d088f2f6f9ced53619b1c8",
+    "signature_algorithm": "RSA-3072/SHA-256/PKCS1-v1_5",
+    "manual_check": true,
+    "automatic_startup_check": false,
+    "first_supported_version": "1.1.0",
+    "preserves_preferences": true
+  },
+  "themes": [
+    "dark",
+    "light"
+  ]
 }

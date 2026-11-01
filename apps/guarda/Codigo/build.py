@@ -20,24 +20,27 @@ BASE += ['-r:' + str(REFS / (name + '.dll')) for name in
 def compile_app():
     out = ROOT.parent / 'entrega'
     out.mkdir(exist_ok=True)
-    subprocess.run(BASE + ['-target:winexe',
+    sources = [str(p) for p in sorted(ROOT.glob('*.cs'))]
+    public_key = '-resource:' + str(ROOT / 'update-public-key.xml') + ',Guarda.UpdatePublicKey'
+    subprocess.run(BASE + ['-target:winexe', public_key,
                           '-win32icon:' + str(ROOT / 'app.ico'), '-out:' + str(out / 'Guarda.exe'),
-                          str(ROOT / 'BackupEngine.cs'), str(ROOT / 'Program.cs')], env=ENV, check=True)
+                          ] + sources, env=ENV, check=True)
     native = ROOT.parent / '.build'
     native.mkdir(exist_ok=True)
     resource_file = native / 'Guarda.win32.res'
     write_with_manifest(out / 'Guarda.exe', ROOT / 'app.manifest', resource_file)
-    subprocess.run(BASE + ['-target:winexe', '-win32res:' + str(resource_file),
+    subprocess.run(BASE + ['-target:winexe', public_key, '-win32res:' + str(resource_file),
                           '-out:' + str(out / 'Guarda.exe'),
-                          str(ROOT / 'BackupEngine.cs'), str(ROOT / 'Program.cs')], env=ENV, check=True)
+                          ] + sources, env=ENV, check=True)
     verify_manifest(out / 'Guarda.exe', ROOT / 'app.manifest')
     tests = ROOT.parent / 'pruebas'
     for name, sources, main in [
         ('Tests', ['BackupEngine.cs'], 'Guarda.Tests'),
-        ('GuiSmoke', ['BackupEngine.cs', 'Program.cs'], 'Guarda.GuiSmoke')
+        ('GuiSmoke', [p.name for p in sorted(ROOT.glob('*.cs'))], 'Guarda.GuiSmoke'),
+        ('UpdateTests', ['Updates.cs'], 'Guarda.UpdateTests')
     ]:
         if (tests / (name + '.cs')).exists():
-            subprocess.run(BASE + ['-target:exe', '-main:' + main, '-out:' + str(tests / (name + '.exe'))]
+            subprocess.run(BASE + [public_key, '-target:exe', '-main:' + main, '-out:' + str(tests / (name + '.exe'))]
                            + [str(ROOT / s) for s in sources] + [str(tests / (name + '.cs'))], env=ENV, check=True)
     print('Compilado:', out / 'Guarda.exe')
 

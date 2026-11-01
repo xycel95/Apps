@@ -11,6 +11,8 @@
 - Comprobar el contenido del destino con SHA-256, con la casilla activada por defecto.
 - Ver el progreso, cancelar y abrir la copia o el informe al terminar.
 - Recordar las últimas opciones utilizadas.
+- Cambiar entre modo oscuro y tema claro, conservando la elección.
+- Buscar actualizaciones y, cuando exista una versión más reciente, instalarla desde la app y reiniciar conservando los ajustes.
 
 El contenido original no se renombra. Cada ejecución genera una copia nueva; no hace sincronización ni elimina archivos antiguos.
 
@@ -18,12 +20,14 @@ El contenido original no se renombra. Cada ejecución genera una copia nueva; no
 
 Windows 10/11 con .NET Framework 4.8 o 4.8.1. El ejecutable es portable y no necesita permisos de administrador para trabajar con carpetas a las que tu usuario tenga acceso.
 
-Es una copia de carpetas de usuario, no una imagen de recuperación de Windows. No incluye SSH, programación de tareas, copia incremental, restauración automática ni actualizador en línea.
+Es una copia de carpetas de usuario, no una imagen de recuperación de Windows. No incluye SSH, programación de tareas, copia incremental ni restauración automática de las carpetas copiadas.
+
+El actualizador necesita Internet y permiso para escribir en la carpeta del programa. Se abre manualmente desde **Actualizaciones**. Comprueba la firma del anuncio, la versión, la identidad, la longitud y la huella SHA-256 del ejecutable antes de sustituirlo. No instala versiones iguales o anteriores. Las copias de carpetas funcionan sin Internet.
 
 Los enlaces simbólicos, uniones y otros puntos de reanálisis no se siguen: se indican en el informe y esa copia se marca como incompleta. Los archivos abiertos que no puedan leerse o que cambien durante el proceso pueden impedir terminar la copia. Se copia el contenido principal de los archivos; no se reproducen permisos NTFS, flujos alternativos ni cifrado.
 
 ## Validación disponible
 
-El motor inicial superó 16 pruebas en Linux/Mono. La ventana de la versión 1.0.1 se abrió y completó una copia real en ese entorno. Aún no se ha probado en un Windows real ni con un pendrive físico. Los detalles están en el [informe de validación](docs/VALIDACION.txt).
+El motor superó 16 pruebas en Linux/Mono. El actualizador superó 13 pruebas de firma, integridad, sustitución y restauración ante un fallo de reinicio. La ventana completa copias reales en ese entorno y se revisan ambos temas. Aún no se ha probado el proceso completo de cierre, sustitución y reinicio en un Windows real ni con un pendrive físico. Los detalles están en el [informe de validación](docs/VALIDACION.txt).
 
 [Cómo funciona y guía](docs/README.md) · [Descargar](descargas/README.md) · [Notas de parche](notas-de-parche/README.md).
