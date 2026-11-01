@@ -21,5 +21,7 @@ jobs:
           name: ssh-backup-validacion-windows
           path: |
             apps/ssh-backup/pruebas/VALIDACION-WINDOWS.json
+            apps/ssh-backup/pruebas/framework-refs/**
+            apps/ssh-backup/pruebas/compilado/SSHBackup.exe
             ${{ runner.temp }}/SSH Backup prueba */gui/*.png
           if-no-files-found: ignore

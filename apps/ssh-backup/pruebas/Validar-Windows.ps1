@@ -21,6 +21,14 @@ try {
     # Compilación independiente de la fuente publicada, sin regenerar ni firmar la entrega.
     & dotnet build (Join-Path $code 'SSHBackup.csproj') --configuration Release
     CheckExit 'compilar la aplicación'
+    $export = Join-Path $PSScriptRoot 'framework-refs'
+    New-Item -ItemType Directory -Force $export | Out-Null
+    foreach ($name in @('mscorlib','System','System.Core','System.Xml','System.Security','System.IO.Compression','System.Windows.Forms','System.Drawing')) { Copy-Item "$refs/$name.dll" $export }
+    New-Item -ItemType Directory -Force (Join-Path $export 'RedistList') | Out-Null
+    Copy-Item (Join-Path $refs 'RedistList/FrameworkList.xml') (Join-Path $export 'RedistList/FrameworkList.xml')
+    $compiled = Join-Path $PSScriptRoot 'compilado'
+    New-Item -ItemType Directory -Force $compiled | Out-Null
+    Copy-Item (Join-Path $code 'bin/Release/net48/SSHBackup.exe') (Join-Path $compiled 'SSHBackup.exe')
     $exe = Join-Path $stage 'SSHBackup.exe'
     Copy-Item (Join-Path $app 'descargas/SSHBackup.exe') $exe
     if ([Reflection.AssemblyName]::GetAssemblyName($exe).Version.ToString() -ne '2.2.0.0') { throw 'Versión de entrega incorrecta.' }
