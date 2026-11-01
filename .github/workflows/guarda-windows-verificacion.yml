@@ -1,4 +1,4 @@
-name: Guarda - compilacion y antivirus de Windows
+name: Guarda - compilacion y antivirus de Windows (informe y capturas)
 on:
   push:
     branches: [guarda-verificacion-windows]

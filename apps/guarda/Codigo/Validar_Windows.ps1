@@ -51,7 +51,10 @@ try {
   $coreExe=Join-Path $OutputDirectory 'Tests.exe'
   & $csc @common @refs /target:exe /main:Guarda.Tests ('/out:'+$coreExe) (Join-Path $code 'BackupEngine.cs') (Join-Path $tests 'Tests.cs')
   if ($LASTEXITCODE -ne 0) { throw 'No se compilan las pruebas del motor.' }
-  Run-Checked $coreExe @() (Join-Path $OutputDirectory 'core.txt'); $report.core='16-passed'
+  $coreLog=Join-Path $OutputDirectory 'core.txt'
+  Run-Checked $coreExe @() $coreLog
+  if ([IO.File]::ReadAllText($coreLog) -notmatch 'RESULTADO:\s*(\d+)\s*pruebas') { throw 'Falta el recuento de pruebas del motor.' }
+  $report.core=($Matches[1]+'-passed')
 
   # The test key is ephemeral and different from the production update key.
   $rsa=New-Object System.Security.Cryptography.RSACryptoServiceProvider -ArgumentList 3072
@@ -112,6 +115,13 @@ try {
   $b64=[Convert]::ToBase64String([IO.File]::ReadAllBytes($exe))
   for($i=0;$i -lt $b64.Length;$i+=12000) { Write-Output $b64.Substring($i,[Math]::Min(12000,$b64.Length-$i)) }
   Write-Output 'GUARDA_ARTIFACT_END'
+  foreach($item in @(@('DARK','ventana.png'),@('LIGHT','ventana-clara.png'),@('UPDATES','actualizaciones.png'))) {
+    $imagePath=Join-Path (Join-Path $OutputDirectory 'imagenes') $item[1]
+    Write-Output ('GUARDA_IMAGE_'+$item[0]+'_BEGIN')
+    $imageBase64=[Convert]::ToBase64String([IO.File]::ReadAllBytes($imagePath))
+    for($i=0;$i -lt $imageBase64.Length;$i+=12000) { Write-Output $imageBase64.Substring($i,[Math]::Min(12000,$imageBase64.Length-$i)) }
+    Write-Output ('GUARDA_IMAGE_'+$item[0]+'_END')
+  }
 } catch {
   $report.result='failed';$report.error=$_.Exception.Message
   throw
