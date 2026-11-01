@@ -1,0 +1,22 @@
+name: Guarda - comprobacion de Windows
+on:
+  push:
+    branches: [guarda-verificacion-windows]
+    paths: ['.github/workflows/guarda-windows-verificacion.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  entorno:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - name: Comprobar compilador y Microsoft Defender
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $csc = @(& $vswhere -latest -products '*' -find 'MSBuild\**\Bin\Roslyn\csc.exe') | Select-Object -First 1
+          if (-not $csc) { throw 'Compilador Microsoft C# no disponible' }
+          & $csc /version
+          Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, AntivirusSignatureVersion, AntivirusSignatureLastUpdated | ConvertTo-Json
