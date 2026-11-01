@@ -1,13 +1,13 @@
 # Publicar una actualización de SSH Backup
 
-1. Abrir la rama ssh-backup y leer AGENTS.md y CONTEXTO.md de la aplicación.
-2. Preparar el cambio de la aplicación y comprobar el flujo afectado. Conservar las claves públicas y las licencias.
-3. Preparar el paquete de entrega sin claves privadas ni datos reales, comprobar su versión, integridad y firma, y colocarlo en descargas/.
-4. Añadir las notas de la versión arriba de notas-de-parche/README.md, sin borrar las notas anteriores.
-5. Actualizar app.json: versión, fecha, nombre y ruta del paquete, URL y SHA-256 comprobados. Mantener download.available en false mientras no haya una descarga válida.
-6. Actualizar la descripción o guía si cambia su uso; conservar los datos históricos y sus límites en CONTEXTO.md.
-7. Guardar juntos los archivos relacionados, leer la revisión remota antes de publicar y conservar cambios ajenos.
-8. Comprobar que el ZIP publicado se puede descargar y que coincide con el hash previsto antes de retirar un archivo anterior o dar por terminada la publicación.
-9. Actualizar el índice de main si cambia la información del catálogo.
+1. Leer `AGENTS.md`, `CONTEXTO.md` y el estado remoto de `ssh-backup`; conservar la clave pública original.
+2. Implementar y comprobar el cambio. Coordinar versión del código, guía, notas y metadatos. Compilar con el manifiesto nativo incorporado y verificado.
+3. Recuperar en privado `SSHBackup_clave_firma_actualizaciones.pem`. Nunca publicarla, incluirla en un ZIP ni sustituirla por otra.
+4. Crear el paquete con `Codigo/crear_actualizacion.py`, indicando `--exe`, `--clave`, `--version`, `--notas`, `--salida` y una `--url` HTTPS fija: `descargas/versiones/<versión>/SSHBackup_<versión>.sshupdate` bajo la rama permanente.
+5. Conservar ese paquete y EXE en la carpeta de versión. Copiar el XML firmado que genera el script a `actualizaciones/stable.xml`. La firma está dentro del XML, como en los clientes anteriores; no es el formato de GUARDA.
+6. Preparar el ZIP completo sin datos privados ni resultados de prueba; comprobar CRC, firma y hashes. Actualizar `app.json`, descargas, notas y contexto en un commit coherente.
+7. Validar en la rama de comprobación y promover a `ssh-backup` con revisión esperada. No reemplazar un archivo de versión ya entregado con otros bytes.
+8. Comprobar la descarga pública del ZIP, EXE, paquete y [canal oficial](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml) y sus hashes. `main` enlaza el apartado de descargas sin duplicar la versión.
+9. Si el propietario lo solicita, actualizar por separado la ficha y la nota de versión en Web-XyceL y verificar el recibo de WordPress. Enviar comunicaciones solo cuando las haya pedido.
 
-La rama de la aplicación, el índice general y la web son piezas diferentes. El asistente que gestione la web debe leer estos metadatos y aplicar la ficha o las novedades en su propio repositorio cuando el propietario autorice publicarlas allí. El actualizador integrado necesita su propio manifiesto firmado y no queda conectado automáticamente por subir archivos a GitHub.
+Desde 2.2 el canal oficial se utiliza si el ajuste está vacío. Se conservan los canales personalizados. Desde 2.0/2.1 se puede instalar el paquete o introducir una vez el canal oficial para dar el salto inicial.

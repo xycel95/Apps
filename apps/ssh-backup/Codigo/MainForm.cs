@@ -372,9 +372,9 @@ namespace SSHBackup
         void RefreshButtons()
         {
             bool busy = Busy;
-            start.Enabled = !busy && store.Settings.Servers.Any(s => s.Enabled);
+            start.Enabled = !busy && !updateInstalling && store.Settings.Servers.Any(s => s.Enabled);
             pause.Enabled = busy; stop.Enabled = busy;
-            retry.Enabled = !busy && runner != null && runner.Jobs.Any(j => j.Snapshot().State == JobState.Error || j.Snapshot().State == JobState.Canceled);
+            retry.Enabled = !busy && !updateInstalling && runner != null && runner.Jobs.Any(j => j.Snapshot().State == JobState.Error || j.Snapshot().State == JobState.Canceled);
             foreach (var control in editingControls) control.Enabled = !busy;
             exportServers.Enabled = store.Settings.Servers.Count > 0;
         }

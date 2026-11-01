@@ -24,6 +24,9 @@ namespace SSHBackup
         readonly DataGridView catalogGrid = Ui.Grid();
         readonly RichTextBox updateNotes = new RichTextBox { ReadOnly = true, BorderStyle = BorderStyle.None, DetectUrls = false };
         readonly Button installUpdate = Ui.Button("Instalar actualización", true, 200);
+        readonly Button checkUpdate = Ui.Button("Comprobar actualizaciones", true, 225), loadUpdate = Ui.Button("Abrir paquete…", false, 155);
+        readonly ProgressBar updateProgress = new ProgressBar { Dock = DockStyle.Top, Height = 10, Maximum = 100 };
+        readonly Label updateStatus = Ui.Label("Canal oficial listo. Comprueba si hay una nueva versión.", 10, Ui.Muted);
         CancellationTokenSource toolsCancellation;
         readonly List<BackupCatalog> catalogs = new List<BackupCatalog>();
         readonly List<string> addedCatalogs = new List<string>();
@@ -56,7 +59,7 @@ namespace SSHBackup
             editingControls.Add(onlyChanges);
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 scheduleSignal = new EventWaitHandle(false, EventResetMode.AutoReset, Scheduling.SignalName);
-            FillSchedule(); updateUrl.Text = store.Settings.UpdateManifestUrl;
+            FillSchedule(); updateUrl.Text = Updates.ResolveChannel(store.Settings.UpdateManifestUrl);
         }
         void BuildExplorer(Control page)
         {
@@ -275,7 +278,7 @@ namespace SSHBackup
         }
         void CheckSchedule()
         {
-            if (scheduleChecking || Busy || closing || !store.Settings.ScheduleEnabled) return;
+            if (scheduleChecking || Busy || closing || updateInstalling || !store.Settings.ScheduleEnabled) return;
             if (scheduleSignal != null) scheduleSignal.WaitOne(0);
             try
             {
@@ -287,42 +290,73 @@ namespace SSHBackup
             catch (Exception error) { runStatus.Text = "No se pudo iniciar la copia programada: " + error.Message; }
             finally { scheduleChecking = false; }
         }
+        bool updateBusy, updateInstalling;
         void BuildUpdates(Control page)
         {
-            var table = Ui.FormTable(); table.Dock = DockStyle.Top; table.Height = 220;
-            Ui.Field(table, "Versión instalada", Ui.Label("SSH Backup " + Program.Version, 15), 45);
-            Ui.Field(table, "Canal web (opcional)", updateUrl, 42);
-            Ui.Field(table, "Distribución privada", Ui.Label("Puedes instalar un paquete .sshupdate recibido por correo o descargado de Drive.\r\nPara consultar versiones online, configura la URL HTTPS de un manifiesto firmado.", 10, Ui.Muted), 70);
-            var actions = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 55, WrapContents = false };
-            Button check = Ui.Button("Comprobar novedades", false, 210), load = Ui.Button("Abrir paquete…", false, 170), cancel = Ui.Button("Cancelar", false, 110);
-            check.Click += async (s, e) => await CheckUpdates();
-            load.Click += async (s, e) => await LoadUpdatePackage();
-            cancel.Click += (s, e) => { if (toolsCancellation != null) toolsCancellation.Cancel(); };
+            var table = Ui.FormTable(); table.Dock = DockStyle.Top; table.Height = 185;
+            Ui.Field(table, "Versión instalada", Ui.Label("SSH Backup " + Program.Version, 15), 42);
+            Ui.Field(table, "Actualización en línea", Ui.Label("Comprueba, revisa las novedades e instala desde aquí.\r\nEl canal oficial ya está preparado; se conservan tus servidores, ajustes e historial.", 10, Ui.Muted), 62);
+            Ui.Field(table, "Canal (avanzado)", updateUrl, 42);
+            var actions = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 58, AutoScroll = true, WrapContents = false };
+            Button cancel = Ui.Button("Cancelar", false, 100);
+            checkUpdate.Click += async (s, e) => await CheckUpdates();
+            loadUpdate.Click += async (s, e) => await LoadUpdatePackage();
+            cancel.Click += (s, e) => { if (updateBusy && toolsCancellation != null) toolsCancellation.Cancel(); };
             installUpdate.Enabled = false; installUpdate.Click += async (s, e) => await InstallUpdate();
-            actions.Controls.AddRange(new Control[] { check, load, installUpdate, cancel });
+            actions.Controls.AddRange(new Control[] { checkUpdate, loadUpdate, installUpdate, cancel });
+            var links = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 48, WrapContents = false };
+            foreach (var link in new[] { new[] { "Novedades en la web", Updates.Website + "#updates-title" }, new[] { "Notas en GitHub", Updates.Changelog } })
+            {
+                string url = link[1]; var button = Ui.Button(link[0], false, 195);
+                button.Click += (s, e) => OpenPath(url); links.Controls.Add(button);
+            }
+            var official = Ui.Button("Usar canal oficial", false, 170);
+            official.Click += (s, e) => { if (!updateBusy) { updateUrl.Text = Updates.OfficialChannel; store.Settings.UpdateManifestUrl = Updates.OfficialChannel; TrySave(); pendingRelease = null; pendingPackage = null; installUpdate.Enabled = false; updateStatus.Text = "Canal oficial seleccionado. Comprueba las actualizaciones."; } };
+            links.Controls.Add(official);
+            updateStatus.Dock = DockStyle.Top; updateStatus.Height = 36;
             updateNotes.Dock = DockStyle.Fill; updateNotes.Font = new Font("Segoe UI", 11);
-            updateNotes.Text = "Actualizador preparado.\r\n\r\nLos paquetes deben llevar una firma válida de SSH Backup. Se conservan los ajustes, accesos e historial y una copia del EXE anterior (.previous).\r\n\r\nNo hay un canal público configurado: la distribución actual es privada por correo/Drive.";
-            page.Controls.Add(updateNotes); page.Controls.Add(actions); page.Controls.Add(table);
+            updateNotes.Text = "Pulsa Comprobar actualizaciones para consultar el canal firmado de SSH Backup.\r\n\r\nAntes de instalar verás la versión y sus novedades. La descarga muestra su progreso y puedes cancelarla.\r\n\r\nTambién puedes abrir un paquete .sshupdate. La instalación conserva el EXE anterior (.previous).";
+            page.Controls.Add(updateNotes); page.Controls.Add(links); page.Controls.Add(updateProgress); page.Controls.Add(updateStatus); page.Controls.Add(actions); page.Controls.Add(table);
+        }
+        async Task UpdateOperation(Func<CancellationToken, Task> action)
+        {
+            if (catalogBusy) return;
+            catalogBusy = updateBusy = true; toolsCancellation = new CancellationTokenSource();
+            checkUpdate.Enabled = loadUpdate.Enabled = updateUrl.Enabled = installUpdate.Enabled = false;
+            try { await action(toolsCancellation.Token); }
+            catch (OperationCanceledException) { if (!IsDisposed) updateStatus.Text = "Actualización cancelada. La versión instalada se conserva."; }
+            catch (Exception e) { if (!IsDisposed) { updateStatus.Text = "No se ha podido completar: " + e.Message; Ui.Error(this, e.Message); } }
+            finally
+            {
+                catalogBusy = updateBusy = updateInstalling = false;
+                toolsCancellation.Dispose(); toolsCancellation = null;
+                if (!IsDisposed) { checkUpdate.Enabled = loadUpdate.Enabled = updateUrl.Enabled = true; installUpdate.Enabled = pendingRelease != null && Version.Parse(pendingRelease.Version) > Version.Parse(Program.Version); updateProgress.Style = ProgressBarStyle.Continuous; RefreshButtons(); }
+            }
         }
         async Task CheckUpdates()
         {
-            await CatalogOperation(async token => {
-                string url = updateUrl.Text.Trim();
-                if (url.Length == 0) throw new InvalidOperationException("No hay un canal web configurado. Abre un paquete .sshupdate recibido por correo o configura una URL HTTPS de versiones.");
-                Updates.RequireHttps(url); store.Settings.UpdateManifestUrl = url; store.Save();
+            await UpdateOperation(async token => {
+                pendingRelease = null; pendingPackage = null; updateProgress.Value = 0;
+                string url = Updates.ResolveChannel(updateUrl.Text);
+                Updates.RequireHttps(url); store.Settings.UpdateManifestUrl = url; store.Save(); updateUrl.Text = url;
+                updateStatus.Text = "Consultando las actualizaciones…";
                 var release = await Updates.CheckAsync(url, token);
                 if (IsDisposed) return;
-                pendingPackage = null; ShowRelease(release);
+                ShowRelease(release);
             });
         }
         async Task LoadUpdatePackage()
         {
+            if (catalogBusy) return;
             using (var file = new OpenFileDialog { Title = "Abrir actualización de SSH Backup", Filter = "Paquete firmado SSH Backup|*.sshupdate" })
             {
                 if (file.ShowDialog(this) != DialogResult.OK) return;
                 string path = file.FileName;
-                await CatalogOperation(async token => {
+                await UpdateOperation(async token => {
+                    pendingRelease = null; pendingPackage = null; updateProgress.Value = 0;
+                    updateStatus.Text = "Comprobando la firma y el contenido del paquete…";
                     var release = await Task.Run(() => Updates.ReadPackage(path), token);
+                    token.ThrowIfCancellationRequested();
                     if (IsDisposed) return;
                     pendingPackage = path; ShowRelease(release);
                 });
@@ -332,21 +366,38 @@ namespace SSHBackup
         {
             pendingRelease = release;
             bool newer = Version.Parse(release.Version) > Version.Parse(Program.Version);
-            installUpdate.Enabled = newer;
-            updateNotes.Text = "SSH Backup " + release.Version + "\r\n" + (newer ? "Nueva versión disponible. Firma verificada." : "Ya tienes esta versión o una posterior.") + "\r\n\r\n" + release.Notes;
+            installUpdate.Enabled = newer && !updateBusy;
+            updateStatus.Text = newer ? "SSH Backup " + release.Version + " disponible. Firma verificada." : "SSH Backup está actualizado. Firma del canal verificada.";
+            updateNotes.Text = "SSH Backup " + release.Version + "\r\n\r\n" + release.Notes;
         }
         async Task InstallUpdate()
         {
+            if (catalogBusy) return;
             if (Busy) { Ui.Error(this, "Espera a que terminen las copias antes de actualizar."); return; }
             var release = pendingRelease;
-            if (release == null) return;
-            if (MessageBox.Show(this, "Se cerrará SSH Backup, se guardará el EXE anterior y se abrirá la nueva versión.\r\nLos servidores y credenciales se conservan. ¿Continuar?", "Instalar actualización", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-            await CatalogOperation(async token => {
+            if (release == null || Version.Parse(release.Version) <= Version.Parse(Program.Version)) return;
+            if (MessageBox.Show(this, "Se descargará e instalará SSH Backup " + release.Version + ".\r\nDespués se reiniciará el programa, conservando tus servidores, accesos y ajustes. ¿Continuar?", "Instalar actualización", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            await UpdateOperation(async token => {
+                updateInstalling = true; RefreshButtons();
                 string path = pendingPackage;
-                if (path == null) path = await Updates.DownloadPackageAsync(release, Path.Combine(store.DirectoryPath, "Actualizaciones"), token);
+                if (path == null)
+                {
+                    updateStatus.Text = "Descargando la actualización…";
+                    var progress = new Progress<UpdateProgress>(value => {
+                        if (IsDisposed || !updateBusy) return;
+                        updateProgress.Style = value.Total > 0 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
+                        updateProgress.Value = value.Percent;
+                        updateStatus.Text = "Descargando " + Validation.FormatBytes(value.Received) + (value.Total > 0 ? " de " + Validation.FormatBytes(value.Total) + " · " + value.Percent + "%" : "");
+                    });
+                    path = await Updates.DownloadPackageAsync(release, Updates.CacheRoot, token, progress);
+                }
+                token.ThrowIfCancellationRequested();
                 if (IsDisposed) return;
                 if (Busy) throw new InvalidOperationException("Hay una copia activa; vuelve a instalar al terminar.");
-                store.Save(); Updates.LaunchInstall(path, store.DirectoryPath); Close();
+                pendingPackage = path; updateProgress.Style = ProgressBarStyle.Continuous; updateProgress.Value = 100;
+                updateStatus.Text = "Firma y descarga verificadas. Preparando el reinicio…";
+                store.Save(); await Task.Run(() => Updates.LaunchInstall(path, store.DirectoryPath), token);
+                if (!IsDisposed) Close();
             });
         }
     }

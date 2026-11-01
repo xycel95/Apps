@@ -23,3 +23,10 @@
 - Conservar las comprobaciones históricas con su alcance real. No presentar Linux/Mono como una validación en Windows nativo.
 
 - La navegación principal de cada programa utiliza, en este orden: **Descripción del programa**, **Cómo funciona y guía**, **Descargar** y **Notas de parche**. Código, licencias y contexto son documentación complementaria.
+
+## Desde 2.2.0
+
+- El canal oficial está preparado en `Updates.OfficialChannel`; un ajuste vacío utiliza ese canal. Conservar canales personalizados y .sshupdate para clientes 2.0/2.1.
+- Paquetes y EXE de versión son fijos; publicar el XML firmado en `actualizaciones/stable.xml`. Mantener la clave pública original.
+- El instalador nuevo espera preparado/confirmación y no permite iniciar copias durante la instalación. No retirar la compatibilidad con `--apply-update` de clientes antiguos.
+- Compilar con Roslyn y verificar el manifiesto PE mediante `winres.py`; no distribuir una compilación mcs sin ese manifiesto.

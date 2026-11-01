@@ -1,0 +1,25 @@
+name: SSH Backup - actualizaciones Windows
+on:
+  push:
+    branches: [ssh-backup, 'ssh-backup-verificacion-*']
+    paths: ['apps/ssh-backup/**', '.github/workflows/ssh-backup-windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar y comprobar la actualización en Windows
+        shell: powershell
+        run: ./apps/ssh-backup/pruebas/Validar-Windows.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssh-backup-validacion-windows
+          path: |
+            apps/ssh-backup/pruebas/VALIDACION-WINDOWS.json
+            ${{ runner.temp }}/SSH Backup prueba */gui/*.png
+          if-no-files-found: ignore

@@ -1,74 +1,34 @@
 # SSH Backup
 
-Aplicación de escritorio para Windows 10 y 11 que crea copias locales por SSH/SFTP, con varios servidores, alias, progreso e historial. Versión: **2.1.0**, entregada el 23 de octubre de 2026. Requiere .NET Framework 4.8 para ejecutarse.
+Copias locales de carpetas remotas por SSH/SFTP para Windows 10/11 y .NET Framework 4.8. **Versión 2.2.0 · 1 de noviembre de 2026.**
 
-## Apartados
+1. [Descripción del programa](DESCRIPCION.md)
+2. [Cómo funciona y guía](docs/README.md)
+3. [Descargar](descargas/README.md)
+4. [Notas de parche](notas-de-parche/README.md)
 
-| Apartado | Contenido |
-| --- | --- |
-| [Descripción del programa](DESCRIPCION.md) | Para qué sirve y sus requisitos |
-| [Cómo funciona y guía](docs/README.md) | Primeros pasos y guía detallada |
-| [Descargar](descargas/README.md) | Paquete portátil, integridad y disponibilidad |
-| [Notas de parche](notas-de-parche/README.md) | Cambios de cada versión, con lo más reciente arriba |
-| [Código](Codigo/) | Fuentes y herramientas de compilación |
-| [Contexto](CONTEXTO.md) | Estado y pendientes para continuar desde otro chat |
+## Actualizaciones desde la app
 
-El archivo [app.json](app.json) reúne la versión, los enlaces y el estado de la descarga para que la web o una conversación futura puedan consultarlos.
+En **Herramientas → Actualizaciones**, pulsa **Comprobar actualizaciones**, revisa las novedades y elige **Instalar actualización**. El canal oficial ya está preparado. La descarga muestra su progreso, permite cancelar y se valida con firma RSA y SHA-256 antes de instalar.
 
-Este directorio contiene el proyecto de la aplicación. Para continuarlo desde otra conversación, leer primero [AGENTS.md](AGENTS.md) y [CONTEXTO.md](CONTEXTO.md) desde esta misma rama, además de las instrucciones generales del repositorio Apps.
+Desde 2.0/2.1, abre el [paquete firmado 2.2.0](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_2.2.0.sshupdate) con **Abrir paquete** para dar el salto inicial. También puedes pegar el [canal oficial](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml) una vez. Desde 1.x, cierra la app y sustituye el EXE.
 
-## Estado de publicación
-
-**[Descargar SSH Backup 2.1.0 — paquete completo original](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip).** La entrega original está publicada con su ejecutable, paquete firmado, dependencias, guías y plantillas. Se han comprobado CRC, SHA-256 y firma RSA. El [apartado de descargas](descargas/README.md) incluye los archivos y los valores de integridad; app.json refleja su disponibilidad.
-
-## Documentación y actualización
-
-- [Guía de uso en texto](Codigo/GUIA.txt).
-- [Historial de notas de parche](notas-de-parche/README.md).
-- [Notas originales de la entrega en texto](Codigo/NOTAS_DEL_PARCHE.txt).
-- [Resumen de las comprobaciones](docs/VALIDACION.txt).
-- [Paquete completo ZIP](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.1.0.zip).
-- [Guía de uso en PDF](docs/SSHBackup_Guia_de_uso.pdf).
-- [Notas de parche 2.1.0 en PDF](docs/SSHBackup_Notas_del_parche_2.1.0.pdf).
-
-El repositorio es público. La migración no configura por sí sola un canal automático del actualizador. Los siguientes pasos de actualización se aplican al paquete una vez esté disponible.
-
-Desde la versión 2.0: extraer el ZIP y abrir `SSHBackup_2.1.0.sshupdate` dentro de **Herramientas → Actualizaciones → Abrir paquete**. Esperar a que terminen las copias antes de instalar. También se puede cerrar el programa y sustituir `SSHBackup.exe` en la misma ubicación, con el mismo usuario de Windows.
+Se conservan los servidores, accesos, huellas, historial, tema y ajustes. Espera a que terminen las copias; mantén la ubicación del EXE y el mismo usuario Windows. El ejecutable anterior se conserva como `.previous`; se restaura si falla el lanzamiento de la nueva versión.
 
 ## Funciones
 
-- Descargas por SSH/SFTP con contraseña o clave, huellas verificadas y origen de solo lectura.
-- Reanudación tras un corte; ZIP final completo y verificado con SHA-256.
-- Copiar solo novedades, opcional; cada ZIP final es independiente.
-- Programación opcional con siete casillas de días, cualquier combinación y hora del ordenador. Requiere PC encendido y sesión iniciada.
-- Comparador por hashes y buscador por nombre/ruta entre las copias.
-- Límite opcional de descarga SSH en Mbps o MB/s, compartido entre conexiones.
-- Actualizaciones firmadas, importación/exportación CSV/XLSX, modo claro y oscuro, y diseño con menú lateral.
+- Descarga SFTP de solo lectura, alias, importación/exportación CSV/XLSX y acceso con contraseña o clave.
+- ZIP completos verificados, reanudación y novedades opcionales; los ZIP del origen se guardan íntegros.
+- Programación opcional por cualquier combinación de días; requiere PC encendido y sesión iniciada.
+- Comparación por hashes, búsqueda por nombre/ruta y límite opcional agregado de descarga SSH.
+- Modo claro/oscuro, canal de actualizaciones preparado y paquetes firmados sin conexión.
 
-Los ZIP originales del servidor se guardan íntegros dentro de la copia; no se descomprimen. El buscador no examina texto de documentos ni el interior de ZIP anidados. El modo novedades usa tamaño y fecha remotos; si se modifica contenido manteniendo ambos metadatos, hay que hacer una descarga completa.
+[Paquete completo 2.2.0](https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/SSHBackup_Completo_2.2.0.zip) · [Novedades en la web](https://xycel95.es/aplicaciones/ssh-backup/) · [Metadatos](app.json)
 
-## Código y compilación
+## Desarrollo y comprobaciones
 
-Las fuentes, el registro de dependencias fijadas y las licencias están en [Codigo/](Codigo/). Las DLL y los recursos originales necesarios están incluidos en esta rama. En Windows, usar `Codigo/compilar.ps1` con las herramientas de compilación de .NET Framework 4.8, según sus comprobaciones iniciales. `Codigo/SSHBackup.csproj` es el proyecto .NET Framework; el ejecutable incorpora las DLL necesarias.
+[Código y licencias](Codigo/) · [Contexto](CONTEXTO.md) · [Validación 2.2.0](docs/VALIDACION-2.2.0.md) · [Publicar una versión](PUBLICAR-ACTUALIZACION.md)
 
-`build.py` y las comprobaciones Python se usaron con un runtime Mono local, no incluido aquí. `build.py` admite `SSHBACKUP_MONO_ROOT` y `SSHBACKUP_NET48_REFS`; los verificadores esperan el runtime en las rutas locales que definen al principio. Para reproducirlos en otro entorno hay que preparar ese runtime y ajustar dichas rutas. No hace falta Python para ejecutar el programa portátil.
+El EXE incorpora sus dependencias. Para compilar en Windows usa `Codigo/compilar.ps1`. La compilación Linux utiliza Roslyn y las referencias de Framework indicadas por `SSHBACKUP_DOTNET_ROOT`, `SSHBACKUP_MONO_ROOT` y `SSHBACKUP_NET48_REFS`; `winres.py` comprueba el manifiesto nativo. Mono se utiliza para las pruebas locales. La clave privada de firma se conserva fuera de GitHub.
 
-La clave privada de firma se conserva de forma privada fuera del repositorio. `Codigo/crear_actualizacion.py` recibe su ruta mediante `--clave`; la clave pública de verificación está en el código.
-
-## Estado de validación
-
-Pruebas locales en Linux/Mono superadas: interfaz en claro/oscuro y tamaño mínimo, programación y migración, SSH/SFTP, reanudación, novedades, comparación, búsqueda, límite agregado, importación/exportación y paquetes firmados. **Sigue pendiente la validación en Windows nativo**, especialmente el Programador de tareas y el arranque posterior a instalar una actualización. No se garantiza ausencia de fallos.
-
-La migración a GitHub conserva los bytes de la entrega: no añade funciones ni cambia la versión. El paquete original 2.1.0 está publicado; la consulta automática de novedades sigue sin canal web configurado.
-
-## Integridad de la entrega
-
-```text
-SSHBackup_Completo_2.1.0.zip
-SHA-256 d4b4eae3c04395aa0c2aab2df6bde746978403c5229943f9ca8adda3deb741ed
-
-SSHBackup.exe (dentro del ZIP)
-SHA-256 2b9936b40e9a7676d38359db0921b96100ea892a61b32523de4bf40ff47358c9
-```
-
-![Programación por días de SSH Backup 2.1.0](docs/SSHBackup_Programacion_moderna.png)
+La entrega original 2.1.0 y sus PDF se conservan como históricos. Las pruebas y límites de cada entrega se describen en su informe; no se confunden los ensayos Linux/Mono con Windows nativo ni con los servidores reales del destinatario.

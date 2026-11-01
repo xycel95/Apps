@@ -1,4 +1,4 @@
-SSH BACKUP 2.1.0 - GUÍA DE USO
+SSH BACKUP 2.2.0 - GUÍA DE USO
 
 DISEÑO RENOVADO
 Menú lateral, botones redondeados, controles y campos más claros, y tipografía con mejor jerarquía. El cambio se aplica a Copias, Servidores, Historial, Ajustes, Herramientas y los diálogos. El modo claro y oscuro se conservan. La programación permite marcar cada día de la semana por separado.
@@ -46,10 +46,15 @@ Si el programa está abierto al llegar la hora, usa esa misma instancia; si est�
 Mantén el EXE en una ubicación fija. Si lo mueves, guarda otra vez la programación. Los errores de preparación se guardan también en programacion.log, en la carpeta de configuración.
 
 ACTUALIZADOR INTEGRADO
-La versión 1.x se actualiza manualmente una primera vez. A partir de 2.0, Herramientas > Actualizaciones > Abrir paquete permite cargar un archivo .sshupdate recibido por correo o descargado de Drive. Muestra la versión y las novedades. Solo habilita instalar si es una versión posterior y el paquete supera la firma RSA y SHA-256.
-Al instalar, termina primero cualquier copia. El programa se cierra, conserva SSHBackup.exe.previous, sustituye el EXE y abre la versión nueva. Si no puede iniciar el proceso nuevo, restaura el archivo anterior. Los datos de configuración se conservan en su carpeta habitual del usuario.
-La distribución actual es privada. No hay un canal público ni una URL online preconfigurada. Opcionalmente puedes introducir la URL HTTPS de un manifiesto de versiones firmado y pulsar Comprobar novedades; si la nueva versión incluye una URL de paquete, puede descargarla desde el propio programa. Una página de Drive que requiera iniciar sesión no sirve como manifiesto directo.
-No se instala nada automáticamente sin pulsar Instalar actualización y confirmar el cierre.
+En Herramientas > Actualizaciones, pulsa Comprobar actualizaciones. El canal oficial ya está preparado. Revisa la versión y sus novedades y pulsa Instalar actualización. Verás el progreso de la descarga y podrás cancelarla antes de instalar.
+La firma RSA y la huella SHA-256 se validan antes de sustituir el ejecutable. El instalador se inicia y confirma que está preparado antes de cerrar la aplicación. Se conserva SSHBackup.exe.previous y se restaura si no puede lanzar la nueva versión. Los servidores, accesos, huellas, historial y ajustes se conservan.
+Espera a que terminen las copias. Durante la instalación no se inician nuevas copias manuales ni programadas. No se instala nada sin pulsar Instalar actualización y confirmar.
+Desde versiones 2.0/2.1: abre SSHBackup_2.2.0.sshupdate en Herramientas > Actualizaciones > Abrir paquete para dar el salto inicial. También puedes introducir una sola vez este canal web y comprobar novedades:
+https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/actualizaciones/stable.xml
+Desde 1.x: cierra el programa y sustituye SSHBackup.exe por el nuevo en la misma ubicación, con el mismo usuario de Windows.
+Se mantiene Abrir paquete para instalaciones sin conexión y el canal personalizado avanzado. Usar canal oficial permite volver al canal predeterminado.
+Novedades y descargas: https://xycel95.es/aplicaciones/ssh-backup/
+Notas y código: https://github.com/xycel95/Apps/tree/ssh-backup/apps/ssh-backup
 
 OTRAS FUNCIONES
 Servidores > Exportar listado conserva toda la lista en Excel o CSV, incluidos servidores no marcados para copiar. Las contraseñas solo se incluyen si se activa su casilla; en ese caso el archivo exportado contiene secretos visibles.

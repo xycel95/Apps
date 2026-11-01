@@ -1,30 +1,25 @@
-# Cómo utilizar SSH Backup
+# Cómo funciona y guía
 
-## Empezar
+1. Descarga y extrae el paquete completo; abre `SSHBackup.exe`.
+2. Añade tus servidores o importa la plantilla CSV/XLSX. Comprueba SSH y la huella del servidor.
+3. Elige los servidores y pulsa **Iniciar copia**. El origen se utiliza solo para lectura.
+4. Consulta el historial y la verificación del ZIP al terminar.
 
-1. Descarga el ZIP de [Descargas](../descargas/README.md), extráelo y mantén el ejecutable en una ubicación fija.
-2. Abre SSHBackup.exe con tu usuario de Windows.
-3. En Servidores, añade un servidor o importa una plantilla CSV/XLSX. Indica alias, acceso SSH, carpeta de origen y destino local.
-4. Usa Comprobar SSH y revisa la huella del servidor antes de aceptarla.
-5. Marca los servidores y pulsa Iniciar copia en Copias.
-6. Revisa el historial y el resultado de la verificación al terminar.
+## Actualizar el programa
 
-El programa usa el origen remoto en solo lectura. Los ZIP que ya existían en el servidor se conservan como archivos dentro de la copia, sin descomprimirlos allí.
+Desde 2.2, **Herramientas → Actualizaciones → Comprobar actualizaciones** utiliza el canal oficial preparado. Revisa las novedades firmadas y pulsa **Instalar actualización**. Muestra el progreso y permite cancelar antes de instalar; después reinicia el programa.
 
-## Opciones
+Desde 2.0/2.1, abre el paquete `SSHBackup_2.2.0.sshupdate` para instalar esta primera entrega con el canal preparado. También puedes pegar una sola vez el canal oficial y comprobar novedades. Desde 1.x, cierra el programa y sustituye el EXE.
 
-- **Reanudación:** vuelve a intentar la copia con el mismo origen y destino; los temporales compatibles permiten continuar la descarga.
-- **Novedades:** reutiliza archivos sin cambios de una copia compatible anterior. Cada ZIP resultante sigue siendo completo.
-- **Programación:** elige hora y días en Herramientas. Necesita PC encendido, sesión iniciada y una ubicación fija del ejecutable.
-- **Límite de red:** se configura en Ajustes y se comparte entre las conexiones SSH de la aplicación.
-- **Actualizaciones:** un paquete firmado se abre desde Herramientas → Actualizaciones → Abrir paquete. No hay un canal online configurado por el hecho de publicar esta rama.
+No debe haber copias en marcha. La configuración, los accesos, las huellas, el historial y el tema se conservan usando el mismo usuario de Windows y ubicación. Si mueves el EXE, vuelve a guardar la programación. Se guarda `.previous` y se restaura si no se puede iniciar el proceso nuevo.
 
-## Documentación detallada
+Se mantienen **Abrir paquete**, el canal personalizado avanzado y **Usar canal oficial**. Hay accesos a las novedades de la web y a GitHub.
 
-- [Guía completa original 2.1.0](LEEME.txt).
-- [Guía completa en PDF](SSHBackup_Guia_de_uso.pdf).
-- [Notas de parche 2.1.0 en PDF](SSHBackup_Notas_del_parche_2.1.0.pdf).
-- [Comprobaciones y límites conocidos](VALIDACION.txt).
-- [Notas de parche](../notas-de-parche/README.md).
+- [Guía completa vigente en texto](../Codigo/GUIA.txt)
+- [Descargar](../descargas/README.md)
+- [Notas de parche](../notas-de-parche/README.md)
+- [Validación 2.2.0](VALIDACION-2.2.0.md)
+- [Plantilla Excel](../plantillas/Plantilla_Servidores_SSH.xlsx)
+- [PDF histórico de la guía 2.1.0](SSHBackup_Guia_de_uso.pdf)
 
-La guía original describe la distribución de la entrega del 23 de octubre. La entrega completa original ya está disponible en [Descargar](../descargas/README.md). La migración conserva el código existente y no cambia la versión del programa.
+Requiere Windows 10/11 y .NET Framework 4.8. No necesitas Python ni Excel para utilizarlo. La programación usa la hora del PC y requiere sesión iniciada; el buscador trabaja por nombres y rutas. Cada ZIP final es completo e independiente. Los ZIP originales del servidor no se descomprimen.

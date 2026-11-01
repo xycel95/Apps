@@ -191,7 +191,7 @@ namespace SSHBackup
         }
         async void StartCopies(bool checkOnly, bool failedOnly, bool scheduled = false)
         {
-            if (Busy) return;
+            if (Busy || updateInstalling) return;
             var targets = checkOnly ? SelectedServers() : store.Settings.Servers.Where(s => s.Enabled).ToList();
             if (checkOnly && targets.Count == 0) targets = store.Settings.Servers.Where(s => s.Enabled).ToList();
             if (failedOnly)

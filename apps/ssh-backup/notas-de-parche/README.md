@@ -2,6 +2,25 @@
 
 Las versiones nuevas se añaden arriba. Se conserva el historial anterior.
 
+## 2.2.0 — 1 de noviembre de 2026
+
+**Actualizaciones en línea desde la aplicación, como en GUARDA.**
+
+- Canal oficial preparado: **Herramientas → Actualizaciones → Comprobar actualizaciones**.
+- Revisa las novedades y pulsa **Instalar actualización**, con progreso y cancelación de la descarga.
+- Firma RSA y SHA-256 con la clave original; conserva configuración, credenciales, huellas e historial.
+- El instalador confirma que está listo antes de cerrar la app y conserva `SSHBackup.exe.previous`. Si falla el inicio del proceso nuevo, restaura el ejecutable anterior.
+- Durante la instalación no arrancan copias manuales ni programadas.
+- Continúan los canales personalizados, los paquetes `.sshupdate` y los enlaces a las novedades de la web y GitHub.
+
+**Salto inicial desde 2.0/2.1:** abre `SSHBackup_2.2.0.sshupdate` en **Herramientas → Actualizaciones → Abrir paquete**. También puedes introducir el [canal oficial](../../ssh-backup/actualizaciones/stable.xml) una sola vez y comprobar novedades. Desde 2.2 ya viene preparado. Desde 1.x, sustituye el EXE con la app cerrada.
+
+Comprueba que no haya copias en marcha. Mantén el EXE en la misma ubicación y utiliza el mismo usuario de Windows. Si lo mueves, vuelve a guardar la programación.
+
+[Descargar](../descargas/README.md) · [Comprobaciones y límites](../docs/VALIDACION-2.2.0.md) · [Novedades en la web](https://xycel95.es/aplicaciones/ssh-backup/#updates-title)
+
+---
+
 ## 2.1.0 — 23 de octubre de 2026
 
 **Diseño renovado y programación por días.**

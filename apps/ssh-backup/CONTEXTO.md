@@ -1,3 +1,21 @@
+# Estado vigente — SSH Backup 2.2.0, 1 de noviembre de 2026
+
+Por petición del propietario se incorpora el flujo de actualizaciones de GUARDA: canal oficial preparado, novedades firmadas, progreso/cancelación y descarga/instalación desde la app. Se conserva el formato .sshupdate y la clave pública original para compatibilidad con 2.0/2.1.
+
+Código: `Updates.cs` y `ToolsPage.cs`; `Program.cs` reconoce tanto el instalador nuevo como `--apply-update` de clientes antiguos. El instalador nuevo confirma preparado/permiso antes de cerrar, valida proceso/destino y conserva `.previous`. Se bloquea el inicio manual o programado de copias durante la instalación. No se modifica el motor SFTP.
+
+Canal: `actualizaciones/stable.xml`; paquetes y EXE fijos en `descargas/versiones/2.2.0/`. La clave privada original se recupera de su archivo privado; nunca se publica ni rota. La firma del canal queda dentro del XML para mantener compatibilidad.
+
+90 comprobaciones locales Linux/Mono correctas y revisión visual claro/oscuro. Compilación Roslyn con manifiesto PE verificado. La comprobación Windows está en `.github/workflows/ssh-backup-windows.yml` y `pruebas/Validar-Windows.ps1`; consultar su resultado real. Programador de tareas y servidores reales no se prueban en esta entrega.
+
+Desde 2.0/2.1, instalar el paquete 2.2.0 o pegar una vez el canal oficial; desde 2.2 viene preparado. La ficha web y la comunicación solicitada se publican después de comprobar la entrega, por la autorización expresa de esta petición. Registrar sus resultados observados al completar.
+
+---
+
+## Contexto histórico hasta 2.1.0
+
+Las indicaciones siguientes sobre ausencia de canal y versión 2.1.0 describen la migración histórica y quedan sustituidas por el estado vigente anterior.
+
 # Contexto de SSH Backup
 
 Actualizado el 25 de octubre de 2026 para continuar el proyecto desde GitHub.

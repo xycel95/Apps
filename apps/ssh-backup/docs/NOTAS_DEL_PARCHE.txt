@@ -1,3 +1,22 @@
+SSH BACKUP 2.2.0 - ACTUALIZACIONES EN LÍNEA
+1 de noviembre de 2026
+
+- Canal oficial preparado para comprobar e instalar desde la aplicación, como en GUARDA.
+- Novedades firmadas antes de instalar; progreso de descarga y cancelación.
+- Se conservan los canales personalizados y los paquetes .sshupdate sin conexión.
+- El instalador confirma que está preparado antes de cerrar la app, comprueba el destino y conserva el EXE anterior.
+- Durante la instalación no se inician copias manuales ni programadas.
+- Accesos directos a las novedades de la web y a GitHub.
+- Se conservan la clave pública original, la configuración, las credenciales, las huellas y el historial.
+
+PARA PASAR DESDE 2.0/2.1
+Abrir SSHBackup_2.2.0.sshupdate en Herramientas > Actualizaciones > Abrir paquete. También sirve introducir el canal oficial y comprobar novedades una vez. Desde 2.2 el canal queda preparado.
+
+Las comprobaciones realizadas y sus límites figuran en docs/VALIDACION-2.2.0.md. La validación del Programador de tareas y del uso con servidores reales en el equipo de destino sigue siendo independiente.
+
+
+HISTÓRICO
+
 SSH BACKUP 2.1.0 - DISEÑO RENOVADO Y PROGRAMACIÓN POR DÍAS
 23 de octubre de 2026
 

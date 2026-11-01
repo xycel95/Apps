@@ -19,9 +19,9 @@ Windows 10 u 11 y .NET Framework 4.8. El uso normal no requiere Python ni Micros
 
 ## Versión documentada
 
-2.1.0, entregada el 23 de octubre de 2026. Las pruebas registradas corresponden a Linux/Mono. Sigue pendiente comprobar Windows nativo, el Programador de tareas y el arranque tras actualizar.
+2.2.0, del 1 de noviembre de 2026. El canal oficial está preparado para consultar e instalar desde la aplicación. Se han superado 90 comprobaciones locales Linux/Mono. El informe de validación distingue las pruebas nativas de Windows que confirme Actions de lo que sigue pendiente en el equipo de destino.
 
-La programación requiere que el ordenador esté encendido y que la sesión de Windows esté iniciada. No hay un canal de actualizaciones online preconfigurado.
+La programación requiere que el ordenador esté encendido y que la sesión de Windows esté iniciada.
 
 ## Enlaces
 
@@ -29,3 +29,5 @@ La programación requiere que el ordenador esté encendido y que la sesión de W
 - [Descargas y su estado](descargas/README.md).
 - [Notas de parche](notas-de-parche/README.md).
 - [Código fuente](Codigo/).
+
+Desde 2.2.0, el canal oficial permite comprobar las novedades firmadas, descargar e instalar desde la aplicación con progreso y cancelación.
