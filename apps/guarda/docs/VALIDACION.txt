@@ -1,43 +1,57 @@
-GUARDA 1.1.0 · COMPROBACIONES
+GUARDA 1.1.1 · COMPROBACIONES
 
 ENTREGA
 Ejecutable PE administrado de Windows, AnyCPU, WinForms, .NET Framework 4.8.
-Manifiesto nativo incorporado y comprobado: sin elevación, DPI y rutas largas.
+Compilación de distribución con Microsoft Roslyn en Windows Server 2025.
+Icono, recursos y manifiesto incorporados por el compilador en una pasada.
+Manifiesto sin elevación, con compatibilidad DPI y rutas largas.
 Canal firmado RSA-3072/SHA-256; ejecutable vinculado por versión, tamaño y huella.
 No se incluyen bibliotecas de SSH Backup ni claves privadas.
 
-MOTOR · 16 PRUEBAS EN LINUX/MONO
+MOTOR · RECUENTO POR PLATAFORMA
+En Windows se ejecutan 14 casos. Los dos casos adicionales de enlaces de
+Linux/Mono no se ejecutan en Windows; no se cuentan como pruebas superadas.
 Copias reales verificadas, binarios, Unicode, ocultos, vacíos, subcarpetas,
 fechas, colisiones y copias repetidas sin sobrescribir. Destino igual al origen
-o anidado bloqueado, incluso mediante enlace. Destino ausente y cancelaciones.
-Eliminación del archivo parcial de la nueva copia. Detección de cambios en
-origen y alteraciones en destino. Informe fuera del origen, nombres inseguros,
-calendarios y enlaces o bucles no seguidos e indicados como copia incompleta.
+o anidado bloqueado. Destino ausente y cancelaciones. Detección de cambios en
+origen y alteraciones en destino. Informe fuera del origen, nombres inseguros
+y calendarios. El registro obtiene el recuento de la salida real de las pruebas.
 
-ACTUALIZADOR · 13 PRUEBAS EN LINUX/MONO
-Canal firmado con la clave integrada, comparación de versiones y rechazo de
-manifiesto/firma alterados, firmas truncadas, metadatos excesivos y versiones
-inválidas. Consulta mediante transporte controlado.
-Comprobación de un ejecutable real: firma, longitud, SHA-256, identidad y versión.
-Rechazo de descargas truncadas o alteradas del mismo tamaño.
-Sustitución de un archivo instalado y conservación de copia anterior.
-Restauración si se simula un fallo de apertura del nuevo ejecutable.
-Un hash erróneo no modifica el instalado; rechazo de rutas externas y
-argumentos con caracteres inseguros.
+ACTUALIZADOR · 13 CASOS
+Canal firmado de prueba, comparación de versiones y rechazo de manifiesto o
+firma alterados, firmas truncadas, metadatos excesivos y versiones inválidas.
+Consulta mediante transporte controlado. Comprobación de un ejecutable real:
+firma, longitud, SHA-256, identidad y versión. Rechazo de descargas truncadas
+o alteradas del mismo tamaño. Sustitución de un archivo instalado y conservación
+de la copia anterior. Restauración si se simula un fallo de apertura.
+Un hash erróneo no modifica el instalado; rechazo de rutas externas y argumentos
+con caracteres inseguros. La clave de estos casos es efímera y no es la clave
+privada de distribución. El canal publicado se verifica aparte con su clave real.
 
-INTERFAZ · MONO WINFORMS Y PANTALLA VIRTUAL X11
-Ventana abierta, temas oscuro y claro, persistencia de la elección.
+INTERFAZ Y ACTUALIZACIÓN NATIVA
+Prueba de apertura, temas oscuro y claro y persistencia de la elección.
 Copia real desde Crear copia, contenido comprobado y controles restablecidos.
-Revisión visual de ambos temas, resultado y tamaño mínimo.
-Ventana de actualizaciones abierta y revisada.
-Las imágenes publicadas usan rutas de ejemplo y no datos del usuario.
+Capturas de ambos temas, ventana de actualizaciones, resultado y tamaño mínimo.
+Prueba de actualización con salida del proceso anterior, sustitución del archivo,
+apertura real de la nueva ventana y conservación de la copia del ejecutable previo.
+Las imágenes publicadas muestran rutas de ejemplo y archivos sintéticos.
+
+ANTIVIRUS Y CERTIFICADOS
+El informe VALIDACION-WINDOWS.json identifica el hash del ejecutable, compilador,
+versión de Defender y resultado observado del análisis nativo.
+Un análisis sin amenazas no garantiza el resultado en todos los equipos.
+El EXE no tiene un certificado Authenticode de editor reconocido. La firma RSA
+del canal sirve para autenticar las actualizaciones y es una función distinta.
+El bloqueo en el equipo del usuario sigue sin tener una causa confirmada:
+falta el nombre exacto de la detección o el aviso completo del sistema de protección.
 
 LÍMITES
-No se ha ejecutado en un Windows real ni con un pendrive físico.
-El ciclo completo entre procesos de cierre, sustitución y reinicio sigue
-pendiente de probar en Windows. Las pruebas de sustitución y restauración
-usan un lanzador controlado; no afirman el reinicio nativo de la GUI.
-La consulta se valida con transporte controlado y el canal publicado se
-recupera con GitHub; no se afirma una consulta HTTPS desde el Windows del usuario.
-Pendientes: selector nativo, rutas resueltas de Windows, permisos, bloqueos,
-red, fechas en FAT32/exFAT/NTFS, extracción física y rutas largas según Windows.
+Las pruebas nativas se realizan en Windows Server 2025 de GitHub Actions.
+No se ha probado con un pendrive físico ni en el Windows concreto del usuario.
+La consulta se valida con transporte controlado y el canal publicado se recupera
+con GitHub; no se afirma una consulta HTTPS desde el Windows del usuario.
+Pendientes: selector de carpetas con interacción humana, rutas resueltas de
+Windows y de red, permisos y bloqueos específicos, FAT32/exFAT/NTFS,
+extracción física, archivos largos y restricciones del equipo del usuario.
+
+Ver el informe de la ejecución y sus resultados concretos en VALIDACION-WINDOWS.json.

@@ -1,11 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <GuardaUpdate schema="1" app="guarda">
-  <Version>1.1.0</Version>
-  <Url>https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/versiones/1.1.0/Guarda.exe</Url>
-  <Sha256>6612811bda01e43ec46ea52023f6797fa9d79f2fc8765c57cd3239c4d0ba9df4</Sha256>
-  <Size>86528</Size>
-  <Notes>Nuevo diseño con vista previa de la copia.
-Modo oscuro y tema claro con preferencia guardada.
-Buscar actualizaciones, descarga firmada y reinicio conservando ajustes.
+  <Version>1.1.1</Version>
+  <Url>https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/versiones/1.1.1/Guarda.exe</Url>
+  <Sha256>0c0e98872eb3071fae850636aa458313b0012fd0e43efe77fa32f8728c8c519b</Sha256>
+  <Size>82944</Size>
+  <Notes>Compilación con Microsoft Roslyn en Windows. Mantiene el diseño moderno, los temas oscuro y claro y las actualizaciones desde la app. Incluye comprobaciones nativas de copias, interfaz y sustitución con reinicio. El canal conserva la misma clave de firma. La firma de actualizaciones es independiente de Authenticode; el ejecutable no tiene un certificado de editor reconocido. Consulta el informe y el diagnóstico de bloqueos en la página de Guarda.
 </Notes>
 </GuardaUpdate>

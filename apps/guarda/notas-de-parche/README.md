@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 1.1.1 · 1 de noviembre de 2026
+
+- Compilación de distribución con Microsoft Roslyn en Windows, con los recursos y el manifiesto incorporados por el compilador en una sola pasada.
+- Compilación de desarrollo con Roslyn; Mono queda como herramienta de ejecución de pruebas en Linux.
+- Metadatos de editor coherentes con XYCEL. Se mantiene la clave pública del actualizador.
+- Pruebas nativas de copias, temas, verificación y actualización entre procesos, incluida la sustitución y apertura reales del ejecutable.
+- Análisis del archivo con Microsoft Defender activo e informe con hash, herramientas y resultado. No se detectan amenazas en ese análisis; no se garantiza la aceptación en todos los antivirus o equipos.
+- Documentación que diferencia la firma RSA del canal de actualizaciones y un certificado Authenticode del ejecutable.
+- Corrección de las pruebas gráficas para ejecutarse también en Windows y registro del número real de casos ejecutados en cada plataforma.
+- Prueba de la ventana con el bucle de mensajes de Windows, para esperar correctamente la finalización de las operaciones asíncronas. Captura completa de errores y códigos de salida de los procesos de prueba.
+
+Se conserva el diseño y la funcionalidad de 1.1.0. El motivo exacto del bloqueo mostrado en el equipo del usuario sigue pendiente de identificar: Defender tampoco informa de amenazas en el archivo anterior de la prueba.
+
 ## 1.1.0 · 1 de noviembre de 2026
 
 - Nueva interfaz con tarjetas, selección por pasos, vista previa del nombre y progreso separado.

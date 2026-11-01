@@ -23,7 +23,7 @@ La fecha utilizada es la fecha local del ordenador al empezar la copia. La carpe
 
 ## Comprobación del contenido
 
-La casilla **Comprobar el contenido después de copiar** está activada por defecto. Guarda calcula la huella SHA-256 del contenido leído del original y vuelve a leer cada archivo del destino para comparar ambas huellas. Este segundo paso requiere tiempo adicional.
+La casilla **Verificar al terminar** está activada por defecto. Guarda calcula la huella SHA-256 del contenido leído del original y vuelve a leer cada archivo del destino para comparar ambas huellas. Este segundo paso requiere tiempo adicional.
 
 También vuelve a revisar el origen para detectar archivos que se hayan añadido, quitado o modificado mientras trabajaba. Cierra las aplicaciones que estén modificando los archivos que quieres copiar.
 
@@ -60,6 +60,6 @@ Las preferencias se conservan. El anuncio debe estar firmado con la clave oficia
 
 La búsqueda y descarga necesitan Internet. Si no hay conexión o no se puede escribir en la carpeta del programa, se muestra un mensaje; puedes seguir utilizando la app o descargar el ejecutable desde [Descargar](../descargas/README.md). No hay instalación silenciosa al iniciar.
 
-**Importante para 1.0.1 y Copia Fácil:** esas versiones aún no tenían el actualizador. Descarga la versión 1.1.0 manualmente una vez; a partir de ella tendrás el botón integrado.
+**Importante para 1.0.1 y Copia Fácil:** esas versiones aún no tenían el actualizador. Descarga la versión actual manualmente una vez; después tendrás el botón integrado.
 
 [Guía completa en texto](LEEME.txt) · [Comprobaciones y limitaciones](VALIDACION.txt) · [Descargar](../descargas/README.md).

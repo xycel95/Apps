@@ -19,8 +19,8 @@ namespace Guarda
             {
                 byte[] manifest = File.ReadAllBytes(args[0]), signature = Convert.FromBase64String(File.ReadAllText(args[0] + ".sig"));
                 string payload = args[1]; SignedUpdate release = null;
-                Case("Canal oficial firmado con la clave integrada", () => { release = Updates.ReadSigned(manifest, signature); Check(release.Version == "1.1.0", "versión"); });
-                Case("Versiones: disponible para 1.0.1 y actual para 1.1.0", () => { Check(Updates.ParseVersion(release.Version) > Updates.ParseVersion("1.0.1"), "nueva"); Check(Updates.ParseVersion("1.1.0") == Updates.ParseVersion("1.1.0.0"), "igual"); });
+                Case("Canal oficial firmado con la clave integrada", () => { release = Updates.ReadSigned(manifest, signature); Check(Updates.ParseVersion(release.Version) == Updates.ParseVersion(System.Reflection.AssemblyName.GetAssemblyName(payload).Version.ToString()), "versión"); });
+                Case("Versiones: actualización y comparación con cuatro componentes", () => { Check(Updates.ParseVersion(release.Version) > Updates.ParseVersion("1.0.1"), "nueva"); Check(Updates.ParseVersion("1.1.0") == Updates.ParseVersion("1.1.0.0"), "igual"); });
                 Case("Manifiesto alterado se rechaza", () => { byte[] changed = (byte[])manifest.Clone(); changed[25] ^= 1; Reject(() => Updates.ReadSigned(changed, signature)); });
                 Case("Firma alterada o truncada se rechaza", () => { byte[] changed = (byte[])signature.Clone(); changed[20] ^= 1; Reject(() => Updates.ReadSigned(manifest, changed)); Reject(() => Updates.ReadSigned(manifest, new byte[12])); });
                 Case("Tamaño máximo de metadatos y versiones inválidas", () => { Reject(() => Updates.ReadSigned(new byte[65537], signature)); Reject(() => Updates.ParseVersion("otra")); Reject(() => Updates.ParseVersion("1.2")); });

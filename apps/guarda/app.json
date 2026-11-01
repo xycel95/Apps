@@ -2,9 +2,9 @@
   "schema": 1,
   "id": "guarda",
   "name": "Guarda",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "release_date": "2026-11-01",
-  "summary": "Copias de carpetas con fecha y verificación, diseño renovado, temas oscuro/claro y actualizaciones firmadas desde la app.",
+  "summary": "Copias de carpetas con fecha, temas oscuro/claro, actualizador firmado y compilación y comprobaciones nativas en Windows.",
   "platforms": [
     "Windows 10",
     "Windows 11"
@@ -20,11 +20,11 @@
   "source_url": "https://github.com/xycel95/Apps/tree/guarda/apps/guarda/Codigo",
   "download": {
     "available": true,
-    "filename": "Guarda_v1.1.0_Completo.zip",
-    "path": "apps/guarda/descargas/Guarda_v1.1.0_Completo.zip",
-    "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda_v1.1.0_Completo.zip",
-    "sha256": "0821f45d54fdfeb9687edac1fc343bb73aa3bddcb23196759401c4f6ed9a7c68",
-    "size_bytes": 100988,
+    "filename": "Guarda_v1.1.1_Completo.zip",
+    "path": "apps/guarda/descargas/Guarda_v1.1.1_Completo.zip",
+    "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda_v1.1.1_Completo.zip",
+    "sha256": "8e6d595e99d21a9fefee0130d07d109d5efa55d7258c6646f0c0bbec89fbe632",
+    "size_bytes": 192398,
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/SHA256SUMS.txt"
   },
   "executable": {
@@ -32,21 +32,28 @@
     "filename": "Guarda.exe",
     "path": "apps/guarda/descargas/Guarda.exe",
     "url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/Guarda.exe",
-    "sha256": "6612811bda01e43ec46ea52023f6797fa9d79f2fc8765c57cd3239c4d0ba9df4",
-    "size_bytes": 86528,
+    "sha256": "0c0e98872eb3071fae850636aa458313b0012fd0e43efe77fa32f8728c8c519b",
+    "size_bytes": 82944,
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/guarda/apps/guarda/descargas/SHA256SUMS.txt"
   },
   "validation": {
     "report_url": "https://github.com/xycel95/Apps/blob/guarda/apps/guarda/docs/VALIDACION.txt",
-    "environment": "Linux/Mono",
-    "native_windows_verified": false,
+    "environment": "Windows Server 2025 / Microsoft Roslyn / Microsoft Defender",
+    "native_windows_verified": true,
     "physical_usb_verified": false,
-    "core_tests_passed": 16,
-    "core_tested_version": "1.1.0",
-    "gui_tested_version": "1.1.0",
+    "core_tests_passed": 14,
+    "core_tested_version": "1.1.1",
+    "gui_tested_version": "1.1.1",
     "updater_tests_passed": 13,
-    "native_update_cycle_verified": false,
-    "transport": "controlled fixtures; published channel verified through GitHub"
+    "native_update_cycle_verified": true,
+    "transport": "controlled fixtures; published channel verified through GitHub",
+    "native_report_url": "https://github.com/xycel95/Apps/blob/guarda/apps/guarda/docs/VALIDACION-WINDOWS.json",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/41263748218",
+    "native_defender_result": "no-threats-reported",
+    "authenticode": "NotSigned",
+    "core_platform_exclusions": [
+      "Dos casos de enlaces exclusivos de Linux no se ejecutan en Windows."
+    ]
   },
   "online_updates_configured": true,
   "updates": {

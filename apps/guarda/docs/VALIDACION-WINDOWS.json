@@ -1,0 +1,28 @@
+{
+  "version": "1.1.1",
+  "source_commit": "de4feacd6f351f94b0d8b02ec6f2a6aa01083ef2",
+  "environment": "Microsoft Windows NT 10.0.26100.0",
+  "build": "passed",
+  "defender": "no-threats-reported",
+  "core": "14-passed",
+  "updater": "13-passed",
+  "gui": "copy-and-themes-passed",
+  "native_update_cycle": "parent-exit-replace-restart-passed",
+  "sha256": "0c0e98872eb3071fae850636aa458313b0012fd0e43efe77fa32f8728c8c519b",
+  "size_bytes": 82944,
+  "authenticode": "NotSigned",
+  "compiler": "5.11.0-1.26424.5 (fcacacf82e2055472a6ec4060a4be88ebc0e1acf)",
+  "defender_signature": "1.463.66.0",
+  "defender_signature_updated": "2026-10-31T18:13:49.0000000Z",
+  "defender_scan_exit": 0,
+  "defender_output": "Scan starting...\r\nScan finished.\r\nScanning D:\\a\\_temp\\Guarda-validacion\\Guarda.exe found no threats.",
+  "previous_sha256": "6612811bda01e43ec46ea52023f6797fa9d79f2fc8765c57cd3239c4d0ba9df4",
+  "previous_defender_exit": 0,
+  "previous_defender_output": "Scan starting...\r\nScan finished.\r\nScanning D:\\a\\_temp\\Guarda-validacion\\Guarda-1.1.0-anterior.exe found no threats.",
+  "result": "passed",
+  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/41263748218",
+  "workflow_run_id": 41263748218,
+  "core_platform_exclusions": [
+    "Dos casos de enlaces exclusivos de Linux no se ejecutan en Windows."
+  ]
+}

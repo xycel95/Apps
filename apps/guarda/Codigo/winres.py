@@ -82,5 +82,10 @@ def write_with_manifest(executable, manifest, output):
 
 def verify_manifest(executable, expected):
     found = [data for kind, name, language, data in resources(executable) if kind == 24 and name == 1]
-    if found != [Path(expected).read_bytes()]:
+    # Git checkouts on Windows may use CRLF while the same source uses LF on
+    # Linux. Preserve every manifest value and only normalize the text encoding
+    # marker and line endings when checking the embedded resource.
+    def normalized(data):
+        return data.decode('utf-8-sig').replace('\r\n', '\n')
+    if len(found) != 1 or normalized(found[0]) != normalized(Path(expected).read_bytes()):
         raise ValueError('El manifiesto nativo de Windows no se ha incorporado correctamente.')

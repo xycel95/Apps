@@ -1,0 +1,29 @@
+name: Guarda - compilacion y antivirus de Windows (informe y capturas)
+on:
+  push:
+    branches: [guarda, guarda-verificacion-windows]
+    paths: ['.github/workflows/guarda-windows-verificacion.yml', 'apps/guarda/Codigo/**', 'apps/guarda/pruebas/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - name: Recuperar solo el codigo y las pruebas de esta revision
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git init .
+          git remote add origin https://github.com/xycel95/Apps.git
+          git sparse-checkout init --no-cone
+          git sparse-checkout set '/apps/guarda/Codigo/' '/apps/guarda/pruebas/'
+          git fetch --depth=1 origin $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo recuperar la revision' }
+          git checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar el codigo' }
+      - name: Compilar con Microsoft CSharp y comprobar Defender, copias, temas y actualizaciones
+        shell: powershell
+        run: |
+          & ./apps/guarda/Codigo/Validar_Windows.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'Guarda-validacion')

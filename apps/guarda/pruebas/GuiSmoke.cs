@@ -11,18 +11,42 @@ namespace Guarda
     internal static class GuiSmoke
     {
         [STAThread]
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
-            using (MainForm form = new MainForm())
+            try
             {
-                form.Show(); Application.DoEvents();
+                Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
+                Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+                int exitCode = 1;
+                using (MainForm form = new MainForm())
+                {
+                    form.Shown += (sender, shown) => form.BeginInvoke(new Action(() =>
+                    {
+                        try { Run(form, args); exitCode = 0; }
+                        catch (Exception error) { Console.Error.WriteLine(error.ToString()); }
+                        finally { form.Close(); }
+                    }));
+                    Application.Run(form);
+                }
+                return exitCode;
+            }
+            catch (Exception error)
+            {
+                Console.Error.WriteLine(error.ToString());
+                return 1;
+            }
+        }
+        private static void Run(MainForm form, string[] args)
+        {
+            {
+                Application.DoEvents();
                 TextBox source = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de origen");
                 TextBox destination = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de destino");
                 source.Text = @"C:\Datos\Facturas"; destination.Text = @"E:\Copias de seguridad";
                 TextBox name = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Nombre de la copia"); name.Text = "Facturas";
                 if (Theme.Light) All(form).OfType<Button>().Single(b => b.Text == "Modo oscuro").PerformClick();
-                All(form).OfType<Label>().Single(l => l.Text.StartsWith("/workspace/")).Text = @"E:\Copias de seguridad";
+                if (!BackupEngine.Windows) foreach (Label label in All(form).OfType<Label>().Where(l => l.Text.StartsWith("/workspace/"))) label.Text = @"E:\Copias de seguridad";
                 Pump(250);
                 Directory.CreateDirectory(args[0]);
                 Capture(form, Path.Combine(args[0], "ventana.png"));
@@ -49,7 +73,6 @@ namespace Guarda
                     form.Size = form.MinimumSize; Pump(100); Capture(form, Path.Combine(args[0], "ventana-minima.png"));
                     Console.WriteLine("GUI: copia real desde el botón completada, controles recuperados y tamaño mínimo revisado.");
                 } finally { try { Directory.Delete(testRoot, true); } catch { } }
-                form.Close();
             }
         }
         private static void Pump(int milliseconds)
@@ -61,7 +84,9 @@ namespace Guarda
         {
             using (Bitmap image = new Bitmap(form.ClientSize.Width, form.ClientSize.Height))
             using (Graphics g = Graphics.FromImage(image)) {
-                g.CopyFromScreen(form.PointToScreen(Point.Empty), Point.Empty, form.ClientSize); image.Save(path);
+                if (BackupEngine.Windows) form.DrawToBitmap(image, new Rectangle(Point.Empty, form.ClientSize));
+                else g.CopyFromScreen(form.PointToScreen(Point.Empty), Point.Empty, form.ClientSize);
+                image.Save(path);
             }
         }
         private static System.Collections.Generic.IEnumerable<Control> All(Control c)

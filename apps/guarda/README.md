@@ -9,7 +9,7 @@ Copias de carpetas para Windows, con fecha en el nombre. Elige una carpeta de or
 
 Por ejemplo, al copiar la carpeta `Facturas`, Guarda crea `2026_11_01_Facturas`. Las copias adicionales del mismo día reciben un sufijo como `_02`.
 
-La verificación de contenido está activada por defecto. También incluye progreso, cancelación e informes. La versión disponible es **1.1.0**.
+La verificación de contenido está activada por defecto. También incluye progreso, cancelación e informes. La versión disponible es **1.1.1**.
 
 ## Nuevo diseño y actualizaciones
 
@@ -18,13 +18,17 @@ La verificación de contenido está activada por defecto. También incluye progr
 - **Actualizaciones desde la app**: buscar versiones, leer novedades, descargar y reiniciar conservando las preferencias.
 - Anuncios firmados y descarga comprobada antes de sustituir el ejecutable.
 
-![Guarda 1.1.0 en modo oscuro](docs/diseno-oscuro.png)
+![Guarda 1.1.1 en modo oscuro](docs/diseno-oscuro.png)
 
 [Ver el tema claro](docs/diseno-claro.png) · [Ver la ventana de actualizaciones](docs/actualizaciones.png).
 
 **Si tienes 1.0.1 o Copia Fácil:** descarga esta nueva versión una vez desde [Descargar](descargas/README.md). El botón de actualizaciones está disponible a partir de 1.1.0.
 
-Se ha comprobado el motor con archivos reales bajo Linux/Mono y una copia desde la ventana. **Pendiente de validación en Windows real y con un pendrive físico.** Consulta el [informe de comprobaciones](docs/VALIDACION.txt).
+## Compilación y comprobación en Windows
+
+La entrega **1.1.1** se compila con **Microsoft Roslyn en Windows**. Se comprueban las copias, ambos temas y el ciclo completo de cierre, sustitución y reinicio. **Microsoft Defender no ha informado de amenazas** en el ejecutable analizado; el informe incluye su huella y las versiones del compilador y del antivirus.
+
+La firma del canal de actualizaciones es independiente de Authenticode: el `.exe` todavía no tiene un certificado de editor reconocido. No se afirma que todos los antivirus o equipos vayan a aceptarlo. Consulta [qué hacer si se bloquea la descarga](docs/BLOQUEO-ANTIVIRUS.md), el [informe de Windows](docs/VALIDACION-WINDOWS.json) y el [alcance de las comprobaciones](docs/VALIDACION.txt).
 
 Documentación complementaria: [Código](Codigo/) · [Contexto del proyecto](CONTEXTO.md) · [Instrucciones de desarrollo](AGENTS.md) · [Metadatos](app.json).
 

@@ -1,4 +1,4 @@
-GUARDA · 1.1.0
+GUARDA · 1.1.1
 Copias de carpetas con fecha para Windows.
 
 EMPEZAR
@@ -56,7 +56,7 @@ La búsqueda y descarga necesitan Internet; las copias de carpetas no.
 No se buscan ni se instalan versiones de forma silenciosa al iniciar.
 Mientras se hace una copia no se puede abrir el actualizador.
 Las versiones 1.0.0 y 1.0.1 todavía no tenían este botón: descarga manualmente
-esta versión 1.1.0 una vez. Las siguientes podrán instalarse desde la app.
+la versión actual una vez. Las siguientes podrán instalarse desde la app.
 
 COMPROBACIÓN
 Con «Comprobar el contenido después de copiar» activado, la app calcula
@@ -123,12 +123,21 @@ Codigo\                       Código fuente, icono y compilación.
 pruebas\                      Código de las pruebas.
 
 Para recompilar en Windows, abre Codigo\Compilar_Windows.bat.
-También se proporciona build.py para un entorno de desarrollo Linux con Mono
-extraído y las referencias necesarias. La ubicación se establece con
-GUARDA_MONO_ROOT. Esa herramienta es de desarrollo; no hace falta para
-usar el ejecutable en Windows.
+También se proporciona Compilar_Windows.ps1, que utiliza Roslyn cuando está
+instalado, y build.py para desarrollo en Linux con el SDK .NET/Roslyn y las
+referencias de Mono. Sus ubicaciones se establecen con GUARDA_DOTNET_ROOT y
+GUARDA_MONO_ROOT. Estas herramientas no hacen falta para usar Guarda en Windows.
 
 Referencias oficiales:
 https://learn.microsoft.com/es-es/dotnet/framework/install/on-windows-and-server
 https://learn.microsoft.com/en-us/dotnet/api/system.io.filestream.flush?view=netframework-4.8
 https://learn.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison
+
+COMPILACIÓN Y AVISOS DEL ANTIVIRUS
+La entrega 1.1.1 se compila con Microsoft Roslyn en Windows y se analiza con
+Microsoft Defender activo. Se publican el informe y la huella del archivo.
+La firma RSA del canal de actualizaciones no es una firma Authenticode del EXE.
+El ejecutable no tiene un certificado de editor de una autoridad reconocida.
+Si el antivirus bloquea el archivo, conserva el bloqueo y consulta el nombre
+exacto de la amenaza en el historial de protección para poder investigarlo.
+Un análisis sin amenazas no garantiza el mismo resultado en todos los equipos.

@@ -238,7 +238,7 @@ namespace Guarda
                     journal = new StreamWriter(new FileStream(result.ReportPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read), new UTF8Encoding(true));
                 }
                 catch { result.ReportPath = ""; result.Warnings.Add("No se ha podido guardar el informe local."); }
-                log("GUARDA 1.1.0 | " + options.Date.ToString("dd/MM/yyyy HH:mm:ss"));
+                log("GUARDA 1.1.1 | " + options.Date.ToString("dd/MM/yyyy HH:mm:ss"));
                 log("Origen: " + source); log("Destino: " + destination); log("Verificación SHA-256: " + (options.Verify ? "sí" : "no"));
                 if (progress != null) progress(new BackupProgress { Stage = "Analizando carpetas", Indeterminate = true });
                 Plan plan = Scan(source, token, progress);

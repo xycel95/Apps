@@ -28,6 +28,8 @@ Los enlaces simbólicos, uniones y otros puntos de reanálisis no se siguen: se 
 
 ## Validación disponible
 
-El motor superó 16 pruebas en Linux/Mono. El actualizador superó 13 pruebas de firma, integridad, sustitución y restauración ante un fallo de reinicio. La ventana completa copias reales en ese entorno y se revisan ambos temas. Aún no se ha probado el proceso completo de cierre, sustitución y reinicio en un Windows real ni con un pendrive físico. Los detalles están en el [informe de validación](docs/VALIDACION.txt).
+La entrega 1.1.1 se compila con Roslyn de Microsoft en Windows Server 2025. Allí se prueban las copias, la ventana con ambos temas y la actualización real entre procesos, con salida, sustitución y apertura de la versión nueva. Microsoft Defender no ha informado de amenazas en el ejecutable analizado. El informe conserva el tamaño, la huella y las versiones de las herramientas.
+
+No hay certificado Authenticode de editor reconocido; la firma RSA de actualizaciones cumple una función distinta. Queda pendiente la comprobación en el equipo concreto del usuario y con un pendrive físico. Los detalles están en el [informe de validación](docs/VALIDACION.txt).
 
 [Cómo funciona y guía](docs/README.md) · [Descargar](descargas/README.md) · [Notas de parche](notas-de-parche/README.md).

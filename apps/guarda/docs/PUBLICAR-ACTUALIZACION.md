@@ -3,8 +3,8 @@
 El canal integrado comienza en **1.1.0**. Las versiones anteriores requieren una primera descarga manual.
 
 1. Leer las instrucciones y el contexto vigentes; confirmar el último commit de `guarda`.
-2. Actualizar las versiones de ensamblado, manifiesto y documentación; compilar. Con Mono, `build.py` incorpora y verifica el manifiesto mediante `winres.py`.
-3. Ejecutar las pruebas del flujo afectado. Comprobar el ejecutable y su versión antes de sustituir una descarga.
+2. Actualizar las versiones de ensamblado, manifiesto y documentación; compilar la distribución con Microsoft Roslyn en Windows mediante `Codigo/Compilar_Windows.ps1`. La compilación de desarrollo con `build.py` también usa Roslyn y verifica el manifiesto mediante `winres.py`.
+3. Ejecutar las pruebas del flujo afectado. `Codigo/Validar_Windows.ps1` comprueba las copias, los temas, el ciclo nativo de actualización y Defender. Registrar el número real de pruebas por plataforma. Comprobar el ejecutable y su versión antes de sustituir una descarga.
 4. Recuperar la clave privada del archivo privado **Guarda_Clave_de_Firma_PRIVADA.zip**, conservado fuera de GitHub. Extraerla fuera del repositorio. No publicarla ni regenerarla. La clave pública compatible está en `Codigo/update-public-key.xml` y `actualizaciones/public-key.xml`.
 5. Con Python 3.9+ y `cryptography` en el entorno de desarrollo, ejecutar:
 

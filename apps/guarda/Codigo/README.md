@@ -8,15 +8,17 @@
 - `BackupEngine.cs`: análisis, copia, comprobación SHA-256, cancelación, informes y finalización de carpetas.
 - `app.manifest` y `app.ico`: manifiesto e icono nativos de Windows.
 - `Compilar_Windows.bat`: compila con el compilador de .NET Framework instalado en Windows y deja `entrega/Guarda.exe`.
-- `build.py` y `winres.py`: compilación en un entorno Linux con Mono extraído. `winres.py` incorpora y comprueba el manifiesto nativo, que mcs 6.8 no incorpora mediante su opción `/win32manifest`.
+- `Compilar_Windows.ps1`: compilación de distribución con Microsoft Roslyn cuando está instalado Visual Studio; incorpora icono, recursos y manifiesto en una pasada. Puede usar el compilador de .NET Framework como alternativa local.
+- `Validar_Windows.ps1`: compilación con Roslyn, análisis de Defender, pruebas de copias y actualizador, temas y actualización nativa entre procesos. Recoge por separado la salida y los errores de cada proceso y comprueba su código de salida.
+- `build.py` y `winres.py`: compilación de desarrollo con Roslyn del SDK .NET en Linux y verificación del manifiesto nativo. Mono se utiliza para ejecutar las pruebas.
 
 ## Compilar en Windows
 
-Con .NET Framework 4.8 instalado, ejecuta `Compilar_Windows.bat` desde esta carpeta. No necesita paquetes NuGet adicionales. El archivo resultante queda en `../entrega/Guarda.exe`.
+Con .NET Framework 4.8 instalado, ejecuta `Compilar_Windows.ps1` desde PowerShell. Para reproducir la compilación de distribución se necesita Roslyn de Visual Studio. `Compilar_Windows.bat` ofrece la alternativa con el compilador de .NET Framework. No se necesitan paquetes NuGet adicionales. El archivo resultante queda en `../entrega/Guarda.exe`.
 
 ## Entorno Linux de desarrollo
 
-`build.py` necesita un entorno Mono extraído con `mono-sgen`, `mcs.exe` y sus referencias. Establece `GUARDA_MONO_ROOT` con su ruta y ejecuta `python3 build.py`. No se incluye ese entorno de desarrollo en las descargas de la aplicación.
+`build.py` necesita el SDK .NET con Roslyn y las referencias de .NET Framework proporcionadas por Mono. Establece `GUARDA_DOTNET_ROOT` y `GUARDA_MONO_ROOT` con sus rutas y ejecuta `python3 build.py`. También admite `GUARDA_CSC_DLL` y `GUARDA_FRAMEWORK_REFS`. El entorno de desarrollo no se incluye en las descargas.
 
 Las pruebas están en `../pruebas/`. La prueba de interfaz requiere una pantalla X11 y Mono WinForms. Su ejecución no sustituye la validación nativa en Windows.
 
