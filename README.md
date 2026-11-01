@@ -11,6 +11,13 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
    Consulta la versión y la disponibilidad del paquete en **Descargar**.
 
+2. **[Guarda](https://github.com/xycel95/Apps/tree/guarda/apps/guarda)**  
+   Aplicación para Windows que copia carpetas a un pendrive, disco u otra carpeta, con fecha al principio del nombre y verificación opcional del contenido.
+
+   [Descripción del programa](https://github.com/xycel95/Apps/blob/guarda/apps/guarda/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/guarda/apps/guarda/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/guarda/apps/guarda/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/guarda/apps/guarda/notas-de-parche/README.md)
+
+   Consulta la versión y la disponibilidad del paquete en **Descargar**.
+
 ## La misma estructura para todos los programas
 
 Cada aplicación tendrá estos cuatro apartados, siempre en este orden:
