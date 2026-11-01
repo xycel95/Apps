@@ -15,9 +15,21 @@ namespace Guarda
         {
             try
             {
+                Console.OutputEncoding = new System.Text.UTF8Encoding(false);
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
-                Run(args);
-                return 0;
+                Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+                int exitCode = 1;
+                using (MainForm form = new MainForm())
+                {
+                    form.Shown += (sender, shown) => form.BeginInvoke(new Action(() =>
+                    {
+                        try { Run(form, args); exitCode = 0; }
+                        catch (Exception error) { Console.Error.WriteLine(error.ToString()); }
+                        finally { form.Close(); }
+                    }));
+                    Application.Run(form);
+                }
+                return exitCode;
             }
             catch (Exception error)
             {
@@ -25,12 +37,10 @@ namespace Guarda
                 return 1;
             }
         }
-        private static void Run(string[] args)
+        private static void Run(MainForm form, string[] args)
         {
-            Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
-            using (MainForm form = new MainForm())
             {
-                form.Show(); Application.DoEvents();
+                Application.DoEvents();
                 TextBox source = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de origen");
                 TextBox destination = All(form).OfType<TextBox>().Single(c => c.AccessibleName == "Carpeta de destino");
                 source.Text = @"C:\Datos\Facturas"; destination.Text = @"E:\Copias de seguridad";
@@ -63,7 +73,6 @@ namespace Guarda
                     form.Size = form.MinimumSize; Pump(100); Capture(form, Path.Combine(args[0], "ventana-minima.png"));
                     Console.WriteLine("GUI: copia real desde el botón completada, controles recuperados y tamaño mínimo revisado.");
                 } finally { try { Directory.Delete(testRoot, true); } catch { } }
-                form.Close();
             }
         }
         private static void Pump(int milliseconds)
