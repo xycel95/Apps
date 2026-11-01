@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $app = Split-Path $PSScriptRoot -Parent
 $code = Join-Path $app 'Codigo'
 $stage = Join-Path $env:RUNNER_TEMP ('SSH Backup prueba ' + [guid]::NewGuid().ToString('N'))
@@ -40,7 +40,9 @@ try {
         $input = $entry.Open(); $output = [IO.File]::Create((Join-Path $stage 'old.exe'))
         try { $input.CopyTo($output) } finally { $output.Dispose(); $input.Dispose() }
     } finally { $archive.Dispose() }
-    $tests = Join-Path $stage 'TestsUpdates.exe'
+    $legacyQuote = $false
+    try { $legacy = [Reflection.Assembly]::LoadFile((Join-Path $stage 'old.exe')); $quoted = $legacy.GetType('SSHBackup.Updates').GetMethod('Quote').Invoke($null, @('C:\Ruta de prueba\SSHBackup.exe')); $legacyQuote = $quoted.StartsWith('"') } catch { Write-Host 'El cliente anterior necesita sustituir el EXE manualmente para el salto inicial.' }
+    $tests = Join-Path $stage 'TestsUpdates.exe' 
     Compile $tests @((Join-Path $code 'TestsUpdates.cs')) @('/target:exe','/main:SSHBackup.TestsUpdates',"/r:$exe")
     & $tests unit (Join-Path $stage 'unit') $env:SSHBACKUP_TEST_PACKAGE (Join-Path $stage 'old.exe')
     CheckExit 'firma, integridad, migración, sustitución y restauración'
@@ -61,7 +63,7 @@ try {
     } while (!$restarted -and [DateTime]::UtcNow -lt $deadline)
     if (!$restarted -or (Get-FileHash $probe -Algorithm SHA256).Hash -ne $expected) { throw 'No se ha confirmado el reinicio de la entrega real.' }
     if ((Get-FileHash ($probe + '.previous') -Algorithm SHA256).Hash -ne $before) { throw 'No se conserva el ejecutable anterior.' }
-    $report = [ordered]@{ version='2.2.0'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=14; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false }
+    $report = [ordered]@{ version='2.2.0'; environment='Windows GitHub Actions'; compiled=$true; signed_update_tests=14; gui_tests=6; ready_handshake=$true; replaced_and_restarted=$true; previous_preserved=$true; production_servers_tested=$false; task_scheduler_executed=$false; legacy_package_quote_supported=$legacyQuote }
     $report | ConvertTo-Json | Set-Content (Join-Path $PSScriptRoot 'VALIDACION-WINDOWS.json') -Encoding utf8
     Write-Host ($report | ConvertTo-Json)
 } finally {

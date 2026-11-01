@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<UpdateRelease><Version>2.2.0</Version><Sha256>ed21ac36cf2bbc81639ff3ffe454a6682eed661db9cd95374c3a14b10a4a606a</Sha256><DownloadUrl>https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/versiones/2.2.0/SSHBackup_2.2.0.sshupdate</DownloadUrl><Notes>SSH BACKUP 2.2.0 - ACTUALIZACIONES EN LÍNEA
+<UpdateRelease><Version>2.2.0</Version><Sha256>4ec495054f22a0b5d376020c6f775bd0403e67144fa3548f4c36ac374543c2af</Sha256><DownloadUrl>https://raw.githubusercontent.com/xycel95/Apps/ssh-backup/apps/ssh-backup/descargas/versiones/2.2.0/SSHBackup_2.2.0.sshupdate</DownloadUrl><Notes>SSH BACKUP 2.2.0 - ACTUALIZACIONES EN LÍNEA
 1 de noviembre de 2026
 
 - Canal oficial preparado para comprobar e instalar desde la aplicación, como en GUARDA.
@@ -14,4 +14,4 @@ PARA PASAR DESDE 2.0/2.1
 Abrir SSHBackup_2.2.0.sshupdate en Herramientas &gt; Actualizaciones &gt; Abrir paquete. También sirve introducir el canal oficial y comprobar novedades una vez. Desde 2.2 el canal queda preparado.
 
 Las comprobaciones realizadas y sus límites figuran en docs/VALIDACION-2.2.0.md. La validación del Programador de tareas y del uso con servidores reales en el equipo de destino sigue siendo independiente.
-</Notes><Signature>hjM3kVDDflxu8Kv1v0mqbt3HizScnkeHOWBXaKWHA5XNOyyVsbECrLHA7e6wj4MqjAG854S4y2TDBjPaWIU7+0mz598hcBJWbqz90UPN4D2IqhtUxJ+Y++bE2o8lmNRMhIlzQlV2pX1++e+RuSWtYvfYxoNgS7V/zau4oyjf7seYYnOYoVgHaLajKGtQSgTbajfW2ANa4eUxTq68O/Lv9BNqTVnxWNAx0oFyeTbFNNn49YLFbmZBe+3sJPwxArS9jJM84fXJxokXm9F65mZH2bsVuDUpwa3yzOxu39ihfGgjgl/JEhencWpHAIEQtqZOK8bIHe47AnLbnwjkB+BNxjfLPHPCmTN1pZ22l3wGaQch4osqb6J+/YfNfV348Lxz3VT+hfBqZAywAe/lejt483RBidtzHnra0TV0VIU0OoM/+mquLWhxzc0ZhWkWDBE51l2/tEoe3gp1/RXVjuoxW/bcvYlWCa3Tftjkh9CP6EVxFCtw5H5GcMH8qo9mbWqM</Signature></UpdateRelease>
+</Notes><Signature>APlqO5VtK6I31FJqFqTilM2oj7RjY52rG3KhU2GcOb/Ha5bB2/r4cAF4RRC/LPENj93mqOWGkvMizIzQOx39McAm1CizMJMG7mcI8+Umyq6Wqs1Nhl6goEz7RkSEuKIWXrzFQmC/39GA4zMr+kYfepDLCu3Cl9mjNLZYlbE9Ktd3XoEHGBBdX5+yQ4foVqzng+3WPNpWaQ50gr5YA14sO6w7B8557HGrOzfQ5DFTQfxOnCgoKkuhJ+hhg4kgwbQvSmtnD5ouBlCDGZLd+cFdmFsxS9GvO0datPBVzNtA87lxOpoxKLEopLPSLQy8Kw9L+iV1vaQshi8Sqt5vwN9MEDH/P1CAB5wsLb370ZZ1J0oeJ0J3JQ0EyDG+UTUhKcc1l/LWWRggMivfkiSkxEnxG4kEDuy6ZzFNdcCiXQI+O+Gq5C265aZUeb+u7NQvPiT87wV9AUJQjKAQycVaV6yJyYWICOzPNZE3XTvfomlUbC7Qu6dn1h79/nBlXPPHXjpu</Signature></UpdateRelease>

@@ -30,3 +30,8 @@ mantenimiento/
 
 # El registro de dependencias está en Codigo/deps/dependencies.lock.json.
 # Las entregas verificadas se guardan explícitamente en descargas/.
+
+# Resultados de la comprobación Windows
+pruebas/framework-refs/
+pruebas/compilado/
+pruebas/VALIDACION-WINDOWS.json

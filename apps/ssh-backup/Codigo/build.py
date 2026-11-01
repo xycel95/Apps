@@ -4,6 +4,8 @@ from winres import verify_manifest
 ROOT=pathlib.Path(__file__).resolve().parent
 RUNTIME=pathlib.Path(os.environ.get('SSHBACKUP_MONO_ROOT',str(ROOT.parents[1]/'runtime-root')))
 REFS=pathlib.Path(os.environ.get('SSHBACKUP_NET48_REFS',str(RUNTIME/'usr/lib/mono/4.5')))
+if not (REFS/'RedistList/FrameworkList.xml').is_file():
+ raise RuntimeError('SSHBACKUP_NET48_REFS debe apuntar a las referencias oficiales de .NET Framework 4.8; no uses las DLL de ejecución de Mono para compilar la entrega Windows.')
 ENV=dict(os.environ,MONO_PATH=str(RUNTIME/'usr/lib/mono/4.5'),MONO_GAC_PREFIX=str(RUNTIME/'usr'),MONO_CFG_DIR=str(RUNTIME/'etc'),LD_LIBRARY_PATH=str(RUNTIME/'usr/lib')+':'+str(RUNTIME/'usr/lib/x86_64-linux-gnu'),TZ='Europe/Madrid')
 for name in ('entrega','build'): (ROOT/name).mkdir(exist_ok=True)
 DOTNET=pathlib.Path(os.environ['SSHBACKUP_DOTNET_ROOT'])
