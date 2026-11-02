@@ -64,3 +64,14 @@ se excluyen cámaras hijas/almacenamiento detrás de un hub.
 1.1.0 (publicación): ventana de compatibilidad abierta con 133 filas; la búsqueda
 «Tapo C230» devuelve solo ese modelo. Reproducción sintética: 30 fotogramas.
 Capturas públicas generadas con configuración vacía y sin cámara conectada.
+
+PUBLICACIÓN EN APPS — 02/11/2026
+Fuentes y paquete: revisión 522bd9cacb2ec76e06e005e9c8394cc61d77e93b.
+Compilación y pruebas públicas: https://github.com/xycel95/Apps/actions/runs/41495074415
+17 pruebas superadas; reproducción sintética de 30 fotogramas en Qt offscreen.
+Ambos ZIP descargados desde la publicación pública; SHA-256, CRC y fuentes
+comprobados. Manifiesto completo del ZIP Windows comprobado y ejecutable PE x64
+con nombre Visor Tapo, versión 1.1.0.0 y subsistema GUI.
+Informe y huellas: VALIDACION-PUBLICACION.json y ../descargas/SHA256SUMS.txt.
+La compilación cruzada y estas comprobaciones no acreditan ejecución nativa
+en Windows ni descarga física con cada modelo.

@@ -1,0 +1,45 @@
+{
+  "application": "Visor Tapo",
+  "version": "1.1.0",
+  "verified_on": "2026-11-02",
+  "source_commit": "522bd9cacb2ec76e06e005e9c8394cc61d77e93b",
+  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/41495074415",
+  "workflow_conclusion": "success",
+  "environment": "GitHub Actions Linux x64; Qt offscreen; Windows x64 cross compilation",
+  "unit_tests_passed": 17,
+  "synthetic_playback_frames": 30,
+  "compatibility_dialog": {
+    "rows": 133,
+    "model_search_verified": "Tapo C230"
+  },
+  "downloaded_from_public_release": true,
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.1.0",
+  "packages": {
+    "Visor_Tapo_1.1.0_Windows.zip": {
+      "sha256": "cdcf1cd2895a874f8494fe06359e8fe561eb1f3e41583de6e84143961cf74daf",
+      "size_bytes": 144316050,
+      "zip_files": 2057,
+      "crc_verified": true,
+      "source_matches_repository": true,
+      "model_entries": 133
+    },
+    "Visor_Tapo_Codigo_1.1.0.zip": {
+      "sha256": "9458539e33e6d63a7cd665cef2110ac7b1be8e5b35f7ccc5e5618daeba278478",
+      "size_bytes": 79311,
+      "zip_files": 26,
+      "crc_verified": true,
+      "source_matches_repository": true,
+      "model_entries": 133
+    }
+  },
+  "all_windows_manifest_entries_verified": true,
+  "windows_executable": {
+    "architecture": "x86_64",
+    "subsystem": "GUI",
+    "product_name": "Visor Tapo",
+    "file_version": "1.1.0.0"
+  },
+  "native_windows_execution_verified": false,
+  "physical_camera_download_verified": false,
+  "compatibility_basis": "manufacturer documentation; microSD integration is an inference subject to hardware and firmware"
+}

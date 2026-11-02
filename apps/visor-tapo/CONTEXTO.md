@@ -51,3 +51,13 @@ Conservar `%LOCALAPPDATA%\VisorC230`, claves protegidas y nombres antiguos de ca
 
 No se han publicado credenciales, vídeos privados ni capturas reales del usuario.
 Las capturas de documentación se generaron con configuración vacía.
+
+## Publicación comprobada
+
+Publicado en [visor-tapo-v1.1.0](https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.1.0) desde la revisión
+`522bd9cacb2ec76e06e005e9c8394cc61d77e93b`. El [flujo de compilación](https://github.com/xycel95/Apps/actions/runs/41495074415) ha terminado correctamente.
+Los dos ZIP públicos se han descargado y validado; consulta
+`docs/VALIDACION-PUBLICACION.json`, `app.json` y `descargas/SHA256SUMS.txt`.
+El flujo inicial de una sola ejecución se ha retirado de la rama al terminar;
+el historial y la etiqueta conservan sus instrucciones y resultados. La app
+no incorpora actualizador ni programación de publicaciones.
