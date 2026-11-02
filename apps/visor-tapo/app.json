@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "id": "visor-tapo",
+  "name": "Visor Tapo",
+  "version": "1.1.0",
+  "release_date": "2026-11-02",
+  "summary": "Directo local y grabaciones microSD de cámaras Tapo, con búsqueda en casa y lista técnica de compatibilidad por modelo.",
+  "platforms": [
+    "Windows 10 x64",
+    "Windows 11 x64"
+  ],
+  "requirements": [
+    "PC y cámara en la misma red privada IPv4",
+    "RTSP y cuenta de cámara para el directo",
+    "MicroSD en la propia cámara y acceso local compatible mediante pytapo para grabaciones"
+  ],
+  "repository": "xycel95/Apps",
+  "branch": "visor-tapo",
+  "description_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/DESCRIPCION.md",
+  "guide_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/README.md",
+  "changelog_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/notas-de-parche/README.md",
+  "source_url": "https://github.com/xycel95/Apps/tree/visor-tapo/apps/visor-tapo/Codigo",
+  "download": {
+    "available": false,
+    "reason": "Preparando y verificando el paquete completo de Windows."
+  },
+  "compatibility": {
+    "reviewed_on": "2026-11-02",
+    "model_variants": 133,
+    "basis": "manufacturer-documentation-and-protocol-requirements",
+    "report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/COMPATIBILIDAD.md",
+    "data_url": "https://raw.githubusercontent.com/xycel95/Apps/visor-tapo/apps/visor-tapo/Codigo/src/compatibility.json",
+    "live": {
+      "compatible": 64,
+      "conditional": 10,
+      "unsupported": 47,
+      "undocumented": 12
+    },
+    "microsd_basis": "integration-inference; subject to hardware, firmware and authentication",
+    "hub_recordings_supported": false
+  },
+  "validation": {
+    "report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/VALIDACION.txt",
+    "environment": "Linux x64, Qt offscreen, synthetic media",
+    "core_tests_passed": 17,
+    "gui_playback_verified": true,
+    "native_windows_verified": false,
+    "physical_camera_evidence": {
+      "model": "C230",
+      "application_version": "1.0.1",
+      "live_image": true,
+      "microsd_catalogue": true,
+      "corrected_microsd_download": false,
+      "hardware_and_firmware_recorded": false
+    }
+  },
+  "online_updates_configured": false,
+  "official_tapo_application": false
+}

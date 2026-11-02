@@ -1,0 +1,66 @@
+VISOR TAPO 1.1.0 · VALIDACIÓN
+
+Entorno de desarrollo: Linux x64; paquete objetivo: Windows 10/11 x64.
+
+Pruebas automatizadas (17):
+- Catálogos simulados con formatos admitidos: variantes anidadas, duplicados,
+  grabaciones continuas, fragmentos de hasta 5 minutos y corrección de reloj.
+- Catálogo malformado: se informa del error, sin confundirlo con tarjeta vacía.
+- Cambio de hora en Madrid: dos vídeos de la hora repetida no se sobrescriben.
+- Se rechazan conexiones ajenas a las redes IPv4 privadas previstas.
+- Las contraseñas no aparecen en los ajustes sin guardado protegido.
+- Un fallo de cifrado nunca provoca guardado en texto plano.
+- Un vídeo ya descargado se valida sin contactar con la cámara.
+- Descargas corruptas/incompletas no se dan por correctas.
+- Un fallo durante la descarga no deja un vídeo en la caché de completados.
+- Conversión real H.264 + G.711 a MP4 con vídeo y audio AAC, incluidas rutas
+  con espacios y caracteres especiales.
+
+Pruebas de interfaz y distribución:
+- Apertura de las dos pestañas y revisión visual en Qt en modo offscreen.
+- Reproducción de un MP4 sintético y recepción de fotogramas en el reproductor.
+- Compilación cruzada de un iniciador PE x64 de Windows, subsistema GUI,
+  con icono, versión y manifiesto de ejecución sin elevación.
+- Comprobación de la estructura del ZIP, bibliotecas y huellas SHA-256.
+
+Evidencia física registrada:
+- El usuario confirmó el directo y el catálogo microSD de su C230 en Windows
+  con Visor C230 1.0.1. No se registraron su hardware ni firmware.
+
+Sin confirmación física del paquete 1.1.0:
+- Descarga corregida y reproducción de la microSD en esa cámara.
+- Audio real de esa cámara, giros y guardado DPAPI en Windows.
+
+No se utilizan ni se incluyen credenciales del usuario, grabaciones privadas,
+ni fotogramas reales de su cámara. No se publica automáticamente en GitHub.
+
+1.0.1: pruebas de análisis de respuestas de detección ONVIF: nombre/IP,
+rechazo de redirecciones a otras IP, XML inválido y entidades XML.
+La detección en la red real y el permiso de Windows requieren probarse en el PC.
+
+1.0.2: reproducido el error de sesión en una descarga con cliente nuevo y
+Downloader real de pytapo sobre una sesión de medios simulada. La prueba
+falla antes de la corrección (bucle de eventos anidado) y descarga un MP4
+válido después. Se prueban errores de acceso al canal de vídeo y exclusión
+de credenciales/texto original de las excepciones en el diagnóstico.
+El usuario ha confirmado el directo y la consulta del catálogo en Windows.
+La descarga corregida sigue pendiente de probarse con su cámara física.
+
+1.1.0: nombre general y documentación de compatibilidad. Los estados de
+los modelos distinguen evidencia física del usuario, referencia del fabricante
+y pruebas de medios simulados. No se añaden confirmaciones de cámaras reales.
+
+1.1.0: comprobación manual de actualización: carga de ajustes en la carpeta
+histórica y selección de una copia antigua C230_ desde la interfaz, validada
+y abierta sin contactar con una cámara. Ventana de compatibilidad revisada
+con búsqueda por modelo y 133 modelos, kits y variantes. Mantiene las 17 pruebas automatizadas anteriores.
+
+1.1.0: revisión documental de catálogos/fichas y centros de soporte oficiales
+global, España y Estados Unidos, más modelos citados en FAQ 4191 y 4372.
+Clasificación del directo por requisitos técnicos; no por ensayos físicos.
+La previsión de grabaciones mediante pytapo se identifica como inferencia y
+se excluyen cámaras hijas/almacenamiento detrás de un hub.
+
+1.1.0 (publicación): ventana de compatibilidad abierta con 133 filas; la búsqueda
+«Tapo C230» devuelve solo ese modelo. Reproducción sintética: 30 fotogramas.
+Capturas públicas generadas con configuración vacía y sin cámara conectada.

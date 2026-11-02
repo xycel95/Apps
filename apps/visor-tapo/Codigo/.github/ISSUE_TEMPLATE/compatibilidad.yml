@@ -1,0 +1,50 @@
+name: Compatibilidad de una cámara
+description: Comunicar qué funciones de Visor Tapo funcionan con un modelo concreto.
+title: "[Visor Tapo] Compatibilidad: modelo de cámara"
+body:
+  - type: markdown
+    attributes:
+      value: "No adjuntes contraseñas, archivos de ajustes, números de serie, MAC, correos ni vídeos privados."
+  - type: input
+    id: modelo
+    attributes:
+      label: Modelo exacto
+      placeholder: Tapo C230
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Versión de hardware
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Versión de firmware
+    validations:
+      required: true
+  - type: input
+    id: aplicacion
+    attributes:
+      label: Versión de Visor Tapo y Windows
+    validations:
+      required: true
+  - type: textarea
+    id: resultados
+    attributes:
+      label: Resultado por función
+      description: Escribe funciona, falla o no probado en cada línea.
+      value: |
+        Detección de cámara:
+        Directo con vídeo y sonido:
+        Consulta del catálogo microSD:
+        Descarga y reproducción de una grabación:
+        Movimiento (si lo admite):
+    validations:
+      required: true
+  - type: textarea
+    id: detalles
+    attributes:
+      label: Errores y diagnóstico
+      description: Puedes adjuntar el JSON de Guardar diagnóstico. Revisa las capturas para que las claves estén ocultas.
