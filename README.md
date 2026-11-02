@@ -18,6 +18,13 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
    Consulta la versión y la disponibilidad del paquete en **Descargar**.
 
+3. **[Visor Tapo](https://github.com/xycel95/Apps/tree/visor-tapo/apps/visor-tapo)**  
+   Aplicación para Windows que permite ver el directo y acceder a grabaciones microSD de cámaras Tapo desde la red local, con búsqueda en casa y lista técnica de compatibilidad por modelo.
+
+   [Descripción del programa](https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/notas-de-parche/README.md)
+
+   Consulta los modelos, requisitos y la disponibilidad del paquete en **Descargar**.
+
 ## La misma estructura para todos los programas
 
 Cada aplicación tendrá estos cuatro apartados, siempre en este orden:
