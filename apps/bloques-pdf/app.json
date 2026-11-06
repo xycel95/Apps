@@ -45,7 +45,9 @@
     "exact_executable_processing_verified": true,
     "native_windows_verified": false,
     "antivirus_verified": false,
-    "physical_printer_verified": false
+    "physical_printer_verified": false,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/PUBLICACION.json"
   },
   "online_updates_configured": false
 }

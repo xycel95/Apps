@@ -24,6 +24,8 @@ Consulta `Codigo/COMPILAR.txt`. El ZIP conserva la entrega original; `Codigo/` r
 
 Se verificaron los nombres BLOQUE 1.pdf a BLOQUE 60.pdf y las referencias del CSV. Las comprobaciones visuales de firma y formulario se realizaron en 1.0.0; el cambio 1.0.1 afecta a los nombres y al versionado. `docs/VERIFICACION.txt` detalla el alcance.
 
+La descarga pública desde GitHub respondió HTTP 200 y coincidió con el SHA-256 y el tamaño del ZIP entregado. Se comprobaron su CRC, la huella del ejecutable y la correspondencia de las fuentes. `docs/PUBLICACION.json` registra la revisión y los resultados.
+
 Pendientes: arranque e interfaz en Windows real, antivirus corporativo e impresora física. No hay firma Authenticode ni actualizador automático configurado.
 
 Los ensayos de `Codigo/tests/Program.cs` requieren PDF sintéticos en carpetas `input/` y `special/`, no incluidos. No publicar certificados privados de ensayo, documentos del trabajo ni carpetas generadas por las pruebas.
