@@ -1,16 +1,7 @@
 {
-  "url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/BloquesPDF_1.0.1_Windows.zip",
-  "http_status": 200,
-  "size_bytes": 551595,
-  "sha256": "5dc51887db90ba072feb10315097eeb3afdd7cac0e2e8185d74a9158a06493fe",
-  "zip_crc_verified": true,
-  "executable_sha256": "c441de86c1fd5160e5405149c4204f802bde2bd8eda0d0edf1d20545a64565e4",
-  "source_matches": true,
   "application": "Bloques PDF",
-  "version": "1.0.1",
-  "commit_checked": "3c1344526b1e3fe4549f9ce60bc7b7b50194e9d6",
-  "checked_at_utc": "2026-11-06T07:05:03.194844+00:00",
-  "native_windows_verified": false,
-  "antivirus_verified": false,
-  "physical_printer_verified": false
+  "version": "1.0.2",
+  "published_downloads_verified": false,
+  "package_sha256": "83785db1177f89f0eb53c8561de61442c6e15806e72f972dc2e99c68b4ff11af",
+  "executable_sha256": "4584561e5d1678841dc4e5f95efaa1ef0da3eebf559b897ca8538bfee4556d4e"
 }

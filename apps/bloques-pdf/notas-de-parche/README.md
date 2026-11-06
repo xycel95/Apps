@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 1.0.2 · 6 de noviembre de 2026
+
+- Eliminada la opción «Copias de cada documento». Cada documento se añade una sola vez.
+- La exportación contiene únicamente los PDF; se dejan de generar `detalle_documentos.csv`, `LEEME_RESULTADO.txt` y `BloquesPDF.trabajo`.
+- Los errores se muestran completos dentro de la aplicación, en una ventana con desplazamiento.
+- La búsqueda recursiva sigue excluyendo los resultados generados sin crear archivos de control.
+- Se mantienen los 50 originales por bloque, los nombres BLOQUE 1.pdf, BLOQUE 2.pdf, etc., y la elección del destino.
+
 ## 1.0.1 · 6 de noviembre de 2026
 
 - Los PDF generados se llaman **BLOQUE 1.pdf, BLOQUE 2.pdf, BLOQUE 3.pdf…**.

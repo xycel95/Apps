@@ -1,0 +1,44 @@
+BLOQUES PDF 1.0.1 - VERIFICACIÓN (06/11/2026)
+
+Actualización 1.0.1:
+- Nombres automáticos BLOQUE 1.pdf, BLOQUE 2.pdf, BLOQUE 3.pdf, etc.
+- Comprobados los tres nombres con 103 documentos y la numeración hasta BLOQUE 60.pdf.
+- El listado CSV referencia los mismos nombres y conserva los 103 documentos.
+- El modo de carpetas utiliza BLOQUE 1, BLOQUE 2, etc.
+- La numeración empieza en 1 en cada trabajo, dentro de una carpeta nueva.
+
+Procesamiento comprobado con datos sintéticos:
+- 27 aserciones del motor superadas.
+- 100 PDF -> dos bloques de 50; 103 -> 50, 50 y 3.
+- 3.000 PDF -> 60 bloques; dos copias de cada documento -> 6.000 páginas.
+- Orden natural de nombres y copias completas de documentos de varias páginas.
+- PDF con firma digital y formularios cumplimentados.
+- Copias de originales firmados y cifrados idénticas byte a byte en modo carpetas.
+- Sin sobrescritura al usar ficheros diferentes con el mismo nombre.
+- Errores de PDF dañado o protegido comunicados antes de crear bloques unidos.
+- Cancelación antes de generar y tras completar un bloque; limpieza del parcial.
+- Cambio de un documento entre comprobación y creación detectado por SHA-256.
+- Carpetas de resultados anteriores excluidas de los recorridos recursivos.
+
+Comprobaciones visuales realizadas en la versión 1.0.0:
+- Apariencia renderizada idéntica, píxel a píxel, entre el PDF de prueba firmado
+  y sus dos copias del bloque. También para un formulario con un campo cumplimentado.
+- Firma criptográfica del original de prueba intacta y válida tras el proceso.
+La actualización 1.0.1 cambia los nombres y la versión; conserva el motor de importación.
+
+Comprobación del ejecutable distribuido:
+- Compilado como aplicación GUI PE/AnyCPU para .NET Framework 4.8.
+- El mismo EXE, cargado desde un host .NET 10, procesó 100 PDF en dos bloques
+  y 202 páginas (un original tenía dos páginas, con dos copias completas).
+- Sus referencias externas finales son bibliotecas de .NET Framework:
+  mscorlib, System, System.Windows.Forms, System.Core, System.Drawing,
+  netstandard y System.Numerics. No necesita DLL de PDFsharp aparte.
+- El compilador notificó una diferencia de versiones de System.Memory en las
+  dependencias intermedias. La distribución final integra esas bibliotecas;
+  no mantiene referencias externas a System.Memory ni a DLL de terceros.
+- No se ha probado el arranque ni la interfaz bajo Windows real.
+- No se ha realizado un análisis con Microsoft Defender ni con el antivirus corporativo.
+- No se ha probado una impresora física.
+
+El certificado de prueba es sintético y solo se usó en los documentos de ensayo.
+No constituye una firma Authenticode del ejecutable.

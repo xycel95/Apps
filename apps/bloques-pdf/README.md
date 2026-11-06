@@ -9,7 +9,7 @@ Aplicación portátil para Windows que agrupa documentos PDF en bloques listos p
 
 Añade los PDF seleccionándolos, arrastrándolos o eligiendo una carpeta completa. Al crear los bloques, el programa pregunta dónde guardarlos. Los archivos se llaman **BLOQUE 1.pdf, BLOQUE 2.pdf, BLOQUE 3.pdf…**
 
-Puedes elegir una o dos copias de cada documento dentro del PDF final. **Por defecto incluye dos**; imprime el bloque con una sola copia en el cuadro de impresión. También permite copiar los originales firmados en carpetas por bloques.
+Cada documento se añade **una sola vez** y la exportación contiene **solo los PDF**. Las copias de impresión se eligen en la impresora. También permite copiar los originales firmados en carpetas por bloques.
 
 Documentación complementaria: [Código fuente](Codigo/) · [Licencias](docs/LICENCIAS.txt) · [Comprobaciones y límites](docs/VERIFICACION.txt) · [Contexto de desarrollo](CONTEXTO.md) · [Instrucciones](AGENTS.md) · [Metadatos](app.json).
 

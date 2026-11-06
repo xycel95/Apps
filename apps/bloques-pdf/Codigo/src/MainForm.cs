@@ -14,7 +14,6 @@ namespace BloquesPDF
     {
         readonly List<string> files = new List<string>();
         readonly NumericUpDown batchSize = new NumericUpDown { Minimum = 1, Maximum = int.MaxValue, Value = 50, Width = 110, ThousandsSeparator = true };
-        readonly NumericUpDown copies = new NumericUpDown { Minimum = 1, Maximum = 2, Value = 2, Width = 80 };
         readonly ComboBox mode = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 320 };
         readonly CheckBox recursive = new CheckBox { Text = "Incluir subcarpetas", AutoSize = true };
         readonly CheckBox dark = new CheckBox { Text = "Modo oscuro", AutoSize = true };
@@ -73,19 +72,15 @@ namespace BloquesPDF
 
             mode.Items.AddRange(new object[] { "Unir en PDF para imprimir", "Carpetas con los PDF firmados originales" });
             mode.SelectedIndex = 0;
-            var settings = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 3 };
+            var settings = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 3 };
             settings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
-            settings.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 185));
             settings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             settings.Controls.Add(new Label { Text = "2. PDF originales por bloque", AutoSize = true, Font = new Font(Font, FontStyle.Bold) }, 0, 0);
-            settings.Controls.Add(new Label { Text = "Copias de cada documento", AutoSize = true }, 1, 0);
-            settings.Controls.Add(new Label { Text = "Tipo de resultado", AutoSize = true }, 2, 0);
-            settings.Controls.Add(batchSize, 0, 1); settings.Controls.Add(copies, 1, 1); settings.Controls.Add(mode, 2, 1);
+            settings.Controls.Add(new Label { Text = "Tipo de resultado", AutoSize = true }, 1, 0);
+            settings.Controls.Add(batchSize, 0, 1); settings.Controls.Add(mode, 1, 1);
             var defaultHint = new Label { Text = "50 por defecto · Cantidad editable", AutoSize = true };
             settings.Controls.Add(defaultHint, 0, 2);
-            var printHint = new Label { Text = "Repeticiones dentro del PDF", AutoSize = true };
-            settings.Controls.Add(printHint, 1, 2);
-            settings.Controls.Add(new Label { Text = "Sin límite fijo de documentos añadidos", AutoSize = true }, 2, 2);
+            settings.Controls.Add(new Label { Text = "Sin límite fijo de documentos añadidos", AutoSize = true }, 1, 2);
             layout.Controls.Add(settings, 0, 2);
 
             summary.Font = new Font("Segoe UI", 13, FontStyle.Bold);
@@ -116,8 +111,7 @@ namespace BloquesPDF
             remove.Click += (s, e) => RemoveSelected();
             clear.Click += (s, e) => { files.Clear(); lastOutput = null; UpdateLists(); };
             batchSize.ValueChanged += (s, e) => UpdateLists(false);
-            copies.ValueChanged += (s, e) => UpdateHints();
-            mode.SelectedIndexChanged += (s, e) => { copies.Enabled = !busy && mode.SelectedIndex == 0; UpdateHints(); };
+            mode.SelectedIndexChanged += (s, e) => UpdateHints();
             generate.Click += async (s, e) => await GenerateAsync();
             cancel.Click += (s, e) => { cancellation?.Cancel(); cancel.Enabled = false; status.Text = "Cancelando… Se conservarán los bloques que ya estén completos."; };
             open.Click += (s, e) => OpenOutput();
@@ -227,9 +221,9 @@ namespace BloquesPDF
         void UpdateHints()
         {
             if (mode.SelectedIndex == 1)
-                hint.Text = "Los PDF se copian en carpetas por bloques, conservando todas sus firmas digitales. Al imprimir, selecciona 2 copias.";
+                hint.Text = "Los PDF se copian en carpetas por bloques, conservando todas sus firmas digitales.";
             else
-                hint.Text = "El PDF final incluirá " + copies.Value + " copia(s) seguida(s) de cada documento: imprime con 1 copia.\r\nEs una copia para impresión; valida las firmas digitales en los originales.";
+                hint.Text = "Cada documento se añade una sola vez. El resultado contiene únicamente los PDF.\r\nEs una copia para impresión; valida las firmas digitales en los originales.";
             if (batchSize.Value > 50) hint.Text += " Para tu impresora se recomienda utilizar 50 PDF por bloque.";
         }
 
@@ -242,7 +236,7 @@ namespace BloquesPDF
                 if (dialog.ShowDialog(this) != DialogResult.OK) return;
                 destination = dialog.SelectedPath; lastDestination = destination;
             }
-            var options = new BatchOptions { DestinationDirectory = destination, BatchSize = (int)batchSize.Value, Copies = (int)copies.Value, KeepSignedOriginals = mode.SelectedIndex == 1 };
+            var options = new BatchOptions { DestinationDirectory = destination, BatchSize = (int)batchSize.Value, KeepSignedOriginals = mode.SelectedIndex == 1 };
             var snapshot = files.ToArray();
             cancellation = new CancellationTokenSource();
             SetBusy(true); bar.Value = 0;
@@ -260,26 +254,42 @@ namespace BloquesPDF
                     bar.Value = 100;
                     status.Text = "Completado · " + result.CompletedDocuments.ToString("N0") + " documentos en " + result.Outputs.Count.ToString("N0") + " bloques.\r\n" + result.OutputDirectory;
                     MessageBox.Show(this, "Se han guardado " + result.Outputs.Count.ToString("N0") + " bloques.\r\n\r\n" +
-                        (options.KeepSignedOriginals ? "Los originales firmados se han copiado sin modificar." : "Cada PDF ya incluye " + options.Copies + " copia(s) de cada documento. Al imprimir el bloque, elige 1 copia.") +
+                        (options.KeepSignedOriginals ? "Los originales firmados se han copiado sin modificar." : "Cada documento se ha añadido una sola vez.") +
                         "\r\n\r\nDestino: " + result.OutputDirectory, "Bloques creados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     status.Text = result.Status + " · " + result.CompletedDocuments.ToString("N0") + " de " + result.SourceDocuments.ToString("N0") + " documentos guardados.";
-                    string errors = string.Join("\r\n", result.Errors.Take(6));
-                    MessageBox.Show(this, "Estado: " + result.Status + ". El trabajo está incompleto.\r\n\r\n" + errors +
-                        "\r\n\r\nConsulta LEEME_RESULTADO.txt en la carpeta del resultado. Ningún documento se ha omitido de forma silenciosa.", "Revisa el resultado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowIncompleteResult(result);
                 }
             }
             catch (Exception ex) { status.Text = "No se ha completado el trabajo."; MessageBox.Show(this, BatchEngine.Describe(ex), "No se han podido crear los bloques", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { cancellation.Dispose(); cancellation = null; SetBusy(false); }
         }
 
+        void ShowIncompleteResult(BatchResult result)
+        {
+            using (var dialog = new Form { Text = "Revisa el resultado", Size = new Size(740, 430), MinimumSize = new Size(520, 300), StartPosition = FormStartPosition.CenterParent, MinimizeBox = false, ShowInTaskbar = false, Font = Font })
+            {
+                var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(16) };
+                layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+                layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 76));
+                layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+                layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+                layout.Controls.Add(new Label { Dock = DockStyle.Fill, Text = "Estado: " + result.Status + ". El trabajo está incompleto.\r\n" + result.CompletedDocuments.ToString("N0") + " de " + result.SourceDocuments.ToString("N0") + " documentos guardados.\r\nSolo se conservan los bloques completos; puedes abrirlos con Abrir resultado." }, 0, 0);
+                layout.Controls.Add(new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, WordWrap = false, ScrollBars = ScrollBars.Both, Text = result.Errors.Count == 0 ? "El proceso se ha cancelado." : string.Join("\r\n\r\n", result.Errors) }, 0, 1);
+                var close = Button("Aceptar"); close.DialogResult = DialogResult.OK; close.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+                layout.Controls.Add(close, 0, 2);
+                dialog.Controls.Add(layout); dialog.AcceptButton = close; dialog.CancelButton = close;
+                ApplyTheme(dialog);
+                dialog.ShowDialog(this);
+            }
+        }
+
         void SetBusy(bool value)
         {
             busy = value;
             foreach (Control control in new Control[] { addFiles, addFolder, remove, clear, batchSize, recursive, mode, generate, documentGrid }) control.Enabled = !value;
-            copies.Enabled = !value && mode.SelectedIndex == 0;
             cancel.Visible = value; cancel.Enabled = value;
             open.Enabled = !value && lastOutput != null;
             if (!value) UpdateLists(false);

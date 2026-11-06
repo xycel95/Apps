@@ -2,9 +2,9 @@
   "schema": 1,
   "id": "bloques-pdf",
   "name": "Bloques PDF",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "release_date": "2026-11-06",
-  "summary": "Agrupa PDF en bloques de 50 originales por defecto, con selección múltiple, arrastre y carpetas completas.",
+  "summary": "Agrupa PDF de 50 en 50 por defecto, añadiendo cada documento una sola vez y exportando únicamente PDF.",
   "platforms": [
     "Windows 10",
     "Windows 11"
@@ -21,32 +21,33 @@
   "source_url": "https://github.com/xycel95/Apps/tree/bloques-pdf/apps/bloques-pdf/Codigo",
   "download": {
     "available": true,
-    "filename": "BloquesPDF_1.0.1_Windows.zip",
-    "url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/BloquesPDF_1.0.1_Windows.zip",
-    "sha256": "5dc51887db90ba072feb10315097eeb3afdd7cac0e2e8185d74a9158a06493fe",
-    "size_bytes": 551595,
+    "filename": "BloquesPDF_1.0.2_Windows.zip",
+    "url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/BloquesPDF_1.0.2_Windows.zip",
+    "sha256": "83785db1177f89f0eb53c8561de61442c6e15806e72f972dc2e99c68b4ff11af",
+    "size_bytes": 548658,
     "hosting": "git-branch",
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/SHA256SUMS.txt"
   },
   "defaults": {
     "original_pdfs_per_block": 50,
-    "copies_per_document": 2,
     "output_filename_pattern": "BLOQUE {number}.pdf",
     "numbering_starts_at": 1,
-    "destination_prompt": true
+    "destination_prompt": true,
+    "document_repetitions": false,
+    "pdf_only_export": true
   },
   "source_included_in_package": true,
   "validation": {
     "report_url": "https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/VERIFICACION.txt",
     "environment": "Linux; ejecutable .NET Framework cargado desde un host .NET 10 para probar el motor",
-    "engine_assertions_passed": 27,
+    "engine_assertions_passed": 33,
     "stress_input_documents": 3000,
     "stress_output_blocks": 60,
     "exact_executable_processing_verified": true,
     "native_windows_verified": false,
     "antivirus_verified": false,
     "physical_printer_verified": false,
-    "published_downloads_verified": true,
+    "published_downloads_verified": false,
     "publication_report_url": "https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/PUBLICACION.json"
   },
   "online_updates_configured": false

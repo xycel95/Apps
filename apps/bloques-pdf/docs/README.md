@@ -13,9 +13,8 @@ Puedes seleccionar todos los PDF de una carpeta con **Ctrl+A** en el Explorador 
 
 1. Deja **50** en **PDF originales por bloque**, o indica otra cantidad.
 2. Elige **Unir en PDF para imprimir**.
-3. Revisa **Copias de cada documento**: el valor inicial es **2**. Para unir cada documento una sola vez, elige **1**.
-4. Pulsa **Crear bloques**. El programa te preguntará **dónde guardarlos**.
-5. Al terminar, pulsa **Abrir resultado**.
+3. Pulsa **Crear bloques**. El programa te preguntará **dónde guardarlos**.
+4. Al terminar, pulsa **Abrir resultado**.
 
 Dentro del destino se crea una carpeta nueva `BloquesPDF_fecha_hora_identificador`. Contiene los archivos **BLOQUE 1.pdf**, **BLOQUE 2.pdf**, etc. Cada trabajo empieza de nuevo en 1 y conserva los resultados anteriores en sus propias carpetas.
 
@@ -27,15 +26,11 @@ Dentro del destino se crea una carpeta nueva `BloquesPDF_fecha_hora_identificado
 
 Los documentos se ordenan por nombre y ruta en orden natural, por ejemplo `documento2.pdf` antes de `documento10.pdf`.
 
-## Imprimir las copias
+## Imprimir
 
-El PDF final incluye las repeticiones elegidas. **Selecciona 1 copia en el cuadro de impresión** para no duplicarlas otra vez.
+Cada documento se añade una sola vez. Con 100 originales de una página y bloques de 50 obtienes dos PDF de 50 páginas cada uno.
 
-- Con **1 copia de cada documento** en la aplicación, 50 originales de una página generan un PDF de 50 páginas.
-- Con **2 copias de cada documento**, generan un PDF de 100 páginas.
-- Un original de dos páginas se repite como `1, 2, 1, 2` cuando eliges dos copias.
-
-No se añaden portadas ni páginas en blanco. Revisa la configuración de doble cara y el primer bloque antes de una tirada grande.
+El número de copias se elige **al imprimir**, en la impresora. No se añaden portadas ni páginas en blanco. Los documentos de varias páginas se conservan completos y en su orden.
 
 ## Conservar originales firmados en carpetas
 
@@ -45,10 +40,9 @@ Selecciona **Carpetas con los PDF firmados originales** si quieres copiarlos sin
 
 Los PDF se comprueban antes de generar los bloques unidos. Si uno está dañado o protegido y no puede abrirse, el trabajo se detiene y muestra el problema. No se desbloquean PDF con contraseña.
 
-**Cancelar** conserva los bloques ya completos y elimina el bloque en curso. Cada resultado incorpora:
+**Cancelar** conserva los bloques ya completos y elimina el bloque en curso. La exportación contiene únicamente PDF: no se generan informes TXT, CSV ni archivos de control.
 
-- `LEEME_RESULTADO.txt`: estado, errores e instrucciones de impresión.
-- `detalle_documentos.csv`: originales, bloque, páginas, copias y huellas SHA-256.
+Si el trabajo queda incompleto, la aplicación muestra el estado y todos los errores en una ventana con desplazamiento.
 
 Los originales no se modifican. Las firmas digitales deben validarse en ellos; los bloques unidos son copias para imprimir.
 

@@ -11,19 +11,15 @@
 - Añadir documentos sin un límite fijo impuesto por la aplicación; la capacidad práctica depende de los archivos y del equipo.
 - Elegir la carpeta de destino al pulsar **Crear bloques**.
 - Generar **BLOQUE 1.pdf, BLOQUE 2.pdf…**, con numeración desde 1 en cada trabajo.
-- Incluir una o dos copias completas y seguidas de cada documento; se proponen dos por defecto.
+- Añadir cada documento completo una sola vez, sin repeticiones.
 - Copiar los PDF originales en carpetas por bloques como alternativa a unirlos.
 - Revisar la lista de documentos y los bloques previstos, quitar seleccionados, cancelar el proceso y abrir el resultado.
-- Utilizar modo oscuro y consultar un listado CSV con la composición de cada bloque.
+- Utilizar modo oscuro y consultar los errores dentro de la aplicación.
+- Exportar únicamente los PDF, sin CSV, TXT ni archivo de control.
 
 ## Cómo se cuenta un bloque
 
-Se cuentan **PDF originales**. Con 100 PDF de una página y bloques de 50:
-
-| Copias de cada documento | Resultado |
-| --- | --- |
-| 1 | Dos PDF de 50 páginas cada uno. |
-| 2, valor por defecto | Dos PDF de 100 páginas cada uno. |
+Se cuentan **PDF originales**. Con 100 PDF de una página y bloques de 50 se generan **dos PDF de 50 páginas cada uno**. Cada documento aparece una sola vez. Las copias necesarias se eligen después al imprimir.
 
 Los documentos de varias páginas se conservan completos. El programa no divide un documento para limitar las páginas del bloque.
 

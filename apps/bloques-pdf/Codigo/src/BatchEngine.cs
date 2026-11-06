@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
@@ -16,7 +17,6 @@ namespace BloquesPDF
         public string SourceDirectory { get; set; }
         public string DestinationDirectory { get; set; }
         public int BatchSize { get; set; } = 50;
-        public int Copies { get; set; } = 2;
         public bool KeepSignedOriginals { get; set; }
     }
 
@@ -102,7 +102,9 @@ namespace BloquesPDF
             {
                 cancellation.ThrowIfCancellationRequested();
                 string current = pending.Pop();
-                if (File.Exists(Path.Combine(current, JobMarker))) continue;
+                if (File.Exists(Path.Combine(current, JobMarker)) || Regex.IsMatch(
+                    Path.GetFileName(current.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+                    @"^BloquesPDF_[0-9]{8}_[0-9]{6}_[0-9a-fA-F]{6}$", RegexOptions.CultureInvariant)) continue;
                 foreach (string file in Directory.EnumerateFiles(current))
                 {
                     cancellation.ThrowIfCancellationRequested();
@@ -130,7 +132,6 @@ namespace BloquesPDF
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
             BatchCount(files.Count, options.BatchSize);
-            if (options.Copies < 1 || options.Copies > 2) throw new ArgumentOutOfRangeException(nameof(options.Copies));
             if (files.Count == 0) throw new IOException("No hay documentos PDF para agrupar.");
             if (!Directory.Exists(options.DestinationDirectory)) throw new IOException("Selecciona una carpeta de destino existente.");
             string root = string.IsNullOrWhiteSpace(options.SourceDirectory) ? null :
@@ -138,9 +139,7 @@ namespace BloquesPDF
             string output = Path.Combine(Path.GetFullPath(options.DestinationDirectory),
                 "BloquesPDF_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + "_" + Guid.NewGuid().ToString("N").Substring(0, 6));
             Directory.CreateDirectory(output);
-            File.WriteAllText(Path.Combine(output, JobMarker), "Bloques PDF 1.0.1\r\n", Encoding.UTF8);
             var result = new BatchResult { OutputDirectory = output, Status = "EN CURSO", SourceDocuments = files.Count };
-            var details = new StringBuilder("Bloque;PDF generado;Documento original;Páginas originales;Copias incluidas;Página inicial;Página final;SHA256 original\r\n");
             var plan = new List<SourceInfo>();
             string temporary = null;
             try
@@ -199,7 +198,6 @@ namespace BloquesPDF
                     int batch = offset / options.BatchSize + 1;
                     int count = Math.Min(options.BatchSize, plan.Count - offset);
                     string label = "BLOQUE " + batch.ToString(CultureInfo.InvariantCulture);
-                    var batchDetails = new StringBuilder();
                     if (options.KeepSignedOriginals)
                     {
                         string folder = Path.Combine(output, label);
@@ -217,7 +215,6 @@ namespace BloquesPDF
                                 CheckHash(input, info);
                                 using (var target = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None)) input.CopyTo(target);
                             }
-                            batchDetails.AppendLine(Csv(batch, label, info.Path, "", 1, "", "", info.Hash));
                         }
                         cancellation.ThrowIfCancellationRequested();
                         Directory.Move(temporary, folder);
@@ -234,9 +231,9 @@ namespace BloquesPDF
                         {
                             using (var merged = new PdfDocument())
                             {
-                                merged.Info.Title = label + " - " + count + " documentos - " + options.Copies + " copia(s)";
+                                merged.Info.Title = label + " - " + count + " documentos";
                                 merged.Info.Subject = "Copia para impresión. Para validar las firmas digitales consulte los archivos originales.";
-                                merged.Info.Creator = "Bloques PDF 1.0.1 - XyceL";
+                                merged.Info.Creator = "Bloques PDF 1.0.2 - XyceL";
                                 for (int j = 0; j < count; j++)
                                 {
                                     cancellation.ThrowIfCancellationRequested();
@@ -247,17 +244,12 @@ namespace BloquesPDF
                                     CheckHash(stream, info);
                                     var pdf = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
                                     opened.Add(pdf);
-                                    int first = merged.PageCount + 1;
-                                    for (int copy = 0; copy < options.Copies; copy++)
+                                    for (int page = 0; page < pdf.PageCount; page++)
                                     {
-                                        for (int page = 0; page < pdf.PageCount; page++)
-                                        {
-                                            cancellation.ThrowIfCancellationRequested();
-                                            var added = merged.AddPage(pdf.Pages[page]);
-                                            if (page == 0) merged.Outlines.Add(Path.GetFileName(info.Path) + (options.Copies == 2 ? " · copia " + (copy + 1) : ""), added, false);
-                                        }
+                                        cancellation.ThrowIfCancellationRequested();
+                                        var added = merged.AddPage(pdf.Pages[page]);
+                                        if (page == 0) merged.Outlines.Add(Path.GetFileName(info.Path), added, false);
                                     }
-                                    batchDetails.AppendLine(Csv(batch, name, info.Path, info.Pages, options.Copies, first, merged.PageCount, info.Hash));
                                 }
                                 cancellation.ThrowIfCancellationRequested();
                                 int expectedPages = merged.PageCount;
@@ -279,8 +271,6 @@ namespace BloquesPDF
                         }
                     }
                     result.CompletedDocuments += count;
-                    details.Append(batchDetails);
-                    WriteDetails(output, details);
                     Report(progress, "Bloque guardado", label, result.CompletedDocuments, plan.Count, result.Outputs.Count, label);
                     // Release imported document graphs between batches, not after every page.
                     GC.Collect(0, GCCollectionMode.Optimized);
@@ -303,8 +293,6 @@ namespace BloquesPDF
                     try { if (File.Exists(temporary)) File.Delete(temporary); else if (Directory.Exists(temporary)) Directory.Delete(temporary, true); }
                     catch (Exception ex) { result.Errors.Add("No se pudo eliminar el bloque incompleto: " + Describe(ex)); }
                 }
-                WriteDetails(output, details);
-                WriteSummary(result, options);
             }
             return result;
         }
@@ -319,36 +307,6 @@ namespace BloquesPDF
         static string Hash(Stream stream)
         {
             using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
-        }
-
-        static string Csv(params object[] values)
-        {
-            return string.Join(";", values.Select(v => "\"" + Convert.ToString(v, CultureInfo.InvariantCulture).Replace("\"", "\"\"") + "\""));
-        }
-
-        static void WriteDetails(string folder, StringBuilder details)
-        {
-            File.WriteAllText(Path.Combine(folder, "detalle_documentos.csv"), details.ToString(), new UTF8Encoding(true));
-        }
-
-        static void WriteSummary(BatchResult result, BatchOptions options)
-        {
-            var text = new StringBuilder();
-            text.AppendLine("BLOQUES PDF 1.0.1").AppendLine("Estado: " + result.Status)
-                .AppendLine("Documentos seleccionados: " + result.SourceDocuments)
-                .AppendLine("Documentos guardados en bloques completos: " + result.CompletedDocuments)
-                .AppendLine("Bloques guardados: " + result.Outputs.Count)
-                .AppendLine("Máximo de PDF originales por bloque: " + options.BatchSize)
-                .AppendLine("Modo: " + (options.KeepSignedOriginals ? "Carpetas con originales firmados, sin modificar" : "PDF unidos, copias para impresión"));
-            if (!options.KeepSignedOriginals)
-                text.AppendLine("Copias incluidas de cada documento: " + options.Copies)
-                    .AppendLine("Páginas generadas: " + result.OutputPages)
-                    .AppendLine("IMPRIMIR CON 1 COPIA en el cuadro de impresión: el PDF ya incluye las copias indicadas.")
-                    .AppendLine("Los PDF unidos son copias para imprimir; para validar firmas digitales usa los originales.");
-            else text.AppendLine("Para obtener dos copias selecciona 2 copias al imprimir los originales.");
-            if (result.Status != "COMPLETADO") text.AppendLine("ATENCIÓN: el trabajo está incompleto. Consulta el estado y los errores antes de imprimir.");
-            if (result.Errors.Count > 0) text.AppendLine().AppendLine("ERRORES:").AppendLine(string.Join(Environment.NewLine, result.Errors));
-            File.WriteAllText(Path.Combine(result.OutputDirectory, "LEEME_RESULTADO.txt"), text.ToString(), new UTF8Encoding(true));
         }
 
         static void Report(IProgress<ProgressInfo> progress, string phase, string name, int done, int total, int batches, string message)

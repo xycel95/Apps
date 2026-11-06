@@ -23,15 +23,14 @@ var hundred = files.Take(100).ToArray();
 var options = new BatchOptions { SourceDirectory = input, DestinationDirectory = output };
 var result = BatchEngine.Run(hundred, options, null, CancellationToken.None);
 Check(result.Status == "COMPLETADO" && result.CompletedDocuments == 100 && result.Outputs.Count == 2, "100 documents merged into 2 blocks of 50");
-Check(result.OutputPages == 202, "Two copies of every full document, including multi-page document");
-Check(File.ReadAllLines(Path.Combine(result.OutputDirectory, "detalle_documentos.csv")).Length == 101, "Every original is present in the manifest exactly once");
+Check(result.OutputPages == 101, "Every full document is included once, including the multi-page document");
+Check(Directory.GetFileSystemEntries(result.OutputDirectory).Length == 2 && Directory.GetFiles(result.OutputDirectory, "*.pdf").Length == 2, "Export contains only the two PDFs, without reports or marker files");
 foreach (var pdfPath in result.Outputs)
 {
     using var pdf = PdfReader.Open(pdfPath, PdfDocumentOpenMode.Import);
-    Check(pdf.PageCount >= 100, "Readable output block");
+    Check(pdf.PageCount >= 50 && pdf.PageCount <= 51, "Readable output block without duplicated pages");
 }
 Console.WriteLine("MERGE100=" + result.OutputDirectory);
-options.Copies = 1;
 var partial = BatchEngine.Run(files, options, null, CancellationToken.None);
 Check(partial.Status == "COMPLETADO" && partial.Outputs.Count == 3, "103 documents produces 50,50,3");
 using (var last = PdfReader.Open(partial.Outputs[2], PdfDocumentOpenMode.Import)) Check(last.PageCount == 3, "No empty padding or extra cover pages");
@@ -41,9 +40,8 @@ Console.WriteLine("MERGE103=" + partial.OutputDirectory);
 var signed = Path.Combine(root, "special", "signed.pdf");
 var form = Path.Combine(root, "special", "form.pdf");
 options.SourceDirectory = null;
-options.Copies = 2;
 var signedResult = BatchEngine.Run(new[] { signed, form }, options, null, CancellationToken.None);
-Check(signedResult.Status == "COMPLETADO" && signedResult.OutputPages == 4, "Signed PDF and visible filled form can be merged");
+Check(signedResult.Status == "COMPLETADO" && signedResult.OutputPages == 2, "Signed PDF and visible filled form are each included once");
 Console.WriteLine("SIGNED=" + signedResult.Outputs.Single());
 
 var badResult = BatchEngine.Run(new[] { hundred[0], Path.Combine(root, "special", "corrupt.pdf") }, options, null, CancellationToken.None);
@@ -87,9 +85,19 @@ var stressInput = Path.Combine(root, "stress3000"); Directory.CreateDirectory(st
 for (int i = 1; i <= 3000; i++) File.Copy(files[1], Path.Combine(stressInput, "pdf" + i + ".pdf"), true);
 var stressFiles = BatchEngine.Scan(stressInput, false, CancellationToken.None);
 Check(stressFiles.Count == 3000, "Folder selection accepts 3000 PDFs");
-options.BatchSize = 50; options.Copies = 2; options.KeepSignedOriginals = false;
+options.BatchSize = 50; options.KeepSignedOriginals = false;
 var stress = BatchEngine.Run(stressFiles, options, null, CancellationToken.None);
-Check(stress.Status == "COMPLETADO" && stress.CompletedDocuments == 3000 && stress.Outputs.Count == 60 && stress.OutputPages == 6000, "3000 documents -> 60 PDFs, with 2 complete copies each");
+Check(stress.Status == "COMPLETADO" && stress.CompletedDocuments == 3000 && stress.Outputs.Count == 60 && stress.OutputPages == 3000, "3000 single-page documents -> 60 PDFs, with each document included once");
+Check(Directory.GetFileSystemEntries(stress.OutputDirectory).Length == 60 && Directory.GetFiles(stress.OutputDirectory, "*.pdf").Length == 60, "Stress export contains exactly the 60 PDFs and nothing else");
+Check(Directory.GetFiles(originals.OutputDirectory, "*", SearchOption.AllDirectories).All(path => Path.GetExtension(path).Equals(".pdf", StringComparison.OrdinalIgnoreCase)), "Folder mode also exports only PDFs");
+Check(Directory.GetFileSystemEntries(badResult.OutputDirectory).Length == 0 && Directory.GetFileSystemEntries(protectedResult.OutputDirectory).Length == 0, "Failed validation creates no reports, markers or partial files");
+Check(Directory.GetFileSystemEntries(before.OutputDirectory).Length == 0 && Directory.GetFileSystemEntries(cancelAfterBlock.OutputDirectory).Length == 1, "Cancellation leaves only completed PDFs, without extra files");
+
+string newScanRoot = Path.Combine(root, "scan-clean-output"); Directory.CreateDirectory(newScanRoot);
+string scanSource = Path.Combine(newScanRoot, "original.pdf"); File.Copy(form, scanSource, true);
+var cleanScan = BatchEngine.Run(new[] { scanSource }, new BatchOptions { DestinationDirectory = newScanRoot }, null, CancellationToken.None);
+Check(cleanScan.Status == "COMPLETADO" && !File.Exists(Path.Combine(cleanScan.OutputDirectory, BatchEngine.JobMarker)), "New output folders require no marker file");
+Check(BatchEngine.Scan(newScanRoot, true, CancellationToken.None).SequenceEqual(new[] { scanSource }), "Recursive scan excludes clean generated output folders without reimporting their blocks");
 Console.WriteLine("PASS: " + assertions + " assertions");
 
 sealed class ImmediateProgress : IProgress<ProgressInfo>

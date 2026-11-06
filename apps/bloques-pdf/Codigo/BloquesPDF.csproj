@@ -8,7 +8,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>BloquesPDF</AssemblyName>
     <RootNamespace>BloquesPDF</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Company>XyceL</Company>
     <Product>Bloques PDF</Product>
     <Description>Organiza PDF en bloques configurables, de 50 documentos por defecto, para imprimir.</Description>
