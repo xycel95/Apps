@@ -20,7 +20,7 @@ Si actualizas, cierra el ejecutable anterior y utiliza el nuevo. No hay un actua
 - [Explorar el código fuente](../Codigo/) · [Cómo compilar](../Codigo/COMPILAR.txt).
 - [Comprobaciones y límites](../docs/VERIFICACION.txt) · [Licencias](../docs/LICENCIAS.txt).
 
-[Informe de publicación](../docs/PUBLICACION.json).
+La descarga pública del ZIP se ha comprobado mediante HTTP, SHA-256, CRC y correspondencia de sus fuentes. [Informe de publicación](../docs/PUBLICACION.json).
 
 Se han superado 33 aserciones del motor y una prueba del ejecutable compilado cargado desde un host .NET 10. No se ha probado el arranque de la ventana en Windows, una impresora física ni el antivirus corporativo. El EXE no lleva firma Authenticode; no se garantiza su aceptación por el antivirus.
 
