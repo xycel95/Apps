@@ -1,4 +1,4 @@
-BLOQUES PDF 1.0.2 - XyceL
+BLOQUES PDF 1.0.3 - XyceL
 
 INICIO
 Descomprime el ZIP y abre BloquesPDF.exe.
@@ -13,6 +13,8 @@ USO
 3. Pulsa Crear bloques y elige dónde guardarlos.
 4. Abre el resultado. Dentro de una carpeta nueva se guardan únicamente
    BLOQUE 1.pdf, BLOQUE 2.pdf, BLOQUE 3.pdf, etc.
+   La carpeta utiliza el formato BloquesPDF_2026.11.06_21.09.19.
+   Si coincide el segundo con otro trabajo, se añade (2), (3), etc.
 
 CADA DOCUMENTO SE AÑADE UNA SOLA VEZ
 No hay una opción de copias en el programa ni repeticiones internas.

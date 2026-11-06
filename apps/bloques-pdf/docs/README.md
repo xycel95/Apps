@@ -16,7 +16,7 @@ Puedes seleccionar todos los PDF de una carpeta con **Ctrl+A** en el Explorador 
 3. Pulsa **Crear bloques**. El programa te preguntará **dónde guardarlos**.
 4. Al terminar, pulsa **Abrir resultado**.
 
-Dentro del destino se crea una carpeta nueva `BloquesPDF_fecha_hora_identificador`. Contiene los archivos **BLOQUE 1.pdf**, **BLOQUE 2.pdf**, etc. Cada trabajo empieza de nuevo en 1 y conserva los resultados anteriores en sus propias carpetas.
+Dentro del destino se crea una carpeta nueva con fecha y hora, por ejemplo `BloquesPDF_2026.11.06_21.09.19`. Contiene los archivos **BLOQUE 1.pdf**, **BLOQUE 2.pdf**, etc. Cada trabajo empieza de nuevo en 1 y conserva los resultados anteriores en sus propias carpetas. Si se crean dos trabajos en el mismo segundo, se añade ` (2)`, ` (3)`, etc., al nombre de la carpeta para conservar ambos.
 
 | PDF originales | Tamaño del bloque | Archivos resultantes |
 | --- | --- | --- |

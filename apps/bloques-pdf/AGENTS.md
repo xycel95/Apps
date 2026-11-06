@@ -7,6 +7,7 @@ Lee primero `/AGENTS.md`, este archivo y `CONTEXTO.md`. Trabaja en la rama perma
 - Cada documento se añade una sola vez. No reincorpores controles de copias ni repeticiones internas.
 - La exportación solo contiene PDF: no escribas informes TXT/CSV ni archivos de control. Los errores se muestran en la aplicación. La búsqueda recursiva debe seguir excluyendo los resultados generados sin necesitar un marcador nuevo.
 - La selección admite botón de varios archivos, arrastre y carpeta completa. Se pregunta el destino al crear los bloques.
+- Las carpetas usan BloquesPDF_yyyy.MM.dd_HH.mm.ss, sin identificador aleatorio. Si coinciden el segundo y el destino, añade (2), (3), etc.; no sobrescribas trabajos anteriores y conserva el reconocimiento de los formatos antiguos en el escaneo.
 - Los originales son de solo lectura. Los bloques unidos son copias para impresión; el modo de carpetas conserva los bytes originales.
 - Lee `Codigo/COMPILAR.txt` antes de compilar. El SDK de desarrollo es .NET 10; el ejecutable final usa .NET Framework 4.8 y Windows Forms.
 - El programa de integración de `Codigo/build` debe conservar el icono, el manifiesto, el tipo GUI y las dependencias necesarias. No uses compresión, ofuscación ni empaquetadores autoextraíbles.

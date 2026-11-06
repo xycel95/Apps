@@ -1,5 +1,12 @@
 # Notas de parche
 
+## 1.0.3 · 6 de noviembre de 2026
+
+- Las carpetas de resultados usan el formato **BloquesPDF_2026.11.06_21.09.19**, con fecha y hora separadas por puntos.
+- Se elimina el identificador aleatorio del nombre de la carpeta.
+- Si se crean varios trabajos en el mismo segundo, se añade ` (2)`, ` (3)`, etc., para conservarlos sin sobrescribir.
+- La búsqueda recursiva reconoce las carpetas nuevas y las de versiones anteriores.
+
 ## 1.0.2 · 6 de noviembre de 2026
 
 - Eliminada la opción «Copias de cada documento». Cada documento se añade una sola vez.

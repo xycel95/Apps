@@ -1,4 +1,4 @@
-BLOQUES PDF 1.0.2 - VERIFICACIÓN (06/11/2026)
+BLOQUES PDF 1.0.3 - VERIFICACIÓN (06/11/2026)
 
 Motor: 33 aserciones superadas en Linux con SDK .NET 10.
 - Cada original se incorpora una sola vez, con todas sus páginas.
@@ -13,7 +13,10 @@ Motor: 33 aserciones superadas en Linux con SDK .NET 10.
 - Archivos distintos con el mismo nombre conservados sin sobrescritura.
 - Cambios de un original detectados por SHA-256.
 - Orden natural y tamaño de bloque configurable.
-- Escaneo recursivo excluye resultados nuevos sin marcador y antiguos con marcador.
+- Escaneo recursivo excluye resultados nuevos sin marcador y formatos anteriores.
+- Carpetas con fecha y hora en formato BloquesPDF_yyyy.MM.dd_HH.mm.ss.
+- Dos procesos simultáneos crearon cuatro trabajos distintos en el mismo segundo;
+  se conservaron todos con sufijos (2), (3) y (4), sin archivos adicionales.
 
 Ejecutable distribuido:
 - Aplicación GUI PE/AnyCPU para .NET Framework 4.8.
@@ -31,4 +34,4 @@ Límites:
 - No se ha realizado un análisis con Defender ni con el antivirus corporativo.
 - No se ha probado una impresora física.
 - Las pruebas visuales previas de firma y formulario corresponden a 1.0.0.
-- La evidencia anterior está en VERIFICACION-1.0.1.txt en el repositorio.
+- La evidencia anterior está en VERIFICACION-1.0.1.txt y VERIFICACION-1.0.2.txt en el repositorio.

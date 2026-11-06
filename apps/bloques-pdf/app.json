@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "bloques-pdf",
   "name": "Bloques PDF",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "release_date": "2026-11-06",
   "summary": "Agrupa PDF de 50 en 50 por defecto, añadiendo cada documento una sola vez y exportando únicamente PDF.",
   "platforms": [
@@ -21,10 +21,10 @@
   "source_url": "https://github.com/xycel95/Apps/tree/bloques-pdf/apps/bloques-pdf/Codigo",
   "download": {
     "available": true,
-    "filename": "BloquesPDF_1.0.2_Windows.zip",
-    "url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/BloquesPDF_1.0.2_Windows.zip",
-    "sha256": "83785db1177f89f0eb53c8561de61442c6e15806e72f972dc2e99c68b4ff11af",
-    "size_bytes": 548658,
+    "filename": "BloquesPDF_1.0.3_Windows.zip",
+    "url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/BloquesPDF_1.0.3_Windows.zip",
+    "sha256": "f51e23176da0d8c9f7d18227d922984dff77dcecb3f462d1ba7259e1db2bab4d",
+    "size_bytes": 549747,
     "hosting": "git-branch",
     "integrity_url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/descargas/SHA256SUMS.txt"
   },
@@ -34,7 +34,9 @@
     "numbering_starts_at": 1,
     "destination_prompt": true,
     "document_repetitions": false,
-    "pdf_only_export": true
+    "pdf_only_export": true,
+    "output_directory_pattern": "BloquesPDF_yyyy.MM.dd_HH.mm.ss",
+    "directory_collision_suffix": " (2), (3), etc."
   },
   "source_included_in_package": true,
   "validation": {
@@ -47,8 +49,9 @@
     "native_windows_verified": false,
     "antivirus_verified": false,
     "physical_printer_verified": false,
-    "published_downloads_verified": true,
-    "publication_report_url": "https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/PUBLICACION.json"
+    "published_downloads_verified": false,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/PUBLICACION.json",
+    "concurrent_exports_verified": true
   },
   "online_updates_configured": false
 }

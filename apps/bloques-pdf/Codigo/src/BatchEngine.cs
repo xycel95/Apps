@@ -104,7 +104,7 @@ namespace BloquesPDF
                 string current = pending.Pop();
                 if (File.Exists(Path.Combine(current, JobMarker)) || Regex.IsMatch(
                     Path.GetFileName(current.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
-                    @"^BloquesPDF_[0-9]{8}_[0-9]{6}_[0-9a-fA-F]{6}$", RegexOptions.CultureInvariant)) continue;
+                    @"^BloquesPDF_(?:[0-9]{8}_[0-9]{6}_[0-9a-fA-F]{6}|[0-9]{4}\.[0-9]{2}\.[0-9]{2}_[0-9]{2}\.[0-9]{2}\.[0-9]{2}(?: \([0-9]+\))?)$", RegexOptions.CultureInvariant)) continue;
                 foreach (string file in Directory.EnumerateFiles(current))
                 {
                     cancellation.ThrowIfCancellationRequested();
@@ -136,9 +136,7 @@ namespace BloquesPDF
             if (!Directory.Exists(options.DestinationDirectory)) throw new IOException("Selecciona una carpeta de destino existente.");
             string root = string.IsNullOrWhiteSpace(options.SourceDirectory) ? null :
                 Path.GetFullPath(options.SourceDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
-            string output = Path.Combine(Path.GetFullPath(options.DestinationDirectory),
-                "BloquesPDF_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture) + "_" + Guid.NewGuid().ToString("N").Substring(0, 6));
-            Directory.CreateDirectory(output);
+            string output = CreateOutputDirectory(options.DestinationDirectory);
             var result = new BatchResult { OutputDirectory = output, Status = "EN CURSO", SourceDocuments = files.Count };
             var plan = new List<SourceInfo>();
             string temporary = null;
@@ -233,7 +231,7 @@ namespace BloquesPDF
                             {
                                 merged.Info.Title = label + " - " + count + " documentos";
                                 merged.Info.Subject = "Copia para impresión. Para validar las firmas digitales consulte los archivos originales.";
-                                merged.Info.Creator = "Bloques PDF 1.0.2 - XyceL";
+                                merged.Info.Creator = "Bloques PDF 1.0.3 - XyceL";
                                 for (int j = 0; j < count; j++)
                                 {
                                     cancellation.ThrowIfCancellationRequested();
@@ -295,6 +293,36 @@ namespace BloquesPDF
                 }
             }
             return result;
+        }
+
+        static string CreateOutputDirectory(string destination)
+        {
+            string parent = Path.GetFullPath(destination);
+            string lockName;
+            using (var bytes = new MemoryStream(Encoding.UTF8.GetBytes(parent.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToUpperInvariant())))
+                lockName = "BloquesPDF.Output." + Hash(bytes);
+            string lockPath = Path.Combine(Path.GetTempPath(), lockName + ".lock");
+            var waiting = System.Diagnostics.Stopwatch.StartNew();
+            FileStream gate = null;
+            try
+            {
+                while (gate == null)
+                {
+                    try { gate = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose); }
+                    catch (IOException ex)
+                    {
+                        if (waiting.Elapsed >= TimeSpan.FromSeconds(10)) throw new IOException("La carpeta de destino está ocupada. Inténtalo de nuevo.", ex);
+                        Thread.Sleep(20);
+                    }
+                }
+                string name = "BloquesPDF_" + DateTime.Now.ToString("yyyy.MM.dd_HH.mm.ss", CultureInfo.InvariantCulture);
+                string output = Path.Combine(parent, name);
+                for (int number = 2; Directory.Exists(output) || File.Exists(output); number++)
+                    output = Path.Combine(parent, name + " (" + number.ToString(CultureInfo.InvariantCulture) + ")");
+                Directory.CreateDirectory(output);
+                return output;
+            }
+            finally { gate?.Dispose(); }
         }
 
         static void CheckHash(Stream input, SourceInfo info)
