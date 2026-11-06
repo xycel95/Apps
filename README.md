@@ -25,6 +25,13 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
    Consulta los modelos, requisitos y la disponibilidad del paquete en **Descargar**.
 
+4. **[Bloques PDF](https://github.com/xycel95/Apps/tree/bloques-pdf/apps/bloques-pdf)**  
+   Aplicación para Windows que reúne PDF en bloques de 50 documentos por defecto, con selección múltiple, arrastre, carpetas completas y una o dos copias por documento.
+
+   [Descripción del programa](https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/bloques-pdf/apps/bloques-pdf/notas-de-parche/README.md)
+
+   Consulta la versión, los requisitos y la disponibilidad del paquete en **Descargar**.
+
 ## La misma estructura para todos los programas
 
 Cada aplicación tendrá estos cuatro apartados, siempre en este orden:

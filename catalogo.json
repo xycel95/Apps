@@ -25,6 +25,14 @@
       "path": "apps/visor-tapo",
       "manifest_url": "https://raw.githubusercontent.com/xycel95/Apps/visor-tapo/apps/visor-tapo/app.json",
       "project_url": "https://github.com/xycel95/Apps/tree/visor-tapo/apps/visor-tapo"
+    },
+    {
+      "id": "bloques-pdf",
+      "name": "Bloques PDF",
+      "branch": "bloques-pdf",
+      "path": "apps/bloques-pdf",
+      "manifest_url": "https://raw.githubusercontent.com/xycel95/Apps/bloques-pdf/apps/bloques-pdf/app.json",
+      "project_url": "https://github.com/xycel95/Apps/tree/bloques-pdf/apps/bloques-pdf"
     }
   ]
 }
