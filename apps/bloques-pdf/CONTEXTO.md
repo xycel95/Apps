@@ -26,6 +26,8 @@ Los resultados se excluyen del escaneo recursivo por el patrón de su carpeta ge
 
 `docs/VERIFICACION.txt` registra el alcance actual. Se conserva la evidencia de 1.0.1 en los informes con ese sufijo. `docs/PUBLICACION.json` corresponde a la publicación actual.
 
+La descarga pública de 1.0.2 respondió HTTP 200 y coincidió con el tamaño y el SHA-256 del paquete. También se comprobaron su CRC, la huella del ejecutable y todas las fuentes incluidas.
+
 Pendientes: interfaz y nuevo diálogo de errores en Windows real, antivirus corporativo e impresora física. No hay firma Authenticode ni actualizador automático.
 
 Las pruebas de `Codigo/tests/Program.cs` requieren PDF sintéticos en carpetas `input/` y `special/`, no incluidos. No publicar certificados privados, documentos del trabajo ni salidas de ensayo.
