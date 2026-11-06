@@ -1,0 +1,23 @@
+BLOQUES PDF - CÓDIGO FUENTE
+
+Requisitos de compilación: SDK .NET 10, conexión a NuGet durante la restauración.
+La aplicación de escritorio final usa .NET Framework 4.8; no exige .NET 10 al usuario.
+
+Desde la carpeta del código fuente:
+  dotnet build BloquesPDF.csproj -c Release
+
+El programa inicialmente se genera en bin/Release/net48 con sus bibliotecas.
+El proyecto build/MergeTool.csproj integra solo la cadena de dependencias utilizada
+en un EXE .NET sin compresión ni ofuscación. Ejemplo en PowerShell de Windows:
+
+  dotnet run --project build/MergeTool.csproj -c Release -- bin/Release/net48 ../output/BloquesPDF.exe "$env:USERPROFILE\.nuget\packages\microsoft.netframework.referenceassemblies.net48\1.0.3\build\.NETFramework\v4.8"
+
+La carpeta de referencia de .NET Framework se descarga al restaurar el proyecto.
+Los ficheros packages.lock.json fijan las versiones utilizadas.
+Microsoft .NET Framework Reference Assemblies e ILRepack son herramientas de compilación,
+no programas que deba ejecutar el usuario final.
+
+Las pruebas del motor están en tests/Program.cs. El informe VERIFICACION.txt
+describe sus datos sintéticos y sus límites. tests/artifact permite comprobar
+el procesamiento del mismo EXE compilado desde un host .NET 10, sin probar la ventana.
+Los PDF sintéticos y los certificados privados de las pruebas no se incluyen.

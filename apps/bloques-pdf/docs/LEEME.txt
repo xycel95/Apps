@@ -1,0 +1,81 @@
+BLOQUES PDF 1.0.1 - XyceL
+
+INICIO
+Descomprime el ZIP y abre BloquesPDF.exe con doble clic.
+Aplicación portátil para Windows 10/11 con .NET Framework 4.8 o posterior.
+No requiere instalar Python, iniciar sesión ni conectar con Internet.
+Los documentos se procesan en el ordenador y el programa no los envía a ningún servidor.
+
+USO
+1. Añade todos los documentos que quieras mediante cualquiera de estas opciones:
+   - Añadir PDF: selecciona varios archivos con Ctrl o Mayús.
+   - Arrastra archivos PDF o carpetas a la ventana.
+   - Añadir carpeta: incorpora todos sus PDF. Puedes incluir subcarpetas.
+   Puedes combinar estos métodos. El mismo archivo no se añade dos veces.
+   Archivos diferentes con el mismo nombre se conservan como documentos distintos.
+
+2. Se proponen 50 PDF originales por bloque. Puedes cambiar esta cantidad.
+   El número total de documentos añadidos no tiene un límite artificial.
+   El tiempo y la memoria necesarios dependen del tamaño real de los archivos y bloques.
+   Los bloques cuentan documentos originales, no páginas ni repeticiones.
+   Orden de documentos: nombre y ruta en orden natural (documento2 antes de documento10).
+   Revisa las pestañas Documentos añadidos y Bloques previstos.
+   Puedes quitar documentos seleccionados o vaciar la lista.
+
+3. Elige el tipo de resultado:
+   - Unir en PDF para imprimir (predeterminado): genera un PDF por bloque.
+     Se incluyen 2 copias seguidas de cada documento completo por defecto.
+     Por ejemplo, un original de dos páginas se añade como 1,2,1,2.
+     También puedes seleccionar 1 copia de cada documento.
+     IMPRIME EL BLOQUE CON 1 COPIA: sus páginas ya contienen las repeticiones elegidas.
+     Si usas impresión a doble cara, revisa cómo quieres separar los documentos.
+   - Carpetas con los PDF firmados originales: copia los archivos en carpetas por bloques,
+     conservando exactamente sus bytes y sus firmas. En este modo las copias se eligen
+     en el cuadro de impresión de la impresora.
+
+4. Pulsa Crear bloques. Entonces se te preguntará dónde guardarlos.
+   Se crea una carpeta nueva BloquesPDF_fecha_hora_identificador dentro del destino.
+   Los PDF resultantes se llaman BLOQUE 1.pdf, BLOQUE 2.pdf, BLOQUE 3.pdf, etc.
+   La numeración comienza en 1 en cada trabajo, también en el modo de carpetas.
+   Se conservan los resultados de trabajos anteriores.
+   Al terminar puedes pulsar Abrir resultado.
+
+EJEMPLOS CON 50 PDF POR BLOQUE
+100 documentos -> 2 bloques de 50.
+103 documentos -> 3 bloques: 50, 50 y 3.
+3.000 documentos -> 60 bloques de 50.
+Si los originales tienen una página y eliges 2 copias, un bloque de 50 originales
+tendrá 100 páginas. No se añaden portadas ni páginas de separación.
+
+PDF FIRMADOS
+Los documentos originales se abren solo para lectura y no se modifican.
+Un PDF que une varios documentos es una copia para impresión: sus firmas digitales
+no equivalen a las firmas válidas de los PDF originales. Usa los originales para
+conservar, comprobar o presentar las firmas electrónicas.
+Se conservan las apariencias visibles de las páginas y de sus anotaciones al importar.
+Comprueba el primer bloque con tus propios PDF antes de una tirada grande.
+La aplicación no comprueba la identidad del firmante ni la validez de certificados.
+
+CONTROL DEL TRABAJO
+Se comprueban todos los PDF antes de generar los bloques unidos.
+Si alguno no se puede abrir, el trabajo se detiene sin omitirlo silenciosamente.
+Los PDF con contraseña no se desbloquean; pueden repartirse sin modificar en modo carpetas.
+Una huella SHA-256 permite detectar si un original cambia durante el trabajo.
+Cancelar conserva únicamente los bloques ya completos y elimina el bloque en curso.
+Los errores y las cancelaciones se indican como trabajos incompletos.
+En cada resultado se incluyen:
+  LEEME_RESULTADO.txt: estado y datos del trabajo, instrucciones de impresión y errores.
+  detalle_documentos.csv: documento original, bloque, páginas, copias y huella SHA-256.
+
+ANTIVIRUS Y WINDOWS
+El EXE es una aplicación .NET Framework compilada con Microsoft Roslyn.
+No contiene Python empaquetado, ofuscación, UPX ni un instalador autoextraíble.
+Las bibliotecas administradas necesarias se integran como código .NET en el EXE;
+no se descomprimen ni se ejecutan scripts auxiliares al arrancar.
+No requiere elevación de permisos. Usa las carpetas para las que ya tienes acceso.
+No lleva una firma Authenticode de un certificado comercial.
+No se ha podido probar su ventana en Windows ni analizar con el antivirus de tu trabajo.
+No se puede garantizar que un antivirus corporativo o una política de aplicaciones lo admita.
+Si el equipo lo bloquea, consulta a Informática para que lo revisen y autoricen.
+
+El código fuente y las licencias están incluidos para permitir su revisión.

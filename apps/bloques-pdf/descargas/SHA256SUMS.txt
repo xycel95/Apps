@@ -1,0 +1,2 @@
+5dc51887db90ba072feb10315097eeb3afdd7cac0e2e8185d74a9158a06493fe  BloquesPDF_1.0.1_Windows.zip
+c441de86c1fd5160e5405149c4204f802bde2bd8eda0d0edf1d20545a64565e4  BloquesPDF.exe
