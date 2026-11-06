@@ -3,7 +3,7 @@
 ## Empezar
 
 1. [Descarga el ZIP de Windows](../descargas/README.md) y descomprímelo.
-2. Abre **BloquesPDF.exe**.
+2. Abre **BloquesPDF.exe** dentro de la carpeta extraída y conserva junto a él todas las DLL y el archivo `.config`.
 3. Añade documentos mediante **Añadir PDF**, arrastrando archivos o carpetas, o con **Añadir carpeta**.
 4. Revisa **Documentos añadidos** y **Bloques previstos**.
 

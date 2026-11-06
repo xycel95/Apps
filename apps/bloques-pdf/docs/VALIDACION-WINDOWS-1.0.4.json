@@ -1,0 +1,20 @@
+{
+    "version":  "1.0.4",
+    "commit":  "9c9b394c0abe8707d294997b8f46edc40ea40ca0",
+    "checked_at_utc":  "2026-11-06T20:32:28.6449312Z",
+    "build":  "passed",
+    "native_tests":  "passed",
+    "gui":  "passed",
+    "defender":  "no-threats-reported",
+    "packaging":  "standard-dotnet-exe-with-dlls",
+    "authenticode":  "NotSigned",
+    "exe_sha256":  "eded5eb265c440a639940d10f5852dc494b9536044611f60601097058da2500d",
+    "zip_sha256":  "8f938be6ad4e5042cf262557124627429bc96b43f1807b53c7edf1d827dba82c",
+    "zip_size_bytes":  1048024,
+    "defender_signature":  "1.463.163.0",
+    "defender_engine":  "1.1.26100.4",
+    "defender_signature_updated":  "2026-11-06T11:50:34.0000000Z",
+    "native_checks":  16,
+    "window_title":  "Bloques PDF · XyceL",
+    "status":  "passed"
+}

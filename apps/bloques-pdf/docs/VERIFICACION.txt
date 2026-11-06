@@ -1,37 +1,38 @@
-BLOQUES PDF 1.0.3 - VERIFICACIÓN (06/11/2026)
+BLOQUES PDF 1.0.4 - VERIFICACIÓN NATIVA DE WINDOWS (06/11/2026)
 
-Motor: 33 aserciones superadas en Linux con SDK .NET 10.
-- Cada original se incorpora una sola vez, con todas sus páginas.
-- 100 originales de prueba (uno de dos páginas) -> dos bloques y 101 páginas.
-- 103 originales -> bloques de 50, 50 y 3; sin portadas ni relleno.
-- 3.000 originales de una página -> 60 PDF y 3.000 páginas en total.
-- Exportación únicamente con PDF: sin CSV, TXT ni marcador de trabajo.
-- Cancelación conserva solo los bloques completos y elimina el parcial.
-- Error en comprobación o protección: ningún PDF ni informe auxiliar generado.
-- PDF firmado y formulario cumplimentado se incluyen una vez cada uno.
-- Copia de originales firmados y cifrados idéntica byte a byte en modo carpetas.
-- Archivos distintos con el mismo nombre conservados sin sobrescritura.
-- Cambios de un original detectados por SHA-256.
-- Orden natural y tamaño de bloque configurable.
-- Escaneo recursivo excluye resultados nuevos sin marcador y formatos anteriores.
-- Carpetas con fecha y hora en formato BloquesPDF_yyyy.MM.dd_HH.mm.ss.
-- Dos procesos simultáneos crearon cuatro trabajos distintos en el mismo segundo;
-  se conservaron todos con sufijos (2), (3) y (4), sin archivos adicionales.
+Ejecución: https://github.com/xycel95/Apps/actions/runs/42289188880
+Revisión compilada: 9c9b394c0abe8707d294997b8f46edc40ea40ca0
+Estado: passed. Compilación normal del SDK de Microsoft, sin ILRepack.
 
-Ejecutable distribuido:
-- Aplicación GUI PE/AnyCPU para .NET Framework 4.8.
-- Integrado con ILRepack, sin compresión ni ofuscación.
-- El mismo EXE cargado desde un host .NET 10 procesó 100 PDF de una página:
-  generó exactamente dos PDF y 100 páginas, sin otros archivos.
-- Otra comprobación con un original de dos páginas produjo 101 páginas en total.
-- Sus referencias finales son mscorlib, System, System.Windows.Forms, System.Core,
-  System.Drawing, netstandard y System.Numerics; sin DLL de terceros externas.
-- Persistió el aviso de versiones de System.Memory en dependencias intermedias;
-  el EXE final integra esas bibliotecas y superó las comprobaciones del motor.
+Microsoft Defender:
+- Componentes del paquete: no threats reported.
+- ZIP publicado: no threats reported.
+- Firmas: 1.463.163.0; motor: 1.1.26100.4.
+- Firmas actualizadas: 2026-11-06T11:50:34.0000000Z.
+- Análisis personalizado sin remediación, que incluye archivos comprimidos e ignora exclusiones.
+- Archivos y ZIP comprobados por SHA-256 e intactos tras el análisis.
+- No se han desactivado protecciones ni añadido exclusiones para la prueba.
+
+Windows Server 2025 / .NET Framework 4.8:
+- 16 comprobaciones nativas superadas.
+- Lectura de carpeta, orden natural y 100 PDF de una página en dos bloques de 50.
+- Cada original se incluye una sola vez; se exportan únicamente PDF.
+- Bloque final parcial, conservación de trabajos previos y formato de carpeta con puntos.
+- Exclusión de resultados del escaneo recursivo y copia de originales sin alterar sus bytes.
+- Apertura de la ventana y ausencia del control de copias.
+- Apertura y cierre normales del EXE realmente distribuido, con sus componentes.
+
+Integridad:
+- ZIP: 8f938be6ad4e5042cf262557124627429bc96b43f1807b53c7edf1d827dba82c
+- EXE: eded5eb265c440a639940d10f5852dc494b9536044611f60601097058da2500d
+- Tamaño ZIP: 1048024 bytes.
+- Descarga pública HTTP 200, CRC correcto, manifiesto de componentes verificado.
+- Correspondencia de 16 archivos fuente comprobada normalizando finales de línea.
 
 Límites:
-- No se ha probado la ventana ni el nuevo diálogo de errores en Windows real.
-- No se ha realizado un análisis con Defender ni con el antivirus corporativo.
+- Este resultado corresponde al motor y las firmas de Defender indicados.
+- No certifica otros antivirus, reputación de descarga ni políticas corporativas.
+- El ejecutable no lleva firma Authenticode.
 - No se ha probado una impresora física.
-- Las pruebas visuales previas de firma y formulario corresponden a 1.0.0.
-- La evidencia anterior está en VERIFICACION-1.0.1.txt y VERIFICACION-1.0.2.txt en el repositorio.
+- Las 33 aserciones anteriores del motor en Linux corresponden a 1.0.3, archivadas
+  en VERIFICACION-1.0.3.txt; la lógica de agrupación no cambia en 1.0.4.

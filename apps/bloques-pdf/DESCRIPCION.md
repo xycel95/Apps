@@ -29,6 +29,6 @@ Windows 10/11 con **.NET Framework 4.8 o posterior**. El programa funciona en el
 
 Los originales se abren para lectura y no se modifican. Unirlos produce una **copia para impresión**; la firma digital válida debe conservarse y comprobarse en los originales. El modo de carpetas copia los originales sin cambiar sus bytes.
 
-La versión distribuida se ha compilado para Windows y su motor se ha comprobado con datos sintéticos. Queda pendiente comprobar la ventana en Windows, una impresora física y el antivirus del equipo. Consulta el [informe de comprobaciones](docs/VERIFICACION.txt).
+La versión 1.0.4 se ha compilado y comprobado de forma nativa en Windows, incluida la ventana y 16 comprobaciones con documentos sintéticos. Microsoft Defender no detectó amenazas en el paquete. Se distribuyen el EXE normal y sus DLL por separado: extrae todo el ZIP y conserva sus componentes juntos. Quedan pendientes una impresora física y el antivirus del equipo del usuario. Consulta el [informe de comprobaciones](docs/VERIFICACION.txt).
 
 [Cómo funciona y guía](docs/README.md) · [Descargar](descargas/README.md) · [Notas de parche](notas-de-parche/README.md).

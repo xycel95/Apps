@@ -1,0 +1,6 @@
+Scan starting...
+Scan finished.
+Scanning C:\BloquesPDF-Verification\result\package found no threats.
+Scan starting...
+Scan finished.
+Scanning C:\BloquesPDF-Verification\result\BloquesPDF_1.0.4_Windows.zip found no threats.

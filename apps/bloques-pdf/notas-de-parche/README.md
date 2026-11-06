@@ -1,5 +1,14 @@
 # Notas de parche
 
+## 1.0.4 · 6 de noviembre de 2026
+
+- Sustituido el ejecutable con bibliotecas fusionadas por una **compilación normal de Windows**, con EXE, DLL y `.config` separados.
+- Se retira ILRepack del proceso de compilación y empaquetado.
+- Paquete compilado desde fuentes en Windows Server 2025 y analizado con Microsoft Defender, sin amenazas detectadas en los componentes ni en el ZIP.
+- Superadas 16 comprobaciones nativas, incluida la apertura y cierre del EXE, los bloques de 50 páginas y la exportación únicamente de PDF.
+- Publicadas las huellas y los informes de las comprobaciones junto al ZIP.
+- Es necesario **descomprimir todo el paquete y conservar sus componentes juntos**. Las opciones de agrupación y los nombres de bloques y carpetas se mantienen.
+
 ## 1.0.3 · 6 de noviembre de 2026
 
 - Las carpetas de resultados usan el formato **BloquesPDF_2026.11.06_21.09.19**, con fecha y hora separadas por puntos.

@@ -16,3 +16,5 @@ Lee primero `/AGENTS.md`, este archivo y `CONTEXTO.md`. Trabaja en la rama perma
 - Los ensayos necesitan PDF sintéticos no distribuidos. No publiques `tests/work`, certificados privados, claves, documentos del trabajo, salidas de pruebas ni archivos `bin/obj`.
 - Coordina versión, paquete, SHA-256, `app.json`, guía y notas de parche. Añade notas nuevas arriba sin borrar las anteriores.
 - No afirmes ensayos de Windows, antivirus o impresora física sin evidencia. No configures actualizaciones automáticas ni modifiques la web por publicar en GitHub.
+
+- La comprobación actual se realiza con `Codigo/build/Validate-Windows.ps1` y `Codigo/tests/windows/`. El antiguo host `tests/artifact` corresponde al EXE fusionado; no lo presentes como prueba de la distribución normal. Al crear otra versión, coordina los números de csproj, Creator, Validate-Windows.ps1 y el flujo de publicación.
