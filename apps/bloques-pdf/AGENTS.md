@@ -10,7 +10,8 @@ Lee primero `/AGENTS.md`, este archivo y `CONTEXTO.md`. Trabaja en la rama perma
 - Las carpetas usan BloquesPDF_yyyy.MM.dd_HH.mm.ss, sin identificador aleatorio. Si coinciden el segundo y el destino, añade (2), (3), etc.; no sobrescribas trabajos anteriores y conserva el reconocimiento de los formatos antiguos en el escaneo.
 - Los originales son de solo lectura. Los bloques unidos son copias para impresión; el modo de carpetas conserva los bytes originales.
 - Lee `Codigo/COMPILAR.txt` antes de compilar. El SDK de desarrollo es .NET 10; el ejecutable final usa .NET Framework 4.8 y Windows Forms.
-- El programa de integración de `Codigo/build` debe conservar el icono, el manifiesto, el tipo GUI y las dependencias necesarias. No uses compresión, ofuscación ni empaquetadores autoextraíbles.
+- Desde 1.0.4 se distribuye el EXE normal del SDK con sus DLL y su .config. No fusiones bibliotecas con ILRepack ni uses ofuscación o empaquetadores autoextraíbles. Mantén icono, manifiesto y tipo GUI.
+- Para publicar una nueva compilación, comprueba su arranque nativo y el paquete con Microsoft Defender mediante el flujo de Windows; conserva el informe y las huellas de los bytes publicados. No desactives el antivirus ni añadas exclusiones para realizar la comprobación.
 - Verifica nombres, páginas completas sin duplicados, exportación solo con PDF, agrupación, cancelación y correspondencia entre ejecutable y fuentes al cambiar el código. Reutiliza la validación si solo publicas los mismos bytes.
 - Los ensayos necesitan PDF sintéticos no distribuidos. No publiques `tests/work`, certificados privados, claves, documentos del trabajo, salidas de pruebas ni archivos `bin/obj`.
 - Coordina versión, paquete, SHA-256, `app.json`, guía y notas de parche. Añade notas nuevas arriba sin borrar las anteriores.

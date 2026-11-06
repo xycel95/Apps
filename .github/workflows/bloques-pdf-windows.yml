@@ -1,0 +1,43 @@
+name: Bloques PDF - Windows y Microsoft Defender
+on:
+  push:
+    branches: [bloques-pdf]
+    paths: ['.github/workflows/bloques-pdf-windows.yml', 'apps/bloques-pdf/Codigo/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verificar:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - name: Recuperar las fuentes de esta revision
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git init .
+          git remote add origin https://github.com/xycel95/Apps.git
+          git sparse-checkout init --no-cone
+          git sparse-checkout set '/apps/bloques-pdf/Codigo/' '/apps/bloques-pdf/docs/'
+          git fetch --depth=1 origin $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo recuperar la revision' }
+          git checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar el codigo' }
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Compilar, analizar y comprobar el programa en Windows
+        shell: powershell
+        run: |
+          & ./apps/bloques-pdf/Codigo/build/Validate-Windows.ps1 -OutputDirectory 'C:\BloquesPDF-Verification\result'
+      - name: Publicar el paquete y las comprobaciones de esta version
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = 'C:\BloquesPDF-Verification\result'
+          $notes = Join-Path $out 'NOTAS.txt'
+          @('Bloques PDF 1.0.4. Compilacion normal de Windows con DLL separadas.', '', 'Paquete comprobado con Microsoft Defender y pruebas nativas de agrupacion y apertura.', 'Descomprime el ZIP completo y abre BloquesPDF.exe. Conserva todos los componentes juntos.', 'El programa sigue exportando unicamente PDF.') | Set-Content $notes -Encoding UTF8
+          gh release create 'bloques-pdf-v1.0.4' (Join-Path $out 'BloquesPDF_1.0.4_Windows.zip') (Join-Path $out 'SHA256SUMS.txt') (Join-Path $out 'VALIDACION-WINDOWS.json') (Join-Path $out 'DEFENDER.txt') --repo xycel95/Apps --target $env:GITHUB_SHA --title 'Bloques PDF 1.0.4' --notes-file $notes
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo publicar la descarga verificada' }

@@ -1,7 +1,9 @@
-BLOQUES PDF 1.0.3 - XyceL
+BLOQUES PDF 1.0.4 - XyceL
 
 INICIO
-Descomprime el ZIP y abre BloquesPDF.exe.
+Descomprime el ZIP completo y abre BloquesPDF.exe.
+Conserva junto al EXE todas las DLL y el archivo BloquesPDF.exe.config.
+Estos componentes forman parte del programa y no se exportan con tus PDF.
 Windows 10/11 con .NET Framework 4.8 o posterior. No requiere Python ni .NET 10.
 Los PDF se procesan en tu ordenador, sin enviarlos a servidores.
 
@@ -38,6 +40,7 @@ repartidos en carpetas BLOQUE 1, BLOQUE 2, etc. Tampoco añade informes auxiliar
 COMPROBACIONES Y LÍMITES
 Se han superado 33 aserciones del motor y una comprobación del mismo EXE distribuido
 cargado desde un host .NET 10. Se comprobaron 3.000 PDF en 60 bloques sin archivos extra.
-No se ha probado la ventana de esta versión en Windows ni una impresora física.
+Consulta el informe de la comprobacion nativa y del antivirus en la publicacion de GitHub.
+No se ha probado una impresora fisica ni el antivirus corporativo del usuario.
 El EXE no lleva firma Authenticode. No se garantiza la aceptación por el antivirus.
 Se incluyen el código, las licencias y el informe de verificación para su revisión.

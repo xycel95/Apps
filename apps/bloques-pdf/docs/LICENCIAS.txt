@@ -1,4 +1,4 @@
-BLOQUES PDF 1.0.3 - AVISOS DE TERCEROS
+BLOQUES PDF 1.0.4 - AVISOS DE TERCEROS
 
 Código de la aplicación: Copyright (c) 2026 XyceL.
 

@@ -31,3 +31,7 @@ Dos procesos del EXE actualizado crearon cuatro trabajos distintos en el mismo s
 Pendientes: interfaz y nuevo diálogo de errores en Windows real, antivirus corporativo e impresora física. No hay firma Authenticode ni actualizador automático.
 
 Las pruebas de `Codigo/tests/Program.cs` requieren PDF sintéticos en carpetas `input/` y `special/`, no incluidos. No publicar certificados privados, documentos del trabajo ni salidas de ensayo.
+
+## Sustitución en comprobación
+
+El usuario comunica el bloqueo «Se ha detectado un virus» al descargar 1.0.3 en Edge. La causa concreta y el nombre de la detección no están confirmados. Se prepara 1.0.4 con EXE normal, DLL y .config separados, compilación limpia en Windows y análisis de Defender antes de publicar. No se utiliza ILRepack ni se desactiva protección o se añaden exclusiones.

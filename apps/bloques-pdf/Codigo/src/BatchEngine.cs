@@ -231,7 +231,7 @@ namespace BloquesPDF
                             {
                                 merged.Info.Title = label + " - " + count + " documentos";
                                 merged.Info.Subject = "Copia para impresión. Para validar las firmas digitales consulte los archivos originales.";
-                                merged.Info.Creator = "Bloques PDF 1.0.3 - XyceL";
+                                merged.Info.Creator = "Bloques PDF 1.0.4 - XyceL";
                                 for (int j = 0; j < count; j++)
                                 {
                                     cancellation.ThrowIfCancellationRequested();

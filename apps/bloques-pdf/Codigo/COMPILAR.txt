@@ -1,23 +1,24 @@
-BLOQUES PDF - CÓDIGO FUENTE
+BLOQUES PDF - COMPILACION NORMAL DE WINDOWS (1.0.4)
 
-Requisitos de compilación: SDK .NET 10, conexión a NuGet durante la restauración.
-La aplicación de escritorio final usa .NET Framework 4.8; no exige .NET 10 al usuario.
+Requiere SDK .NET 10 y Windows 10/11 para las pruebas de interfaz.
+El ejecutable final usa .NET Framework 4.8; el usuario no instala .NET 10.
 
-Desde la carpeta del código fuente:
-  dotnet build BloquesPDF.csproj -c Release
+Desde Codigo:
+  dotnet build BloquesPDF.csproj -c Release -p:RestoreLockedMode=true
 
-El programa inicialmente se genera en bin/Release/net48 con sus bibliotecas.
-El proyecto build/MergeTool.csproj integra solo la cadena de dependencias utilizada
-en un EXE .NET sin compresión ni ofuscación. Ejemplo en PowerShell de Windows:
+Se genera el EXE normal con sus DLL y BloquesPDF.exe.config en bin/Release/net48.
+No se fusionan bibliotecas, no se usa ILRepack ni se ofusca el programa.
+Distribuye todos esos componentes juntos; el usuario debe extraer el ZIP completo.
 
-  dotnet run --project build/MergeTool.csproj -c Release -- bin/Release/net48 ../output/BloquesPDF.exe "$env:USERPROFILE\.nuget\packages\microsoft.netframework.referenceassemblies.net48\1.0.3\build\.NETFramework\v4.8"
+Preparar el ZIP en una carpeta nueva:
+  powershell -File build/Pack-Windows.ps1 -OutputDirectory C:/BloquesPDF-paquete
 
-La carpeta de referencia de .NET Framework se descarga al restaurar el proyecto.
-Los ficheros packages.lock.json fijan las versiones utilizadas.
-Microsoft .NET Framework Reference Assemblies e ILRepack son herramientas de compilación,
-no programas que deba ejecutar el usuario final.
+Compilar, examinar el paquete con Microsoft Defender y probarlo en Windows:
+  powershell -File build/Validate-Windows.ps1 -OutputDirectory C:/BloquesPDF-comprobacion
 
-Las pruebas del motor están en tests/Program.cs. El informe VERIFICACION.txt
-describe sus datos sintéticos y sus límites. tests/artifact permite comprobar
-el procesamiento del mismo EXE compilado desde un host .NET 10, sin probar la ventana.
-Los PDF sintéticos y los certificados privados de las pruebas no se incluyen.
+El script no desactiva la proteccion ni añade exclusiones. El analisis personalizado
+incluye los archivos comprimidos e ignora exclusiones al usar DisableRemediation.
+El informe registra firmas, versiones, huellas, pruebas nativas y el arranque del EXE.
+
+El flujo .github/workflows/bloques-pdf-windows.yml ejecuta estos pasos en Windows
+con fuentes de la revision exacta y publica la version solo si todas las pruebas pasan.
