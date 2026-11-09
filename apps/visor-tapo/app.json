@@ -2,9 +2,9 @@
   "schema": 1,
   "id": "visor-tapo",
   "name": "Visor Tapo",
-  "version": "1.1.0",
-  "release_date": "2026-11-02",
-  "summary": "Directo local y grabaciones microSD de cámaras Tapo, con búsqueda en casa y lista técnica de compatibilidad por modelo.",
+  "version": "1.2.0",
+  "release_date": "2026-11-09",
+  "summary": "Un único ejecutable portable para ver cámaras Tapo y consultar sus grabaciones microSD desde la red local.",
   "platforms": [
     "Windows 10 x64",
     "Windows 11 x64"
@@ -22,14 +22,14 @@
   "source_url": "https://github.com/xycel95/Apps/tree/visor-tapo/apps/visor-tapo/Codigo",
   "download": {
     "available": true,
-    "filename": "Visor_Tapo_1.1.0_Windows.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/Visor_Tapo_1.1.0_Windows.zip",
-    "sha256": "cdcf1cd2895a874f8494fe06359e8fe561eb1f3e41583de6e84143961cf74daf",
-    "size_bytes": 144316050,
+    "filename": "Visor_Tapo_1.2.0_Windows.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_1.2.0_Windows.exe",
+    "sha256": "f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c",
+    "size_bytes": 151931514,
     "hosting": "github-release",
-    "release_tag": "visor-tapo-v1.1.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.1.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/SHA256SUMS.txt"
+    "release_tag": "visor-tapo-v1.2.0",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.2.0",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/SHA256SUMS.txt"
   },
   "compatibility": {
     "reviewed_on": "2026-11-02",
@@ -48,10 +48,10 @@
   },
   "validation": {
     "report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/VALIDACION.txt",
-    "environment": "Linux x64, Qt offscreen, synthetic media",
-    "core_tests_passed": 17,
+    "environment": "Windows-2022Server-10.0.20348-SP0",
+    "core_tests_passed": 25,
     "gui_playback_verified": true,
-    "native_windows_verified": false,
+    "native_windows_verified": true,
     "physical_camera_evidence": {
       "model": "C230",
       "application_version": "1.0.1",
@@ -60,24 +60,49 @@
       "corrected_microsd_download": false,
       "hardware_and_firmware_recorded": false
     },
-    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/41495074415",
-    "source_commit": "522bd9cacb2ec76e06e005e9c8394cc61d77e93b",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/42597795470",
+    "source_commit": "24697d32517baa8d549068c0e3726d9b18e63814",
     "published_downloads_verified": true,
     "package_manifest_verified": true,
-    "publication_report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/VALIDACION-PUBLICACION.json"
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/VALIDACION-PUBLICACION-1.2.0.json",
+    "gui_tested_version": "1.2.0",
+    "native_report_url": "https://github.com/xycel95/Apps/blob/visor-tapo/apps/visor-tapo/docs/VALIDACION-WINDOWS-1.2.0.json",
+    "moved_and_renamed_verified": true,
+    "isolated_worker_verified": true,
+    "dpapi_roundtrip_verified": true,
+    "defender": {
+      "signatures": "1.463.207.0",
+      "status": "no-threats-reported",
+      "engine": "1.1.26100.4"
+    }
   },
   "online_updates_configured": false,
   "official_tapo_application": false,
   "source_download": {
     "available": true,
-    "filename": "Visor_Tapo_Codigo_1.1.0.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/Visor_Tapo_Codigo_1.1.0.zip",
-    "sha256": "9458539e33e6d63a7cd665cef2110ac7b1be8e5b35f7ccc5e5618daeba278478",
-    "size_bytes": 79311,
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/SHA256SUMS.txt"
+    "filename": "Visor_Tapo_Codigo_1.2.0.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_Codigo_1.2.0.zip",
+    "sha256": "29d85ba41a8c3007f70ab96ba778f820c3d9e732f25648e1d25ed009b4058ba6",
+    "size_bytes": 93025,
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/SHA256SUMS.txt"
   },
   "executable": {
-    "available": false,
-    "reason": "Visor Tapo.exe se incluye en el ZIP con runtime, src y bin; requiere extraer el paquete completo."
+    "available": true,
+    "filename": "Visor_Tapo_1.2.0_Windows.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_1.2.0_Windows.exe",
+    "sha256": "f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c",
+    "size_bytes": 151931514,
+    "hosting": "github-release",
+    "release_tag": "visor-tapo-v1.2.0",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.2.0",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/SHA256SUMS.txt"
+  },
+  "distribution": {
+    "type": "portable-single-executable",
+    "requires_adjacent_files": false,
+    "requires_python_installation": false,
+    "temporary_preparation": true,
+    "settings_directory": "%LOCALAPPDATA%\\VisorC230",
+    "settings_travel_with_executable": false
   }
 }

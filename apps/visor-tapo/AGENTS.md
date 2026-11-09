@@ -39,8 +39,10 @@ Aplicar las instrucciones generales del `AGENTS.md` de la raíz. Responder en es
 
 - Coordinar versión en core, recursos, manifiesto Windows, build_inputs, app.json,
   paquetes, SHA-256 y notas. Las notas nuevas se añaden arriba.
-- Compilar con `Codigo/build_windows.py`; conservar hashes y licencias de dependencias.
-- El paquete completo supera el límite de archivo de Git: usar una publicación de GitHub
-  enlazada desde Descargas y app.json. No añadir ZIP grandes al historial ni claves de acceso.
+- Desde 1.2.0 compilar en Windows x64 con `Codigo/build_onefile.py`. `build_windows.py` prepara el paquete interno; no es la descarga principal. Conservar hashes y licencias de dependencias.
+- Entregar un único `.exe` portable desde una publicación de GitHub, enlazado en Descargas y app.json. No añadir binarios grandes al historial ni claves de acceso.
+- Iniciador en `Codigo/portable_launcher.py`: preparar/verificar en temporales, esperar al proceso hijo y limpiar después de cerrarlo. Mantener aislado el modo de pruebas.
+- Validar el EXE real con `Codigo/tests/validate_onefile_windows.py`: carpeta vacía, mover/renombrar, reproducción y worker, DPAPI, conservación de ajustes y cierre normal.
+- Mantener los datos en `%LOCALAPPDATA%\VisorC230`; no incluirlos en el EXE ni dejarlos en el directorio temporal.
 - La publicación inicial puede usar un flujo de compilación de una sola ejecución;
   retirar su disparador al terminar. No hay actualizador en línea ni tareas programadas en la app.

@@ -30,3 +30,5 @@ dispositivos compatibles y no implican patrocinio ni afiliación.
 `build_inputs.json` contiene las versiones, URL de origen y SHA-256 de todos
 los paquetes utilizados. Los componentes no se modifican; el adaptador de
 conversión y la interfaz se implementan en `src`.
+
+- PyInstaller 6.22.3: iniciador del ejecutable único, licencia GPL con la excepción de distribución de sus paquetes. Su texto se incluye dentro del ejecutable en `licencias/PyInstaller/COPYING.txt`. Fuente y condiciones: https://github.com/pyinstaller/pyinstaller/blob/v6.22.3/COPYING.txt .

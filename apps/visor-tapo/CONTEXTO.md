@@ -2,7 +2,7 @@
 
 ## Estado
 
-Versión 1.1.0. Antes: Visor C230. Aplicación portable Windows x64, local, una
+Versión 1.2.0. Antes: Visor C230. Aplicación portable Windows x64, local, una
 cámara cada vez. Código Python/Qt, iniciador nativo C, RTSP para directo y
 pytapo para consultar/descargar grabaciones microSD. Se descarga cada tramo
 antes de reproducirlo; FFmpeg prepara y comprueba el MP4.
@@ -40,13 +40,12 @@ No se implementan cámaras hijas ni vídeos de un hub. Doble lente y 4G tienen l
 ## Desarrollo y entrega
 
 Trabajar desde `Codigo/`: instalar `requirements-dev.txt`, ejecutar pruebas según
-su README y generar paquetes con `python build_windows.py`. `build_inputs.json`
+su README y generar el ejecutable único en Windows con `python build_onefile.py`. `build_inputs.json`
 fija versiones y hashes de Python embebido, ruedas Windows y FFmpeg. El compilador
 Zig genera el iniciador PE x64 con icono y manifiesto, sin elevación.
 
 Las descargas y sus hashes se registran en app.json y descargas/SHA256SUMS.txt
-cuando la publicación se haya comprobado. El ZIP completo usa los archivos de
-una publicación de GitHub por su tamaño. No hay actualización automática en la app.
+cuando la publicación se haya comprobado. El ejecutable único se distribuye desde una publicación de GitHub por su tamaño. No hay actualización automática en la app.
 Conservar `%LOCALAPPDATA%\VisorC230`, claves protegidas y nombres antiguos de caché.
 
 No se han publicado credenciales, vídeos privados ni capturas reales del usuario.
@@ -61,3 +60,22 @@ Los dos ZIP públicos se han descargado y validado; consulta
 El flujo inicial de una sola ejecución se ha retirado de la rama al terminar;
 el historial y la etiqueta conservan sus instrucciones y resultados. La app
 no incorpora actualizador ni programación de publicaciones.
+
+## Entrega portable 1.2.0 — 09/11/2026
+
+El usuario solicitó un único ejecutable que pueda mover y abrir directamente.
+Entrega: [visor-tapo-v1.2.0](https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.2.0) · revisión `24697d32517baa8d549068c0e3726d9b18e63814`.
+Compilación y comprobación nativas: [Windows-2022Server-10.0.20348-SP0](https://github.com/xycel95/Apps/actions/runs/42597795470).
+Se conservan Python/Qt/pytapo/FFmpeg del paquete interno y se incluye todo en
+un .exe con PyInstaller 6.22.3. El iniciador prepara los archivos en una carpeta
+temporal privada, comprueba su manifiesto, espera al proceso de la app y limpia.
+El intérprete y los workers se ejecutan desde ese contenido; no se necesita
+Python instalado ni carpetas junto al ejecutable. Los ajustes/caché permanecen
+en el directorio histórico de Windows y no viajan dentro del ejecutable.
+
+Han pasado 25 pruebas. El EXE real se abrió desde una carpeta vacía,
+tras moverlo y renombrarlo y mediante su inicio normal. Se comprobaron vídeo
+sintético, worker con caché local, DPAPI y conservación de ajustes. Consulta
+los informes 1.2.0 de docs y las huellas de descargas. No hay pruebas nuevas con
+cámara física. Se conservan la matriz de compatibilidad y la entrega 1.1.0.
+El flujo de una sola entrega se retira al terminar; no hay publicación periódica.

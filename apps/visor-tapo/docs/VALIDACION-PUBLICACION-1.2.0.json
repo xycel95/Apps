@@ -1,0 +1,54 @@
+{
+  "application": "Visor Tapo",
+  "version": "1.2.0",
+  "status": "passed",
+  "verified_at_utc": "2026-11-09T10:06:01.606505+00:00",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.2.0",
+  "source_commit": "24697d32517baa8d549068c0e3726d9b18e63814",
+  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/42597795470",
+  "assets": {
+    "SHA256SUMS.txt": {
+      "sha256": "3964f3dd07ccdcaa838345f11425c708d135c0cc41ecf002f9b40128f5854455",
+      "size_bytes": 288,
+      "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/SHA256SUMS.txt"
+    },
+    "VALIDACION-WINDOWS-1.2.0.json": {
+      "sha256": "d9495dd49e4562198ef255f6712d58eb2ecff8f4e815f658dcb4188c2a460e31",
+      "size_bytes": 1837,
+      "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/VALIDACION-WINDOWS-1.2.0.json"
+    },
+    "Visor_Tapo_1.2.0_Windows.exe": {
+      "sha256": "f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c",
+      "size_bytes": 151931514,
+      "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_1.2.0_Windows.exe"
+    },
+    "Visor_Tapo_Codigo_1.2.0.zip": {
+      "sha256": "29d85ba41a8c3007f70ab96ba778f820c3d9e732f25648e1d25ed009b4058ba6",
+      "size_bytes": 93025,
+      "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_Codigo_1.2.0.zip"
+    }
+  },
+  "executable": {
+    "sha256": "f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c",
+    "size_bytes": 151931514,
+    "url": "https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_1.2.0_Windows.exe",
+    "architecture": "x86_64",
+    "subsystem": "Windows GUI",
+    "file_version": "1.2.0.0",
+    "icons_present": true,
+    "requested_privileges": "asInvoker"
+  },
+  "payload_manifest_complete": true,
+  "payload": {
+    "sha256": "c2dc4a0d9119231e64d3805ff6d99af19e2d3d241556dd30dd4370e5d88be3fc",
+    "size_bytes": 144167580,
+    "verified_files": 2059,
+    "models": 133,
+    "source_files_matching_payload_and_repository": 32
+  },
+  "pyinstaller_license_embedded": true,
+  "native_report_verified": true,
+  "unit_tests_passed": 25,
+  "native_acceptance_cases": 3,
+  "physical_camera_tested": false
+}

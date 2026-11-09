@@ -1,2 +1,6 @@
+f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c  Visor_Tapo_1.2.0_Windows.exe
+29d85ba41a8c3007f70ab96ba778f820c3d9e732f25648e1d25ed009b4058ba6  Visor_Tapo_Codigo_1.2.0.zip
+d9495dd49e4562198ef255f6712d58eb2ecff8f4e815f658dcb4188c2a460e31  VALIDACION-WINDOWS-1.2.0.json
+
 cdcf1cd2895a874f8494fe06359e8fe561eb1f3e41583de6e84143961cf74daf  Visor_Tapo_1.1.0_Windows.zip
 9458539e33e6d63a7cd665cef2110ac7b1be8e5b35f7ccc5e5618daeba278478  Visor_Tapo_Codigo_1.1.0.zip

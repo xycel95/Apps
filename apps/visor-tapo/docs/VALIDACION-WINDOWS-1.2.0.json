@@ -1,0 +1,58 @@
+{
+  "application": "Visor Tapo",
+  "version": "1.2.0",
+  "status": "passed",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "python": "3.13.17",
+  "sha256": "f425d243d5d2b5dba27a3b96ad46d65808d668f340c8489eb242c3980cfedc9c",
+  "single_executable_verified": true,
+  "cases": [
+    {
+      "name": "empty-folder",
+      "status": "passed",
+      "version": "1.2.0",
+      "native_gui_opened": true,
+      "synthetic_video_frames": 30,
+      "isolated_worker_verified": true,
+      "settings_restored_after_move": false,
+      "dpapi_roundtrip_verified": true,
+      "no_plaintext_credentials": true,
+      "camera_contacted": false,
+      "single_file": true,
+      "temporary_application_removed": true,
+      "no_adjacent_files_created": true,
+      "bootloader_temporary_removed": true
+    },
+    {
+      "name": "moved-and-renamed",
+      "status": "passed",
+      "version": "1.2.0",
+      "native_gui_opened": true,
+      "synthetic_video_frames": 30,
+      "isolated_worker_verified": true,
+      "settings_restored_after_move": true,
+      "dpapi_roundtrip_verified": true,
+      "no_plaintext_credentials": true,
+      "camera_contacted": false,
+      "single_file": true,
+      "temporary_application_removed": true,
+      "no_adjacent_files_created": true,
+      "bootloader_temporary_removed": true
+    },
+    {
+      "name": "normal-double-click-entry",
+      "native_window_visible": true,
+      "closed_normally": true,
+      "no_adjacent_files_created": true,
+      "bootloader_temporary_removed": true
+    }
+  ],
+  "physical_camera_tested": false,
+  "source_commit": "24697d32517baa8d549068c0e3726d9b18e63814",
+  "unit_tests_passed": 25,
+  "defender": {
+    "signatures": "1.463.207.0",
+    "status": "no-threats-reported",
+    "engine": "1.1.26100.4"
+  }
+}

@@ -17,7 +17,7 @@ las grabaciones almacenadas en su propia tarjeta microSD.
 
 ## Requisitos y modelos
 
-- Windows 10/11 de **64 bits**. El paquete incluye Python, Qt y FFmpeg.
+- Windows 10/11 de **64 bits**. Un único ejecutable portable incluye Python, Qt y FFmpeg.
 - PC y cámara accesibles en la misma red local privada IPv4.
 - Para el directo: cámara con RTSP y una «Cuenta de cámara» creada en Tapo.
 - Para grabaciones: microSD en la propia cámara, vídeos y acceso local compatible
@@ -29,6 +29,8 @@ del hardware y firmware. Una cámara de batería puede carecer de directo RTSP;
 un modelo de doble objetivo o 4G puede tener condiciones adicionales.
 
 ## Uso y datos
+
+Descarga el `.exe` y ábrelo directamente. Se puede mover o renombrar. Los archivos de funcionamiento se preparan en una carpeta temporal y se limpian al cerrar normalmente; no necesitas conservar carpetas junto al ejecutable.
 
 Gestiona una cámara cada vez. La grabación seleccionada se descarga antes de
 reproducirse y su copia permanece en el PC. El guardado de contraseñas es opcional

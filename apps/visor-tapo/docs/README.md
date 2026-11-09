@@ -3,7 +3,7 @@
 Aplicación independiente para Windows que permite ver el directo de una cámara
 Tapo y consultar sus grabaciones de microSD desde la red local.
 
-**Versión 1.1.0 · Antes: Visor C230.** Proyecto no oficial, sin afiliación con
+**Versión 1.2.0 · Antes: Visor C230.** Proyecto no oficial, sin afiliación con
 TP-Link ni Tapo. El nombre identifica las cámaras para las que se desarrolla.
 
 ## Compatibilidad
@@ -32,12 +32,12 @@ no implementa cámaras hijas ni grabaciones almacenadas detrás de un hub.
 - Para el directo: cámara con RTSP y una «Cuenta de cámara» configurada en Tapo.
 - Para grabaciones: microSD con vídeos, modelo/firmware compatible con pytapo y
   las credenciales necesarias para acceder a sus grabaciones.
-- No es necesario instalar Python, VLC o FFmpeg al usar el ZIP para Windows.
+- No es necesario instalar Python, VLC o FFmpeg al abrir el ejecutable portable.
 
 ## Abrir y conectar
 
-1. Extrae **todo** `Visor_Tapo_1.1.0_Windows.zip` en una carpeta.
-2. Ejecuta **`Visor Tapo.exe`**. Conserva junto a él `runtime`, `src` y `bin`.
+1. Descarga **`Visor_Tapo_1.2.0_Windows.exe`**.
+2. Ábrelo directamente. Puedes moverlo o renombrarlo: el programa y sus dependencias están dentro. La preparación temporal se realiza automáticamente al abrir y se limpia al cerrar.
 3. Pulsa **«Buscar cámaras en casa»** y selecciona tu cámara. Si no aparece,
    consulta la IP en Tapo → tu cámara → Ajustes → Información del dispositivo.
 4. Para el directo, introduce el usuario y contraseña de **«Cuenta de cámara»**,
@@ -72,7 +72,7 @@ carpeta para que puedas gestionarlas con el Explorador.
 
 ## Actualizar desde Visor C230
 
-Cierra la versión anterior y abre el nuevo paquete extraído. Se conserva el
+Cierra la versión anterior y abre el nuevo ejecutable portable. Se conserva el
 directorio de datos histórico `%LOCALAPPDATA%\VisorC230` para mantener ajustes,
 claves protegidas y vídeos ya descargados. Las nuevas capturas y exportaciones
 usan el prefijo `Tapo_`; las copias antiguas siguen siendo accesibles.
@@ -102,7 +102,7 @@ preconfiguradas ni conecta una cámara automáticamente al abrirse.
 
 ## Desarrollo
 
-Ejecuta estos comandos desde la carpeta [`Codigo`](../Codigo/).
+Ejecuta los comandos desde [`Codigo`](../Codigo/).
 
 Entorno previsto: Python 3.13 y FFmpeg/ffprobe disponibles en `PATH` o en `bin`.
 
@@ -119,15 +119,17 @@ PYTHONPATH=src QT_QPA_PLATFORM=offscreen python tests/ui_smoke.py
 ```
 
 En PowerShell, asigna `$env:PYTHONPATH="src"` antes de ejecutar las pruebas.
-Para regenerar la distribución Windows desde las fuentes:
+Para crear el ejecutable único, desde Windows x64:
 
 ```sh
-python build_windows.py
+python -m pip install -r requirements-build-windows.txt
+python build_onefile.py
 ```
 
+`build_windows.py` genera el paquete interno de dependencias; el archivo que se entrega al usuario es el `.exe` generado por `build_onefile.py`.
+
 Las dependencias de distribución se fijan por versión y SHA-256 en
-`build_inputs.json`. El compilador genera un iniciador Windows x64 con icono,
-versión y manifiesto sin elevación. El script compila y empaqueta; la publicación en GitHub es un paso separado.
+`build_inputs.json`. El ejecutable único incluye icono, versión y manifiesto sin elevación. Los archivos de funcionamiento se preparan en una carpeta temporal privada; los ajustes y vídeos siguen en la carpeta de datos del usuario de Windows. El script compila y empaqueta; la publicación en GitHub es un paso separado.
 
 ## Informar de compatibilidad
 

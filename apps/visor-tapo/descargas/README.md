@@ -1,48 +1,45 @@
 # Descargar
 
-**Visor Tapo 1.1.0** · Windows 10/11 de **64 bits**.
+**Visor Tapo 1.2.0** · Windows 10/11 de **64 bits**.
 
-- **[Descargar Visor Tapo para Windows](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/Visor_Tapo_1.1.0_Windows.zip)** — paquete portable completo, 137.6 MiB.
-- [Descargar el código fuente](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/Visor_Tapo_Codigo_1.1.0.zip) · [Explorar el código](../Codigo/).
-- [Ver la publicación de esta versión](https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.1.0).
+## Programa
 
-## Abrir o actualizar
+**[Descargar Visor Tapo — un único .exe](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_1.2.0_Windows.exe)** · 144.9 MiB.
 
-1. Descarga el ZIP de Windows y **extrae todo su contenido**.
-2. Abre **`Visor Tapo.exe`** dentro de la carpeta extraída.
-3. Conserva junto al ejecutable las carpetas **`runtime`**, **`src`** y **`bin`**.
-4. Pulsa **«Buscar cámaras en casa»** y sigue la [guía de conexión](../docs/README.md).
+1. Descarga el ejecutable.
+2. Ábrelo directamente. Puedes moverlo o renombrarlo.
 
-No necesitas instalar Python, VLC ni FFmpeg. El `.exe` utiliza los componentes
-del paquete y no se distribuye como ejecutable independiente.
+El archivo incluye el programa, Python, Qt y FFmpeg. Al abrirlo prepara sus
+archivos temporales automáticamente y, al cerrar normalmente, los retira.
+Durante la preparación aparece una barra de progreso.
 
-Para actualizar desde Visor C230, cierra la versión anterior y abre el nuevo
-paquete extraído. Conserva ajustes y copias en `%LOCALAPPDATA%\VisorC230`.
+Los ajustes, claves protegidas y vídeos siguen guardados en el perfil de Windows
+(`%LOCALAPPDATA%\VisorC230`). Se conservan al mover el ejecutable dentro del mismo
+PC y usuario. Esos datos personales no van incluidos en el `.exe`.
 
-## Cámaras compatibles
+Para actualizar, cierra Visor C230 o Visor Tapo y abre este nuevo ejecutable.
+Consulta la [guía de conexión](../docs/README.md) y la
+[lista de compatibilidad por modelo](../docs/COMPATIBILIDAD.md).
 
-Consulta la **[lista de 133 modelos, kits y variantes](../docs/COMPATIBILIDAD.md)**
-antes de descargar. El directo requiere RTSP. El acceso a la microSD mediante
-pytapo es una previsión de integración sujeta al hardware, firmware y credenciales;
-no se certifica por el hecho de que el directo funcione. No hay acceso a vídeos
-de Tapo Care, cámaras hijas ni grabaciones detrás de un hub.
+## Comprobaciones de esta entrega
 
-## Integridad y comprobaciones
+Compilado y ejecutado en Windows. Se ha abierto desde una carpeta vacía,
+tras moverlo y renombrarlo, y con apertura y cierre normales. También se han
+comprobado reproducción con vídeo sintético, proceso aislado de grabaciones,
+credenciales DPAPI y limpieza de temporales. Han pasado **25 pruebas automatizadas**.
 
-Las huellas están en [SHA256SUMS.txt](SHA256SUMS.txt) y en el
-[archivo de integridad de la publicación](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.1.0/SHA256SUMS.txt).
+[Validación nativa](../docs/VALIDACION-WINDOWS-1.2.0.json) ·
+[Comprobación de los archivos publicados](../docs/VALIDACION-PUBLICACION-1.2.0.json) ·
+[Compilación y pruebas](https://github.com/xycel95/Apps/actions/runs/42597795470). Estas comprobaciones no conectan
+cámaras físicas ni amplían la compatibilidad por modelos.
 
-Se han descargado los dos ZIP públicos y comprobado su SHA-256, CRC, contenido
-y correspondencia de las fuentes. El paquete de Windows incluye un manifiesto
-de archivos con sus huellas. La [compilación y comprobaciones](https://github.com/xycel95/Apps/actions/runs/41495074415) han
-superado 17 pruebas y la reproducción de un vídeo sintético de 30 fotogramas
-en Linux/Qt offscreen. Es una compilación cruzada para Windows; no se presenta
-como ensayo nativo del paquete ni de todas las cámaras.
+Huellas: [SHA256SUMS.txt](SHA256SUMS.txt) y
+[archivo de integridad de la publicación](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/SHA256SUMS.txt).
 
-[Informe de publicación](../docs/VALIDACION-PUBLICACION.json) ·
-[Alcance de la validación](../docs/VALIDACION.txt) · [Licencias de componentes](../docs/TERCEROS.md).
+## Código y archivo histórico
 
-El ZIP completo se aloja en una publicación de GitHub por su tamaño y se enlaza
-desde este apartado para mantener la estructura común de Apps.
+[Código fuente en GitHub](../Codigo/) · [ZIP de código para desarrollo](https://github.com/xycel95/Apps/releases/download/visor-tapo-v1.2.0/Visor_Tapo_Codigo_1.2.0.zip) ·
+[Publicación 1.2.0](https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.2.0) ·
+[Paquete anterior 1.1.0](https://github.com/xycel95/Apps/releases/tag/visor-tapo-v1.1.0).
 
 [Descripción del programa](../DESCRIPCION.md) · [Cómo funciona y guía](../docs/README.md) · [Notas de parche](../notas-de-parche/README.md).

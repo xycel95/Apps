@@ -10,8 +10,9 @@ Tapo y acceder a sus grabaciones microSD desde la red de casa.
 
 Incluye búsqueda de cámaras en la red local, ayuda para configurar las
 credenciales, reproducción, capturas y copias de vídeos en el PC.
-Antes se llamaba **Visor C230**; la versión **1.1.0** utiliza un nombre general
-y conserva los ajustes y copias anteriores.
+**Versión 1.2.0: un único `.exe` portable.** Puedes moverlo o renombrarlo y abrirlo directamente; lleva el programa y sus dependencias dentro. La preparación temporal es automática.
+
+Antes se llamaba **Visor C230** y conserva los ajustes y copias del mismo usuario de Windows.
 
 ![Ventana de Visor Tapo con configuración vacía](docs/visor-tapo.png)
 

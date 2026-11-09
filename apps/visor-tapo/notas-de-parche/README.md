@@ -1,5 +1,14 @@
 # Notas de parche
 
+## 1.2.0 — Ejecutable único portable
+
+- Programa y dependencias dentro de un único .exe para Windows x64.
+- Preparación automática de archivos temporales al abrir y limpieza al cerrar.
+- El ejecutable puede moverse o renombrarse conservando los ajustes del mismo usuario de Windows.
+- Ventana de progreso durante la preparación y comprobación de integridad del contenido interno.
+- Mensajes de inicio adaptados al ejecutable único.
+- Pruebas de empaquetado, apertura, reproducción y proceso aislado de grabaciones.
+
 ## 1.1.0 — Visor Tapo
 
 - Nombre general en ventana, interfaz, ejecutable, descargas y metadatos.
