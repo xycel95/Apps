@@ -1,10 +1,9 @@
-VISOR TAPO · 1.1.0
+VISOR TAPO · 1.2.0
 
-Extrae todo el ZIP y abre «Visor Tapo.exe». Conserva las carpetas runtime, src y bin.
+Abre Visor_Tapo_1.2.0_Windows.exe directamente.
+Puedes mover o renombrar ese único archivo. Contiene el programa y sus dependencias.
+La preparación temporal al abrir y la limpieza al cerrar son automáticas.
+Los ajustes y vídeos se conservan en la carpeta de datos de Windows.
 
-Consulta README.md para la guía de conexión y COMPATIBILIDAD.md para la lista
-de modelos, requisitos y compatibilidad técnica por función. También tienes la lista en
-«Modelos y compatibilidad», dentro de la aplicación.
-
-Antes se llamaba Visor C230. Se conservan sus ajustes y copias locales.
+Guía y modelos: https://github.com/xycel95/Apps/tree/visor-tapo/apps/visor-tapo
 Proyecto independiente, no oficial de TP-Link ni Tapo.

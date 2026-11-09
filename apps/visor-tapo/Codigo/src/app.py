@@ -197,10 +197,10 @@ class Operation(QObject):
             self.process.wait(timeout=3)
             if not self.cancelled.is_set() and not complete:
                 self.error.emit("La cámara tarda demasiado en responder. Vuelve a intentarlo." if timed_out.is_set()
-                                else "No se ha podido iniciar la conexión. Extrae todo el ZIP y revisa que esté la carpeta runtime.")
+                                else "No se ha podido iniciar la conexión. Cierra Visor Tapo y vuelve a abrirlo.")
         except Exception:
             if not self.cancelled.is_set():
-                self.error.emit("No se ha podido iniciar la operación. Comprueba que has extraído todo el programa.")
+                self.error.emit("No se ha podido iniciar la operación. Cierra Visor Tapo y vuelve a abrirlo.")
         finally:
             if timer:
                 timer.cancel()

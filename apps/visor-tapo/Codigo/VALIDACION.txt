@@ -64,3 +64,10 @@ se excluyen cámaras hijas/almacenamiento detrás de un hub.
 1.1.0 (publicación): ventana de compatibilidad abierta con 133 filas; la búsqueda
 «Tapo C230» devuelve solo ese modelo. Reproducción sintética: 30 fotogramas.
 Capturas públicas generadas con configuración vacía y sin cámara conectada.
+
+1.2.0 — EJECUTABLE ÚNICO
+Se conserva la base funcional anterior y se añaden siete pruebas del iniciador.
+La validación de la entrega se realiza en Windows, con el ejecutable en carpetas
+vacías, tras moverlo y renombrarlo, y con apertura/cierre normales. El informe
+VALIDACION-WINDOWS-1.2.0.json de la publicación registra los resultados reales.
+No se conectan cámaras físicas durante estas pruebas.

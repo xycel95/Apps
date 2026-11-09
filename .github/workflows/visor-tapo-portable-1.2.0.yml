@@ -1,0 +1,56 @@
+name: Visor Tapo 1.2.0 — ejecutable único y validación Windows
+
+on:
+  push:
+    branches: [visor-tapo]
+    paths: [.github/workflows/visor-tapo-portable-1.2.0.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  portable:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: apps/visor-tapo/Codigo
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.17'
+          architecture: x64
+      - name: Preparar herramientas de compilación
+        run: python -m pip install --disable-pip-version-check -r requirements-build-windows.txt
+      - name: Compilar el ejecutable único de Windows
+        run: python build_onefile.py
+      - name: Ejecutar las pruebas con el intérprete incluido
+        run: |
+          $env:PATH = "$PWD\dist\Visor_Tapo_1.2.0_Windows\bin;$env:PATH"
+          & "$PWD\dist\Visor_Tapo_1.2.0_Windows\runtime\python.exe" -m unittest discover -s "$PWD\dist\Visor_Tapo_1.2.0_Windows\tests" -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verificar el .exe desde carpetas vacías y tras moverlo
+        run: python tests/validate_onefile_windows.py dist/Visor_Tapo_1.2.0_Windows.exe dist/VALIDACION-WINDOWS-1.2.0.json
+      - name: Consultar Microsoft Defender si está disponible
+        run: |
+          $result = @{ status = 'not-available' }
+          try {
+            $state = Get-MpComputerStatus -ErrorAction Stop
+            if ($state.AntivirusEnabled) {
+              $file = (Resolve-Path 'dist/Visor_Tapo_1.2.0_Windows.exe').Path
+              Start-MpScan -ScanType CustomScan -ScanPath $file -ErrorAction Stop
+              $matches = @(Get-MpThreatDetection -ErrorAction Stop | Where-Object { ($_.Resources -join ' ') -match [regex]::Escape($file) })
+              $result = @{ status = $(if ($matches.Count) { 'threat-reported' } else { 'no-threats-reported' }); engine = $state.AMEngineVersion; signatures = $state.AntivirusSignatureVersion }
+            }
+          } catch { $result = @{ status = 'not-available'; reason = $_.Exception.GetType().Name } }
+          $result | ConvertTo-Json | Set-Content -Encoding utf8 'dist/DEFENDER.json'
+          if ($result.status -eq 'threat-reported') { throw 'Microsoft Defender ha informado de una detección.' }
+          if (-not (Test-Path 'dist/Visor_Tapo_1.2.0_Windows.exe')) { throw 'El ejecutable no está disponible tras la comprobación.' }
+      - name: Publicar la entrega comprobada
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python publicar_github.py

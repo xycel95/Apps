@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 APP_NAME = "Visor Tapo"
 MADRID = ZoneInfo("Europe/Madrid")
 LOCAL_NETWORKS = tuple(ipaddress.ip_network(n) for n in

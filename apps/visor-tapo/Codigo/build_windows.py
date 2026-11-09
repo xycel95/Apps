@@ -19,7 +19,8 @@ BUILD = BASE / "build"
 MANIFEST = json.loads((BASE / "build_inputs.json").read_text())
 DOCUMENTS = ('README.md', 'README.txt', 'COMPATIBILIDAD.md', 'CHANGELOG.md',
              'CONTRIBUTING.md', 'TERCEROS.md', 'VALIDACION.txt', 'build_inputs.json',
-             'requirements-windows.txt', 'requirements-dev.txt', 'build_windows.py', '.gitignore')
+             'requirements-windows.txt', 'requirements-dev.txt', 'requirements-build-windows.txt',
+             'build_windows.py', 'build_onefile.py', 'portable_launcher.py', '.gitignore')
 
 
 def sha256(path):
