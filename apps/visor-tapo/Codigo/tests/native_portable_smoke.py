@@ -15,6 +15,8 @@ sys.path.insert(0, str(ROOT / 'src'))
 
 
 def exercise():
+    if os.environ.get('VISOR_TAPO_SELFTEST_ACTIVE') != '1':
+        raise RuntimeError('This check requires the isolated portable test launcher')
     os.environ.setdefault('QT_QPA_PLATFORM', 'windows')
     from PySide6.QtCore import QEventLoop, QTimer, QUrl
     from PySide6.QtWidgets import QApplication

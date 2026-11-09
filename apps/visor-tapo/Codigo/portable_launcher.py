@@ -214,6 +214,10 @@ def main(argv=None):
             script = root / ('tests/native_portable_smoke.py' if args.self_test_report else 'src/app.py')
             command = [str(root / 'runtime/pythonw.exe'), str(script)]
             if args.self_test_report:
+                # A developer self-test must never replace normal user settings.
+                test_data = env.pop('VISOR_TAPO_SELFTEST_DATA', str(workspace / 'self-test-data'))
+                env['VISOR_TAPO_DATA'] = str(Path(test_data).resolve())
+                env['VISOR_TAPO_SELFTEST_ACTIVE'] = '1'
                 child_report = workspace / 'smoke-report.json'
                 command.append(str(child_report))
             process = subprocess.Popen(command, cwd=root, env=env, stdin=subprocess.DEVNULL,

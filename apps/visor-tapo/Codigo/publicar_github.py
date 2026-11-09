@@ -47,7 +47,7 @@ def main():
     native = json.loads(native_path.read_text(encoding='utf-8'))
     if native.get('status') != 'passed' or native.get('sha256') != digest(executable) or len(native.get('cases', [])) != 3:
         raise RuntimeError('No hay validación nativa del ejecutable que se va a publicar.')
-    native.update(source_commit=COMMIT, unit_tests_passed=24,
+    native.update(source_commit=COMMIT, unit_tests_passed=25,
                   defender=json.loads((dist / 'DEFENDER.json').read_text(encoding='utf-8-sig')))
     native_path.write_text(json.dumps(native, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     files = [executable, dist / f'Visor_Tapo_Codigo_{VERSION}.zip', native_path]

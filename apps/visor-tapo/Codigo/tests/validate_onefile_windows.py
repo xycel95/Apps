@@ -48,7 +48,7 @@ def validate(executable, output):
         base = Path(temporary)
         runtime_temp = base / 'temporary'; runtime_temp.mkdir()
         user_data = base / 'user-data'; user_data.mkdir()
-        env = {**os.environ, 'VISOR_TAPO_DATA': str(user_data), 'QT_QPA_PLATFORM': 'windows',
+        env = {**os.environ, 'VISOR_TAPO_DATA': str(user_data), 'VISOR_TAPO_SELFTEST_DATA': str(user_data), 'QT_QPA_PLATFORM': 'windows',
                'TEMP': str(runtime_temp), 'TMP': str(runtime_temp), 'PYTHONUTF8': '1'}
         env.pop('PYTHONPATH', None); env.pop('PYTHONHOME', None)
         cases = []; current = original

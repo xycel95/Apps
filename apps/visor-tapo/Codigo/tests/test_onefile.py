@@ -103,6 +103,27 @@ class PortableTests(unittest.TestCase):
             self.assertNotIn('private-fixture-must-not-leak', output.read_text())
             self.assertEqual(list(base.glob('app-*')), [])
 
+    def test_self_test_does_not_replace_normal_user_settings(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary); self.package(base)
+            preferences = base / 'normal-user-data'; preferences.mkdir()
+            settings = preferences / 'settings.json'; settings.write_text('preserve-this-fixture')
+            output = base / 'result.json'
+            class Child:
+                def __init__(self, command, **kwargs):
+                    assert Path(kwargs['env']['VISOR_TAPO_DATA']) != preferences
+                    assert kwargs['env']['VISOR_TAPO_SELFTEST_ACTIVE'] == '1'
+                    self.report = Path(command[-1])
+                def wait(self):
+                    self.report.write_text('{"status": "passed"}')
+                    return 0
+            with patch.object(launcher.sys, '_MEIPASS', str(base), create=True), \
+                 patch.object(launcher, 'PreparationWindow', SilentProgress), \
+                 patch.object(launcher, 'child_environment', return_value={'VISOR_TAPO_DATA': str(preferences)}), \
+                 patch.object(launcher.subprocess, 'Popen', Child):
+                self.assertEqual(launcher.main(['--self-test-report', str(output)]), 0)
+            self.assertEqual(settings.read_text(), 'preserve-this-fixture')
+
 
 if __name__ == '__main__':
     unittest.main()
