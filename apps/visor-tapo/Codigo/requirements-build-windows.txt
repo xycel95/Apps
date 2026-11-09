@@ -1,3 +1,3 @@
-ziglang==0.17.0
+https://files.pythonhosted.org/packages/5b/f4/d7a0ea1d510fefde47afcd975373a44a86882bad9ab1398837f8c7ea40ca/ziglang-0.17.0.post0-py3-none-win_amd64.whl#sha256=bb0eeecea548d8653a96ce4165a462962687e4f0dcea81cba8345ae97b635ee3
 pefile==2024.8.26
 https://files.pythonhosted.org/packages/24/83/c5422204772a27aef643280fdc887b7ef55679989096b21dceb1b9625fc4/pyinstaller-6.22.3-py3-none-win_amd64.whl#sha256=500bd58c7bf7e584a8435adccbd763a0b918d5c12b08d74ff50fd79b2915458b

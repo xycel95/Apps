@@ -1,6 +1,6 @@
 """Reproducible Windows x64 portable package. Run from Linux, macOS or Windows.
 
-Build dependencies: pip install ziglang==0.17.0 pefile==2024.8.26
+Build dependencies: pip install -r requirements-build-windows.txt
 All payload downloads are pinned in build_inputs.json and SHA-256 checked.
 """
 from __future__ import annotations

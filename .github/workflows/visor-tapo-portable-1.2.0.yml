@@ -9,34 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  cancelar_revision_anterior:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-    steps:
-      - name: Retirar únicamente la comprobación sustituida de esta entrega
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: python
-        run: |
-          import json, os, urllib.request, urllib.error
-          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'}
-          previous = [(42595262380, '8d7eab0028282c439b81df4080c6043e02b8a29e'),
-                      (42596082206, '6017f67413c433a1dd9b33bfe37b546a1ad2b41b')]
-          for number, sha in previous:
-              url = 'https://api.github.com/repos/xycel95/Apps/actions/runs/' + str(number)
-              with urllib.request.urlopen(urllib.request.Request(url, headers=headers)) as response:
-                  run = json.load(response)
-              assert run['head_sha'] == sha
-              if run['status'] != 'completed':
-                  try:
-                      with urllib.request.urlopen(urllib.request.Request(url + '/cancel', headers=headers, method='POST')) as response:
-                          print('Revisión anterior cancelada:', number, response.status)
-                  except urllib.error.HTTPError as error:
-                      if error.code != 409:
-                          raise RuntimeError('No se ha podido retirar la revisión anterior: HTTP ' + str(error.code)) from None
   portable:
-    needs: cancelar_revision_anterior
     permissions:
       contents: write
     runs-on: windows-2022
