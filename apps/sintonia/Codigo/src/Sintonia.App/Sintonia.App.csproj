@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>Sintonia</AssemblyName><RootNamespace>Sintonia.App</RootNamespace>
+    <Version>1.0.0</Version><Description>Reproductor de televisión en directo y listas M3U autorizadas</Description><Company>XyceL</Company>
+    <ApplicationIcon>Assets/sintonia.ico</ApplicationIcon><ApplicationManifest>app.manifest</ApplicationManifest>
+    <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup><ProjectReference Include="../Sintonia.Core/Sintonia.Core.csproj"/><PackageReference Include="LibVLCSharp" Version="3.10.2"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/spain.m3u"/><EmbeddedResource Include="Assets/vlc-win-x64.zip"/><EmbeddedResource Include="Assets/THIRD-PARTY-NOTICES.txt"/></ItemGroup>
+</Project>

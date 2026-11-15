@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "id": "sintonia",
+  "name": "Sintonía",
+  "version": "1.0.0",
+  "release_date": "2026-11-15",
+  "summary": "Reproductor IPTV para Windows con listas M3U, selección de España, buscador y favoritos.",
+  "platforms": [
+    "Windows 10 x64",
+    "Windows 11 x64"
+  ],
+  "requirements": [
+    "Conexión a Internet",
+    "Emisiones o listas autorizadas"
+  ],
+  "repository": "xycel95/Apps",
+  "branch": "sintonia",
+  "description_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/DESCRIPCION.md",
+  "guide_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/README.md",
+  "changelog_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/notas-de-parche/README.md",
+  "source_url": "https://github.com/xycel95/Apps/tree/sintonia/apps/sintonia/Codigo",
+  "download": {
+    "available": false
+  },
+  "source_download": {
+    "available": false
+  },
+  "distribution": {
+    "type": "portable-single-executable",
+    "requires_adjacent_files": false,
+    "requires_dotnet_installation": false,
+    "requires_vlc_installation": false,
+    "settings_directory": "%LOCALAPPDATA%\\XyceL\\Sintonia",
+    "settings_travel_with_executable": false
+  },
+  "validation": {
+    "core_tests_passed": 26,
+    "native_windows_verified": false,
+    "live_playback_in_executable_verified": false
+  },
+  "online_updates_configured": false,
+  "initial_selection_channels": 49,
+  "initial_selection_reviewed_on": "2026-11-15",
+  "initial_playlist_url": "https://iptv-org.github.io/iptv/countries/es.m3u",
+  "playlist_rights_certified": false
+}

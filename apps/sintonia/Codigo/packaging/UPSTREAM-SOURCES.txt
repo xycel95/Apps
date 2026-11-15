@@ -1,0 +1,31 @@
+Sintonía — fuentes y paquetes oficiales empleados
+
+Aplicación: GPL-2.0-or-later. Véase LICENSE.txt.
+
+LibVLC 3.0.24:
+https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz
+Se incluye el archivo original en vendor-source, sin modificar.
+
+Paquete Windows x64 (solo las DLL necesarias para ejecución):
+https://api.nuget.org/v3-flatcontainer/videolan.libvlc.windows/3.0.24/videolan.libvlc.windows.3.0.24.nupkg
+Los archivos build/x64/**/*.dll y build/x64/**/*.dat se comprimen, sin alterar,
+en Assets/vlc-win-x64.zip y se integran como recurso del EXE.
+Construcción oficial del paquete y fuentes de dependencias:
+https://code.videolan.org/videolan/libvlc-nuget
+https://download.videolan.org/pub/contrib/
+
+LibVLCSharp 3.10.2:
+https://www.nuget.org/packages/LibVLCSharp/3.10.2
+https://code.videolan.org/videolan/LibVLCSharp
+Commit del paquete: 3082c09ca955131c705fc4767fde03e9c4a14999.
+Se incluye su archivo original en vendor-source/LibVLCSharp-3.10.2.tar.gz.
+
+.NET 10 y Windows Forms (MIT y avisos de dependencias):
+https://github.com/dotnet/runtime
+https://github.com/dotnet/winforms
+
+IPTV-org, lista de España (The Unlicense):
+https://github.com/iptv-org/iptv
+https://iptv-org.github.io/iptv/countries/es.m3u
+
+Las marcas y emisiones conservan los derechos de sus titulares.

@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+salida/
+.build-cache/
+vendor-source/
+src/Sintonia.App/Assets/vlc-win-x64.zip
+*.user
+*.pdb
