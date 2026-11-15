@@ -1,74 +1,33 @@
-SINTONÍA 1.0 — WINDOWS 10 / 11, 64 BITS
+SINTONÍA 1.0.1 — WINDOWS 10 / 11, 64 BITS
 
-PARA EMPEZAR
-1. Extrae el ZIP y abre Sintonia.exe.
-2. Selecciona un canal de la columna izquierda.
-3. Pulsa la estrella para guardarlo en favoritos.
+Abre Sintonia.exe. El programa viene vacío, sin listas ni canales precargados.
+No necesitas instalar VLC ni .NET: están incluidos.
 
-Solo necesitas mover Sintonia.exe. El reproductor y .NET están incluidos:
-no necesitas instalar VLC, Python ni otras dependencias. La primera apertura
-puede tardar algo más mientras prepara el motor de vídeo en tu usuario.
-Necesita conexión a Internet para ver las emisiones.
+PARA AÑADIR TUS CANALES
+1. Pulsa Añadir lista.
+2. Elige Lista M3U por enlace, Archivo M3U del equipo o Emisión directa.
+3. Escribe el nombre y la dirección, o selecciona el archivo.
+4. Pulsa Añadir. El filtro opcional viene desmarcado.
 
-QUÉ INCLUYE
-- Diseño oscuro, búsqueda sin distinguir tildes y filtro por categorías.
-- 49 canales precargados en la selección inicial de España (15/11/2026).
-  El número puede variar cuando se actualice el catálogo.
-- Actualización de las listas al abrir y con el botón Actualizar.
-- Favoritos, volumen y copia del catálogo guardados entre aperturas.
-- Listas por enlace M3U, archivos M3U/M3U8 y emisiones directas HLS o TS.
-- Señales alternativas agrupadas, un reintento automático y pantalla completa.
-- Elección de pista de audio cuando el canal ofrece varias.
+Las listas M3U/M3U8 deben contener direcciones de emisión. Las páginas web de
+las plataformas de televisión no son enlaces de vídeo para el reproductor.
 
-AÑADIR LA LISTA DE ESPAÑA DE IPTV-ORG
-En Añadir lista > Lista M3U por enlace, pega:
-https://iptv-org.github.io/iptv/countries/es.m3u
-
-También puedes pegar https://iptv-org.github.io/ y Sintonía utilizará España.
-La selección inicial ya usa ese enlace, con un filtro conservador de orígenes.
-Para importar su contenido completo, desmarca el filtro de emisores identificados
-en la ventana de importación y asigna otro nombre. La app agrupa los duplicados.
-Que un canal aparezca en una lista pública no certifica que el enlace esté
-autorizado: utiliza únicamente emisiones que tengas derecho a ver.
-
-La lista completa comunitaria contiene enlaces etiquetados como canales de
-suscripción. Por ese motivo no se carga completa de forma predeterminada.
-El filtro inicial identifica procedencia, no certifica jurídicamente cada señal.
-La aplicación no proporciona acceso a canales de pago ni evita DRM o bloqueos.
-
-Para importar un archivo, elige Archivo M3U del equipo y pulsa Buscar.
-Para un enlace a un directo .m3u8, elige Emisión directa.
-Tus listas permite activar, desactivar, actualizar o quitar tus fuentes.
-
-SI UNA EMISIÓN FALLA
-- Prueba Reintentar o selecciona otra señal, si el canal tiene varias.
-- Algunos canales emiten solo a ciertas horas o restringen ciertos programas.
-- Web del emisor abre la página del canal cuando se conoce su origen.
-- Una lista que no se pueda actualizar conserva su último catálogo.
-- No todos los enlaces del catálogo general de IPTV-org tienen un directo.
+PARA ACTUALIZAR
+Cierra la versión anterior y abre esta. Se retira la lista automática antigua;
+se conservan las fuentes que hayas añadido tú, favoritos y volumen.
 
 ATAJOS
-Espacio: reproducir / pausa.
-F11: pantalla completa. Esc: salir de pantalla completa.
-Ctrl+F: buscar. Ctrl+R: actualizar listas.
+Espacio: reproducir/pausa. F11: pantalla completa. Esc: salir de pantalla completa.
+Ctrl+F: buscar. Ctrl+R: actualizar tus listas. M: silencio.
 Ctrl+flecha izquierda/derecha: canal anterior/siguiente.
-M: activar/desactivar silencio.
 
-DATOS Y PRIVACIDAD
-Las preferencias se guardan en:
-%LOCALAPPDATA%\XyceL\Sintonia\preferences.json
-El motor de vídeo se prepara en el subdirectorio runtime del mismo directorio.
-Mover el EXE no borra los favoritos. No utiliza cuentas, analítica ni servidor
-intermedio. Las conexiones van a las listas y a los emisores correspondientes.
-Los errores inesperados se anotan en errors.log en ese mismo directorio.
+AJUSTES
+%LOCALAPPDATA%\XyceL\Sintonia
+Mover el EXE no borra tus ajustes. El motor se prepara automáticamente en tu
+usuario la primera vez. No hay cuentas ni analítica.
 
-VERIFICACIÓN DE ESTA ENTREGA
-Compilación de Windows x64 completada sin advertencias ni errores.
-26 comprobaciones automáticas de importación, filtrado, persistencia y fallos
-de red superadas. Verificadas respuestas HLS de cinco emisiones y un fragmento
-H.264 de Telemadrid. No se ha podido ejecutar la interfaz y el reproductor
-completos en Windows desde el entorno de desarrollo Linux disponible.
+Consulta las comprobaciones y los límites de esta entrega en el informe de
+validación que acompaña la publicación. Las pruebas de arranque no certifican
+la reproducción de todos los canales que añadas.
 
-LICENCIAS
-Consulta Acerca de > Guardar licencias para exportar los avisos completos.
-El código fuente y los materiales de compilación se entregan por separado.
+Las licencias completas se pueden exportar desde Acerca de > Guardar licencias.

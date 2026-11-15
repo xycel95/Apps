@@ -1,8 +1,8 @@
 namespace Sintonia.Core;
 
-// A conservative origin filter for the PRELOADED community playlist. This is
+// A conservative origin filter for user-imported playlists (optional). This is
 // provenance selection, not a legal certification. Unknown third-party relays,
-// IP-address streams and subscription-labelled channels are not preloaded.
+// IP-address streams and subscription-labelled channels are excluded only when the optional filter is selected.
 public static class OfficialSources
 {
     public static string Website(StreamEntry entry)

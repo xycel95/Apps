@@ -2,9 +2,9 @@
   "schema": 1,
   "id": "sintonia",
   "name": "Sintonía",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "release_date": "2026-11-15",
-  "summary": "Reproductor IPTV para Windows con listas M3U, selección de España, buscador y favoritos.",
+  "summary": "Reproductor IPTV para Windows, vacío al abrir y con tus propias listas M3U.",
   "platforms": [
     "Windows 10 x64",
     "Windows 11 x64"
@@ -20,26 +20,12 @@
   "changelog_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/notas-de-parche/README.md",
   "source_url": "https://github.com/xycel95/Apps/tree/sintonia/apps/sintonia/Codigo",
   "download": {
-    "available": true,
-    "filename": "Sintonia_1.0_Windows.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/Sintonia_1.0_Windows.exe",
-    "sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51",
-    "size_bytes": 102277982,
-    "hosting": "github-release",
-    "release_tag": "sintonia-v1.0.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/SHA256SUMS.txt"
+    "available": false,
+    "pending_release_tag": "sintonia-v1.0.1"
   },
   "source_download": {
-    "available": true,
-    "filename": "Sintonia_1.0_CodigoFuente.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/Sintonia_1.0_CodigoFuente.zip",
-    "sha256": "ebc0d836bd2066c3c3cd97c36d7712dd771f80db36830f7d961285a96febc11d",
-    "size_bytes": 77948187,
-    "hosting": "github-release",
-    "release_tag": "sintonia-v1.0.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/SHA256SUMS.txt"
+    "available": false,
+    "pending_release_tag": "sintonia-v1.0.1"
   },
   "distribution": {
     "type": "portable-single-executable",
@@ -50,45 +36,22 @@
     "settings_travel_with_executable": false
   },
   "validation": {
-    "core_tests_passed": 26,
-    "environment": "Microsoft Windows 10.0.26100",
-    "native_windows_verified": true,
-    "window_and_libvlc_initialized": true,
-    "moved_and_renamed_verified": true,
-    "gui_playback_verified": false,
-    "live_playback_in_executable_verified": false,
-    "published_downloads_verified": true,
-    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/43722136970",
-    "source_commit": "66744e5c30fd6e7171ab078fee9111c3d32d795f",
-    "native_report_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/VALIDACION-WINDOWS.json",
-    "publication_report_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/VALIDACION-PUBLICACION.json",
-    "known_limit": "El modo smoke-test comprueba ventana y carga de VLC. No reproduce emisiones ni acredita el funcionamiento de todos los canales."
+    "status": "pending-windows-release",
+    "core_tests_passed": 30,
+    "empty_start_verified": false,
+    "live_playback_in_executable_verified": false
   },
   "online_updates_configured": false,
-  "initial_selection_channels": 49,
-  "initial_selection_reviewed_on": "2026-11-15",
-  "initial_playlist_url": "https://iptv-org.github.io/iptv/countries/es.m3u",
+  "initial_selection_channels": 0,
   "playlist_rights_certified": false,
   "executable": {
-    "available": true,
-    "filename": "Sintonia_1.0_Windows.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/Sintonia_1.0_Windows.exe",
-    "sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51",
-    "size_bytes": 102277982,
-    "hosting": "github-release",
-    "release_tag": "sintonia-v1.0.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/SHA256SUMS.txt"
+    "available": false,
+    "pending_release_tag": "sintonia-v1.0.1"
   },
   "zip_download": {
-    "available": true,
-    "filename": "Sintonia_1.0_Windows.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/Sintonia_1.0_Windows.zip",
-    "sha256": "3492fc288bc1fa8173fe95bc2ecb53503f4db2f01f7ca1a03af8540369e64bb5",
-    "size_bytes": 96650145,
-    "hosting": "github-release",
-    "release_tag": "sintonia-v1.0.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.0/SHA256SUMS.txt"
-  }
+    "available": false,
+    "pending_release_tag": "sintonia-v1.0.1"
+  },
+  "preloaded_playlists": false,
+  "preloaded_channels": 0
 }

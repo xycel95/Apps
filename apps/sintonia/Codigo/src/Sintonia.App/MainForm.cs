@@ -15,7 +15,7 @@ internal sealed class MainForm : Form
     private readonly ChannelList _channels=new();
     private readonly TextBox _search=Theme.Input("Buscar canal…");
     private readonly ComboBox _category=Theme.Combo(),_variants=Theme.Combo(),_audio=Theme.Combo();
-    private readonly Label _title=Theme.Label("Elige un canal",21,false,FontStyle.Bold),_subtitle=Theme.Label("Señales públicas · España",9.5f,true),_status=Theme.Label("Listo para reproducir",9.5f,true),_footer=Theme.Label("",9,true),_count=Theme.Label("CANALES",9,true,FontStyle.Bold),_volumeLabel=Theme.Label("70 %",9,true);
+    private readonly Label _title=Theme.Label("Sin canales",21,false,FontStyle.Bold),_subtitle=Theme.Label("Añade tu propia lista o una emisión directa",9.5f,true),_status=Theme.Label("Añade una lista para empezar",9.5f,true),_footer=Theme.Label("",9,true),_count=Theme.Label("CANALES",9,true,FontStyle.Bold),_volumeLabel=Theme.Label("70 %",9,true);
     private readonly VideoSurface _video=new();
     private readonly TrackBar _volume=new(){Minimum=0,Maximum=100,TickStyle=TickStyle.None,SmallChange=5,LargeChange=10,BackColor=Theme.Surface,Width=110,Height=35};
     private readonly Button _all,_favorites,_star,_play,_mute,_refresh,_retry,_official,_full;
@@ -92,6 +92,7 @@ internal sealed class MainForm : Form
     internal void SourcesChanged()
     {
         _catalog=Catalog.Merge(State.Sources);_channels.Favorites=State.Favorites;
+        _video.HasChannels=_catalog.Count>0;_video.Invalidate();
         var selected=_category.SelectedItem as string;
         _rendering=true;_category.Items.Clear();_category.Items.Add("Todas las categorías");
         _category.Items.AddRange(_catalog.SelectMany(c=>c.Group.Split(" · ")).Distinct().Order().Cast<object>().ToArray());
@@ -102,6 +103,7 @@ internal sealed class MainForm : Form
             if(replacement is null) {StopPlayback();_current=null;_title.Text="Elige un canal";_subtitle.Text="La lista del canal está desactivada o se ha quitado.";}
             else { _current=replacement;UpdateVariants(_currentStream?.Url); }
         }
+        if(_catalog.Count==0&&_current is null){_title.Text="Sin canales";_subtitle.Text="Añade tu propia lista o una emisión directa";_status.Text="Añade una lista para empezar";_variants.Items.Clear();_audio.Items.Clear();_retry.Enabled=false;_official.Enabled=false;}
         RenderChannels();Save();
     }
     private void RenderChannels()
@@ -112,7 +114,7 @@ internal sealed class MainForm : Form
         if(_current is not null)_channels.SelectedIndex=visible.FindIndex(c=>c.Id==_current.Id);
         if(top>=0&&top<visible.Count)_channels.TopIndex=top;_channels.EndUpdate();_rendering=false;
         _all.Text=$"Todos ({_catalog.Count})";_favorites.Text=$"★ Favoritos ({_catalog.Count(c=>State.Favorites.Contains(c.Id))})";_count.Text=$"{visible.Count} CANALES";
-        if(visible.Count==0)_count.Text=_favoritesOnly?"AÚN NO HAY FAVORITOS":"SIN RESULTADOS";
+        if(visible.Count==0)_count.Text=_catalog.Count==0?"SIN CANALES":_favoritesOnly?"AÚN NO HAY FAVORITOS":"SIN RESULTADOS";
         _channels.AccessibleDescription=visible.Count==0?"No hay canales con este filtro":"Selecciona un canal para reproducirlo. La estrella lo guarda en favoritos.";
     }
     private void SetFavorites(bool value){_favoritesOnly=value;_all.BackColor=value?Theme.Raised:Theme.Accent;_all.ForeColor=value?Theme.Text:Theme.Background;_favorites.BackColor=value?Theme.Accent:Theme.Raised;_favorites.ForeColor=value?Theme.Background:Theme.Text;RenderChannels();}
@@ -201,12 +203,14 @@ internal sealed class MainForm : Form
     }
     internal async Task RefreshSourcesAsync()
     {
-        if(_refreshing||_disposed)return;_refreshing=true;_refresh.Enabled=false;_refresh.Text="Cargando…";_footer.Text="Actualizando tus listas…";
+        if(_refreshing||_disposed)return;
+        if(!State.Sources.Any(s=>s.Enabled)){_footer.Text=State.Sources.Count==0?"Sin listas · Pulsa Añadir lista para empezar":"No hay listas activas · Revisa Tus listas";return;}
+        _refreshing=true;_refresh.Enabled=false;_refresh.Text="Cargando…";_footer.Text="Actualizando tus listas…";
         var sources=State.Sources.Where(s=>s.Enabled).ToArray();int errors=0;using var semaphore=new SemaphoreSlim(3);
         try
         {
             await Task.WhenAll(sources.Select(async source=>{await semaphore.WaitAsync(_closing.Token);try{await _service.RefreshAsync(source,_closing.Token);}catch(InvalidDataException){Interlocked.Increment(ref errors);}finally{semaphore.Release();}}));
-            if(_disposed)return;SourcesChanged();_footer.Text=errors>0?$"{errors} lista(s) sin actualizar. Se mantiene el último catálogo. Consulta «Tus listas». ":$"{_catalog.Count} canales · Actualizado a las {DateTime.Now:HH:mm} · Catálogo de España: IPTV-org";
+            if(_disposed)return;SourcesChanged();_footer.Text=errors>0?$"{errors} lista(s) sin actualizar. Se mantiene el último catálogo. Consulta «Tus listas». ":$"{_catalog.Count} canales · Listas actualizadas a las {DateTime.Now:HH:mm}";
         }
         catch(OperationCanceledException) { }
         finally{if(!_disposed){_refreshing=false;_refresh.Enabled=true;_refresh.Text="Actualizar";}}

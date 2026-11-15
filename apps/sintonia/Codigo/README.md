@@ -1,4 +1,4 @@
-# Código de Sintonía 1.0.0
+# Código de Sintonía 1.0.1
 
 Instala el SDK oficial .NET 10 y ejecuta en PowerShell desde esta carpeta:
 
@@ -26,3 +26,7 @@ La validación vigente se registra en [Descargar](../descargas/README.md) y en
 docs/VALIDACION-WINDOWS.json. El modo `--smoke-test` crea la ventana, inicializa
 LibVLC, escribe smoke-test.txt en el directorio de datos y cierra la aplicación.
 Esa comprobación de arranque no demuestra reproducción de todos los directos.
+
+La aplicación no incorpora listas ni catálogos. La migración del esquema 1 al 2
+retira únicamente las fuentes marcadas BuiltIn o con el ID histórico spain-official.
+Las pruebas nativas usan un directorio de datos temporal aislado.

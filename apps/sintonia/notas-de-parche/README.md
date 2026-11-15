@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 1.0.1 — 15/11/2026
+
+- Arranque vacío, sin ninguna lista ni canal precargado.
+- Eliminado el catálogo de España del ejecutable.
+- La actualización retira solo la fuente automática de 1.0.0 y conserva tus listas, favoritos y volumen.
+- El filtro opcional de importación viene desmarcado y ya no se activa por el enlace introducido.
+- Pantalla inicial e instrucciones centradas en añadir tus propias fuentes.
+
 ## 1.0.0 — 15/11/2026
 
 Primera versión de Sintonía para Windows x64.

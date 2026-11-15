@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using Sintonia.Core;
 
 int assertions=0;
@@ -35,17 +36,31 @@ Throws(()=>M3uParser.Parse("#EXTM3U\n#EXT-X-TARGETDURATION:8\n#EXTINF:8,\npart.t
 Throws(()=>M3uParser.Parse("#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1000000\nmain.m3u8","hls"),"HLS master directs user to direct-stream import");
 Check(!M3uParser.IsStreamUrl("https://example.org/\n--option")&&!M3uParser.IsStreamUrl("javascript:alert(1)"),"Control characters and unsupported protocols rejected");
 var hostile=M3uParser.Parse("#EXTINF:-1 tvg-id=\"Telemadrid.es@HD\",Fake\nhttps://live.telemadrid.cross-media.es.attacker.test/live.m3u8\n#EXTINF:-1 tvg-id=\"DAZNF1.uk@Spain\",DAZN F1\nhttps://example.org/f1.m3u8","bad");
-Check(OfficialSources.Filter(hostile).Count==0,"Preloaded filter rejects spoofed hosts and subscription-labelled links");
+Check(OfficialSources.Filter(hostile).Count==0,"Optional origin filter rejects spoofed hosts and subscription-labelled links");
 Check(M3uParser.NormalizeListUrl("https://iptv-org.github.io/")==PlaylistSource.SpainUrl,"IPTV-org catalogue URL maps to Spain playlist");
 
 var folder=Path.Combine(Path.GetTempPath(),"SintoniaChecks-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);
 try
 {
-    var store=new StateStore(folder);var state=new AppState{Sources=[s1],Favorites=[parsed[0].Id],Volume=42};store.Save(state);var restored=store.Load();
+    var store=new StateStore(folder);
+    Check(new AppState().Sources.Count==0&&Catalog.Merge(new AppState().Sources).Count==0,"A new application state has no sources or channels");
+    Check(store.Load().Sources.Count==0,"First launch without preferences starts empty");
+    var legacyUser=new PlaylistSource{Id="kept-user-source",Name="My own Spain list",Location=PlaylistSource.SpainUrl,Entries=parsed};
+    var legacyBuiltIn=new PlaylistSource{Id="spain-official",Name="Old automatic source",Location=PlaylistSource.SpainUrl,BuiltIn=true,OfficialOnly=true,Entries=parsed};
+    var legacy=new AppState{SchemaVersion=1,Sources=[legacyBuiltIn,legacyUser],Favorites=[parsed[0].Id],Volume=37,Muted=true};
+    await File.WriteAllTextAsync(Path.Combine(folder,"preferences.json"),JsonSerializer.Serialize(legacy));var migrated=store.Load();
+    Check(migrated.Sources.Count==1&&migrated.Sources[0].Id==legacyUser.Id,"Upgrade removes only the automatic source and keeps a user list with the same URL");
+    Check(migrated.Favorites.Contains(parsed[0].Id)&&migrated.Volume==37&&migrated.Muted,"Upgrade preserves favorites, volume and mute");
+    Check(migrated.SchemaVersion==AppState.CurrentSchemaVersion&&migrated.Sources[0].Entries.Count==3,"Upgrade preserves the user's cached channels and updates the schema");
+    store.Save(migrated);Check(store.Load().Sources.Count==1,"Restart does not recreate a removed automatic source");
+    legacyBuiltIn.BuiltIn=false;legacy.Sources=[legacyBuiltIn];
+    await File.WriteAllTextAsync(Path.Combine(folder,"preferences.json"),JsonSerializer.Serialize(legacy));
+    Check(store.Load().Sources.Count==0,"Historic automatic source ID is retired even if its old flag is missing");
+    var state=new AppState{Sources=[s1],Favorites=[parsed[0].Id],Volume=42};store.Save(state);var restored=store.Load();
     Check(restored.Favorites.Contains(parsed[0].Id)&&restored.Volume==42&&restored.Sources[0].Entries.Count==3,"Preferences, cache and favorites survive restart");
     Check(!File.Exists(Path.Combine(folder,"preferences.json.tmp")),"Preferences are committed with atomic replacement");
     await File.WriteAllTextAsync(Path.Combine(folder,"preferences.json"),"{broken");var recovered=store.Load();
-    Check(recovered.Sources.Count==1&&store.RecoveryNotice is not null&&Directory.GetFiles(folder,"*.recovered-*").Length==1,"Corrupt state is backed up before defaults are restored");
+    Check(recovered.Sources.Count==0&&store.RecoveryNotice is not null&&Directory.GetFiles(folder,"*.recovered-*").Length==1,"Corrupt state is backed up and recovered without adding any list");
     using var service=new PlaylistService();
     var file=Path.Combine(folder,"channels.m3u");await File.WriteAllTextAsync(file,sample);var local=new PlaylistSource{Kind="file",Location=file,Name="Local"};
     Check(await service.RefreshAsync(local)==2,"Local playlists import without fetching external streams");
@@ -76,9 +91,4 @@ try
 }
 finally{Directory.Delete(folder,true);}
 
-var fixture=args.Length>0?args[0]:"src/Sintonia.App/Assets/spain.m3u";
-var actual=M3uParser.Parse(await File.ReadAllTextAsync(fixture),"spain");var selected=OfficialSources.Filter(actual);
-Check(actual.Count>100&&selected.Count>15,"Real Spain catalogue and preloaded origin filter parse successfully");
-Check(!selected.Any(e=>e.Name.Contains("DAZN",StringComparison.OrdinalIgnoreCase)||e.Name.Contains("Eurosport",StringComparison.OrdinalIgnoreCase)),"Subscription channels are not included in the initial selection");
-Check(selected.All(e=>e.OfficialWebsite.StartsWith("https://")),"Every preloaded signal has an emitter website");
-Console.WriteLine($"\n{assertions} assertions passed. Spain input: {actual.Count} signals. Preloaded: {Catalog.Merge([new PlaylistSource{Entries=selected}]).Count} channels / {selected.Count} signals.");
+Console.WriteLine($"\n{assertions} assertions passed. Fresh installations start with zero sources and zero channels.");

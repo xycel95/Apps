@@ -44,14 +44,14 @@ public sealed class PlaylistSource
     public DateTimeOffset? UpdatedAt { get; set; }
     public List<StreamEntry> Entries { get; set; } = [];
     public string LastError { get; set; } = "";
-    public static PlaylistSource Spain() => new() { Id = "spain-official", Name = "España · emisores identificados", Location = SpainUrl, OfficialOnly = true, BuiltIn = true };
     public override string ToString() => $"{(Enabled ? "●" : "○")}  {Name}  ·  {Entries.Count} señales";
 }
 
 public sealed class AppState
 {
-    public int SchemaVersion { get; set; } = 1;
-    public List<PlaylistSource> Sources { get; set; } = [PlaylistSource.Spain()];
+    public const int CurrentSchemaVersion = 2;
+    public int SchemaVersion { get; set; } = CurrentSchemaVersion;
+    public List<PlaylistSource> Sources { get; set; } = [];
     public HashSet<string> Favorites { get; set; } = [];
     public int Volume { get; set; } = 70;
     public bool Muted { get; set; }

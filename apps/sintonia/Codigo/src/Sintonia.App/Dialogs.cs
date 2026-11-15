@@ -8,7 +8,7 @@ internal sealed class AddSourceDialog : Form
     private readonly ComboBox _kind=Theme.Combo();
     private readonly TextBox _name=Theme.Input("Por ejemplo, mis canales"), _location=Theme.Input("https://…/lista.m3u");
     private readonly Button _browse;
-    private readonly CheckBox _official=new(){Text="Aplicar el filtro de emisores identificados de España",Checked=true,ForeColor=Theme.Text,AutoSize=true};
+    private readonly CheckBox _official=new(){Text="Aplicar el filtro de emisores identificados de España (opcional)",Checked=false,ForeColor=Theme.Text,AutoSize=true};
     internal PlaylistSource? Source { get; private set; }
     internal AddSourceDialog()
     {
@@ -21,12 +21,11 @@ internal sealed class AddSourceDialog : Form
         var locLabel=Theme.Label("Dirección o archivo");locLabel.Location=new(24,240);_location.SetBounds(24,267,490,30);
         _browse=Theme.Button("Buscar…",(_,_)=>Browse(),false,82);_browse.SetBounds(522,263,82,36);_browse.Enabled=false;
         _official.SetBounds(24,312,580,27);
-        var note=Theme.Label("IPTV-org: pega su lista de España o la dirección de su catálogo.",9,true);note.SetBounds(24,339,580,25);
+        var note=Theme.Label("Añade tu propia lista M3U/M3U8 o el enlace directo de un canal.",9,true);note.SetBounds(24,339,580,25);
         var cancel=Theme.Button("Cancelar",(_,_)=>Close(),false,100);cancel.SetBounds(382,380,100,34);
         var add=Theme.Button("Añadir",(_,_)=>Submit(),true,110);add.SetBounds(494,380,110,34);
         Controls.AddRange([title,help,typeLabel,_kind,nameLabel,_name,locLabel,_location,_browse,_official,note,cancel,add]);AcceptButton=add;CancelButton=cancel;
         _kind.SelectedIndexChanged+=(_,_)=> { _browse.Enabled=_kind.SelectedIndex==1;_official.Visible=_kind.SelectedIndex!=2;_location.PlaceholderText=_kind.SelectedIndex==2?"https://…/directo.m3u8":"https://…/lista.m3u"; };
-        _location.TextChanged+=(_,_)=>{if(_kind.SelectedIndex==0)_official.Checked=_location.Text.Contains("iptv-org.github.io",StringComparison.OrdinalIgnoreCase);};
     }
     private void Browse()
     {
@@ -37,7 +36,7 @@ internal sealed class AddSourceDialog : Form
     {
         var location=_location.Text.Trim();var name=_name.Text.Trim();
         if(_kind.SelectedIndex==0)location=M3uParser.NormalizeListUrl(location);
-        if(name.Length==0)name=location==PlaylistSource.SpainUrl?"IPTV-org · España":_kind.SelectedIndex==1?Path.GetFileNameWithoutExtension(location):"Mis canales";
+        if(name.Length==0)name=_kind.SelectedIndex==1?Path.GetFileNameWithoutExtension(location):"Mis canales";
         string? error=null;
         if(location.Length==0)error="Introduce una dirección o selecciona un archivo.";
         else if(_kind.SelectedIndex==0&&!M3uParser.IsListUrl(location))error="La lista debe tener un enlace HTTP o HTTPS.";
@@ -72,12 +71,11 @@ internal sealed class SourcesDialog : Form
     private void Details()
     {
         if(_list.SelectedItem is not PlaylistSource s){_detail.Text="";return;}
-        _detail.Text=$"{(s.OfficialOnly?"Filtro de emisores identificados":"Lista añadida por ti")} · {(s.UpdatedAt is null?"Copia inicial":s.UpdatedAt.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm"))}\n" + (s.LastError.Length>0?"Última actualización: "+s.LastError:s.Kind=="file"?"Archivo local. Se conserva una copia del catálogo.":s.Kind=="stream"?"Emisión directa.":"Actualización mediante enlace M3U.");
+        _detail.Text=$"{(s.OfficialOnly?"Filtro de emisores identificados":"Lista añadida por ti")} · {(s.UpdatedAt is null?"Sin actualizar":s.UpdatedAt.Value.LocalDateTime.ToString("dd/MM/yyyy HH:mm"))}\n" + (s.LastError.Length>0?"Última actualización: "+s.LastError:s.Kind=="file"?"Archivo local. Se conserva una copia del catálogo.":s.Kind=="stream"?"Emisión directa.":"Actualización mediante enlace M3U.");
     }
     private void Remove()
     {
         if(_list.SelectedItem is not PlaylistSource s)return;
-        if(s.BuiltIn){MessageBox.Show(this,"Puedes desactivar la lista inicial para ocultarla y volver a activarla cuando quieras.","Lista de España");return;}
         if(MessageBox.Show(this,"¿Quitar «"+s.Name+"»? Sus favoritos se conservarán por si vuelves a añadirla.","Quitar lista",MessageBoxButtons.YesNo,MessageBoxIcon.Question)!=DialogResult.Yes)return;
         _main.State.Sources.Remove(s);_main.SourcesChanged();Reload();
     }
@@ -88,9 +86,9 @@ internal static class AboutDialog
     internal static void Show(Form owner)
     {
         using var f=new Form();Theme.Dialog(f,"Acerca de Sintonía",720,560);
-        var title=Theme.Label("Sintonía 1.0",23,false,FontStyle.Bold);title.SetBounds(24,20,660,42);
+        var title=Theme.Label("Sintonía 1.0.1",23,false,FontStyle.Bold);title.SetBounds(24,20,660,42);
         var content=new TextBox{Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,BackColor=Theme.Raised,ForeColor=Theme.Text,BorderStyle=BorderStyle.None,Font=Theme.Font(10)};content.SetBounds(24,82,672,350);
-        content.Text="TELEVISIÓN EN DIRECTO\r\n\r\nLa lista inicial utiliza el archivo de España de IPTV-org y solo conserva señales cuyo origen coincide con emisores identificados. Se excluyen enlaces de origen desconocido y canales de suscripción. Este filtro es una selección de procedencia; no es una certificación jurídica ni garantiza disponibilidad.\r\n\r\nPuedes importar listas M3U, M3U8 y emisiones directas autorizadas. Al desmarcar el filtro, se conserva el contenido que hayas importado. No se eluden DRM, suscripciones ni restricciones geográficas.\r\n\r\nAlgunos programas pueden no estar disponibles por derechos, ubicación o por el horario del canal. Usa «Web del emisor» cuando el directo no se pueda reproducir.\r\n\r\nLos favoritos, listas y volumen se guardan solo en tu usuario de Windows. No hay cuentas ni analítica. Las listas y los emisores reciben las conexiones necesarias para descargar el catálogo y reproducir vídeo.\r\n\r\nATAJOS\r\nEspacio: reproducir / pausa · F11: pantalla completa · Esc: salir de pantalla completa · Ctrl+F: buscar · Ctrl+R: actualizar · M: silencio · Ctrl+← / →: canal anterior / siguiente.\r\n\r\n"+Program.ResourceText("THIRD-PARTY-NOTICES.txt").Replace("\n","\r\n");
+        content.Text="TELEVISIÓN EN DIRECTO\r\n\r\nSintonía no incluye listas ni canales precargados. Añade tus propias fuentes mediante «Añadir lista». El filtro de emisores identificados es opcional y no se activa automáticamente.\r\n\r\nPuedes importar listas M3U, M3U8 y emisiones directas autorizadas. Al desmarcar el filtro, se conserva el contenido que hayas importado. No se eluden DRM, suscripciones ni restricciones geográficas.\r\n\r\nAlgunos programas pueden no estar disponibles por derechos, ubicación o por el horario del canal. Usa «Web del emisor» cuando el directo no se pueda reproducir.\r\n\r\nLos favoritos, listas y volumen se guardan solo en tu usuario de Windows. No hay cuentas ni analítica. Las listas y los emisores reciben las conexiones necesarias para descargar el catálogo y reproducir vídeo.\r\n\r\nATAJOS\r\nEspacio: reproducir / pausa · F11: pantalla completa · Esc: salir de pantalla completa · Ctrl+F: buscar · Ctrl+R: actualizar · M: silencio · Ctrl+← / →: canal anterior / siguiente.\r\n\r\n"+Program.ResourceText("THIRD-PARTY-NOTICES.txt").Replace("\n","\r\n");
         var sources=Theme.Button("IPTV-org",(_,_)=>Open("https://github.com/iptv-org/iptv"),false,120);sources.SetBounds(24,458,120,36);
         var licenses=Theme.Button("Guardar licencias",(_,_)=>{using var dialog=new SaveFileDialog{FileName="Sintonia_Licencias.txt",Filter="Texto|*.txt"};if(dialog.ShowDialog(f)==DialogResult.OK)File.WriteAllText(dialog.FileName,Program.ResourceText("THIRD-PARTY-NOTICES.txt"));},false,160);licenses.SetBounds(154,458,160,36);
         var close=Theme.Button("Cerrar",(_,_)=>f.Close(),true,100);close.SetBounds(596,458,100,36);

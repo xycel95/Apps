@@ -32,12 +32,15 @@ public sealed class StateStore(string directory)
     private static AppState Validate(AppState state)
     {
         state.Sources ??= []; state.Favorites ??= [];
+        // Retire only the automatic source shipped in 1.0.0. User imports and
+        // favorite identities are retained, even when they use the same URL.
+        state.Sources.RemoveAll(source => source.BuiltIn || source.Id == "spain-official");
         foreach (var source in state.Sources)
         {
             source.Entries ??= [];
             source.Entries = source.Entries.Where(e => M3uParser.IsStreamUrl(e.Url) && !string.IsNullOrWhiteSpace(e.Id) && !string.IsNullOrWhiteSpace(e.Name)).ToList();
-            if (source.BuiltIn) { source.OfficialOnly = true; source.Location = PlaylistSource.SpainUrl; source.Kind = "url"; source.Entries = OfficialSources.Filter(source.Entries); }
         }
+        state.SchemaVersion = Math.Max(state.SchemaVersion, AppState.CurrentSchemaVersion);
         state.Volume = Math.Clamp(state.Volume, 0, 100); return state;
     }
 }
@@ -45,7 +48,7 @@ public sealed class StateStore(string directory)
 public sealed class PlaylistService : IDisposable
 {
     private readonly HttpClient _http = new(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.All }) { Timeout = TimeSpan.FromSeconds(25) };
-    public PlaylistService() => _http.DefaultRequestHeaders.UserAgent.ParseAdd("Sintonia/1.0 (+https://github.com/iptv-org/iptv)");
+    public PlaylistService() => _http.DefaultRequestHeaders.UserAgent.ParseAdd("Sintonia/1.0.1 (+https://github.com/xycel95/Apps)");
     public async Task<int> RefreshAsync(PlaylistSource source, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

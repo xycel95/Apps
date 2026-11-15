@@ -68,6 +68,8 @@ internal sealed class VideoSurface : Panel
 {
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     internal bool ShowWelcome { get; set; } = true;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    internal bool HasChannels { get; set; }
     internal VideoSurface(){DoubleBuffered=true;BackColor=Color.FromArgb(7,10,15);TabStop=true;AccessibleName="Vídeo en directo";}
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -76,6 +78,6 @@ internal sealed class VideoSurface : Panel
         var mid=ClientSize.Height/2;
         TextRenderer.DrawText(e.Graphics,"Sintonía",titleFont,new Rectangle(10,mid-77,Width-20,68),Theme.Accent,TextFormatFlags.HorizontalCenter);
         TextRenderer.DrawText(e.Graphics,"Tu televisión, a un clic.",subFont,new Rectangle(10,mid,Width-20,40),Theme.Text,TextFormatFlags.HorizontalCenter);
-        TextRenderer.DrawText(e.Graphics,"Elige un canal en la lista para empezar",detailFont,new Rectangle(10,mid+43,Width-20,28),Theme.Muted,TextFormatFlags.HorizontalCenter);
+        TextRenderer.DrawText(e.Graphics,HasChannels?"Elige un canal en la lista para empezar":"Pulsa «Añadir lista» para empezar",detailFont,new Rectangle(10,mid+43,Width-20,28),Theme.Muted,TextFormatFlags.HorizontalCenter);
     }
 }

@@ -1,4 +1,4 @@
-SINTONÍA 1.0 — COMPONENTES Y PROCEDENCIA
+SINTONÍA 1.0.1 — COMPONENTES Y PROCEDENCIA
 
 Sintonía: Copyright (c) 2026 XyceL. Código de la aplicación: GPL-2.0-or-later.
 Se entrega el código fuente de la aplicación con el proyecto de compilación.
@@ -19,13 +19,8 @@ para depurar cambios en estas bibliotecas.
 https://github.com/dotnet/runtime
 https://github.com/dotnet/winforms
 
-Lista de España: IPTV-org. Contenido de su repositorio bajo The Unlicense.
-https://github.com/iptv-org/iptv
-https://iptv-org.github.io/iptv/countries/es.m3u
-La lista comunitaria no certifica los derechos de emisión de cada enlace.
-El filtro inicial selecciona procedencia y excluye otros orígenes; no garantiza
-la legalidad, la disponibilidad o la ausencia de restricciones de cada programa.
-Los nombres de canales y sus marcas pertenecen a sus titulares.
+Sintonía no incluye listas ni canales precargados. Los nombres y emisiones
+de las fuentes añadidas por el usuario pertenecen a sus respectivos titulares.
 
 --- LICENCIA LGPL 2.1 ---
                   GNU LESSER GENERAL PUBLIC LICENSE

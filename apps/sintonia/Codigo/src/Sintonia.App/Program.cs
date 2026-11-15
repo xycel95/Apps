@@ -15,10 +15,13 @@ internal static class Program
         try
         {
             var data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XyceL", "Sintonia");
+            if (args.Contains("--smoke-test"))
+            {
+                var option = Array.IndexOf(args, "--test-data-directory");
+                if (option >= 0 && option + 1 < args.Length) data = Path.GetFullPath(args[option + 1]);
+            }
             Directory.CreateDirectory(data);
             var store = new StateStore(data); var state = store.Load();
-            foreach (var source in state.Sources.Where(s => s.BuiltIn && s.Entries.Count == 0))
-                source.Entries = OfficialSources.Filter(M3uParser.Parse(ResourceText("spain.m3u"), source.Id));
             var native = NativeRuntime.Prepare(data);
             LibVLCSharp.Shared.Core.Initialize(native);
             using var app = new MainForm(store,state);

@@ -1,8 +1,7 @@
 # Sintonía
 
-Televisión por Internet para Windows, con buscador, favoritos y listas M3U.
-La selección inicial de España contiene 49 canales de emisores identificados;
-puedes añadir tus propias listas o emisiones autorizadas.
+Reproductor IPTV para Windows que **arranca sin listas ni canales precargados**.
+Añade tus propias listas M3U/M3U8 por enlace o archivo, o una emisión directa.
 
 1. **[Descripción del programa](DESCRIPCION.md)**
 2. **[Cómo funciona y guía](docs/README.md)**
