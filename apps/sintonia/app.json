@@ -20,12 +20,26 @@
   "changelog_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/notas-de-parche/README.md",
   "source_url": "https://github.com/xycel95/Apps/tree/sintonia/apps/sintonia/Codigo",
   "download": {
-    "available": false,
-    "pending_release_tag": "sintonia-v1.0.1"
+    "available": true,
+    "filename": "Sintonia_1.0.1_Windows.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/Sintonia_1.0.1_Windows.exe",
+    "sha256": "1bdbefd2094b9cf94bd33c0205e55e6cbb051b78420b7e09ee0ef26e412ea868",
+    "size_bytes": 102194982,
+    "hosting": "github-release",
+    "release_tag": "sintonia-v1.0.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/SHA256SUMS.txt"
   },
   "source_download": {
-    "available": false,
-    "pending_release_tag": "sintonia-v1.0.1"
+    "available": true,
+    "filename": "Sintonia_1.0.1_CodigoFuente.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/Sintonia_1.0.1_CodigoFuente.zip",
+    "sha256": "0199ee63c57a03c6bb80a9e3552584092f71c5bcf2504bfbfede32f2a82024a5",
+    "size_bytes": 77930646,
+    "hosting": "github-release",
+    "release_tag": "sintonia-v1.0.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/SHA256SUMS.txt"
   },
   "distribution": {
     "type": "portable-single-executable",
@@ -36,21 +50,50 @@
     "settings_travel_with_executable": false
   },
   "validation": {
-    "status": "pending-windows-release",
     "core_tests_passed": 30,
-    "empty_start_verified": false,
-    "live_playback_in_executable_verified": false
+    "environment": "Microsoft Windows 10.0.26100",
+    "native_windows_verified": true,
+    "empty_start_verified": true,
+    "fresh_launch_sources": 0,
+    "fresh_launch_channels": 0,
+    "legacy_automatic_source_removed": true,
+    "user_imports_preserved": true,
+    "favorites_and_volume_preserved": true,
+    "window_and_libvlc_initialized": true,
+    "moved_and_renamed_verified": true,
+    "gui_playback_verified": false,
+    "live_playback_in_executable_verified": false,
+    "published_downloads_verified": true,
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/43727016483",
+    "source_commit": "6dd7c2e0e5f2b2d1166bd0e1f2a8afc7f6b87828",
+    "native_report_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/VALIDACION-WINDOWS.json",
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/VALIDACION-PUBLICACION.json",
+    "known_limit": "La prueba comprueba arranque vacío, migración y carga de VLC. No reproduce emisiones ni acredita los canales añadidos por el usuario."
   },
   "online_updates_configured": false,
   "initial_selection_channels": 0,
   "playlist_rights_certified": false,
   "executable": {
-    "available": false,
-    "pending_release_tag": "sintonia-v1.0.1"
+    "available": true,
+    "filename": "Sintonia_1.0.1_Windows.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/Sintonia_1.0.1_Windows.exe",
+    "sha256": "1bdbefd2094b9cf94bd33c0205e55e6cbb051b78420b7e09ee0ef26e412ea868",
+    "size_bytes": 102194982,
+    "hosting": "github-release",
+    "release_tag": "sintonia-v1.0.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/SHA256SUMS.txt"
   },
   "zip_download": {
-    "available": false,
-    "pending_release_tag": "sintonia-v1.0.1"
+    "available": true,
+    "filename": "Sintonia_1.0.1_Windows.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/Sintonia_1.0.1_Windows.zip",
+    "sha256": "1561baddcaa769cd9c5fcecc155543d85ac329ae8b7a0d724710b2a2945c5416",
+    "size_bytes": 96629797,
+    "hosting": "github-release",
+    "release_tag": "sintonia-v1.0.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/sintonia-v1.0.1/SHA256SUMS.txt"
   },
   "preloaded_playlists": false,
   "preloaded_channels": 0

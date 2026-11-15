@@ -12,6 +12,17 @@ sus propias fuentes. Esta instrucción sustituye la selección inicial de Españ
 - No se descargan listas al abrir una instalación sin fuentes.
 - Mismo reproductor, ruta de preferencias y dependencias que 1.0.0.
 
-Compilar y publicar esta versión, completar la validación nativa de arranque
-vacío y de migración aislada, verificar las descargas y retirar el flujo temporal.
-No se está ampliando la compatibilidad con los reproductores web oficiales.
+## Publicación y validación
+
+Versión 1.0.1 publicada, etiqueta `sintonia-v1.0.1`.
+Código compilado: `6dd7c2e0e5f2b2d1166bd0e1f2a8afc7f6b87828`.
+
+30 comprobaciones pasan en Windows. El ensayo del EXE usa datos aislados y
+confirma arranque con cero fuentes/canales, retirada de la fuente automática,
+conservación de listas propias, favoritos y volumen, ventana/VLC y traslado.
+Los cinco assets se han descargado y comprobado por tamaño, SHA-256 e integridad.
+Consultar los informes actuales de docs/ y el manifiesto app.json.
+
+El flujo temporal se retira tras publicar; no queda una tarea recurrente.
+No se ha ampliado la compatibilidad con reproductores web ni se ha validado
+la reproducción de todas las emisiones añadidas por el usuario.

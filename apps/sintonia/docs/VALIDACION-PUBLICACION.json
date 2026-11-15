@@ -1,55 +1,62 @@
 {
-  "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
-  "tag": "sintonia-v1.0.0",
-  "source_commit": "66744e5c30fd6e7171ab078fee9111c3d32d795f",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.1",
+  "tag": "sintonia-v1.0.1",
+  "source_commit": "6dd7c2e0e5f2b2d1166bd0e1f2a8afc7f6b87828",
+  "all_published_downloads_verified": true,
+  "no_bundled_playlist": true,
+  "zip_executable_matches_direct_executable": true,
   "assets": [
     {
       "name": "SHA256SUMS.txt",
-      "size": 372,
-      "sha256": "f8becabb16e5fa163fee3171c95fa4ed29cca26b0fd552576684596916cbbd3f",
+      "size": 378,
+      "sha256": "67cd92435aa455307d32b14bacd967fbda42b79f78778f858f36054725cf395d",
       "download_verified": true
     },
     {
-      "name": "Sintonia_1.0_CodigoFuente.zip",
-      "size": 77948187,
-      "sha256": "ebc0d836bd2066c3c3cd97c36d7712dd771f80db36830f7d961285a96febc11d",
+      "name": "Sintonia_1.0.1_CodigoFuente.zip",
+      "size": 77930646,
+      "sha256": "0199ee63c57a03c6bb80a9e3552584092f71c5bcf2504bfbfede32f2a82024a5",
       "download_verified": true
     },
     {
-      "name": "Sintonia_1.0_Windows.exe",
-      "size": 102277982,
-      "sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51",
+      "name": "Sintonia_1.0.1_Windows.exe",
+      "size": 102194982,
+      "sha256": "1bdbefd2094b9cf94bd33c0205e55e6cbb051b78420b7e09ee0ef26e412ea868",
       "download_verified": true
     },
     {
-      "name": "Sintonia_1.0_Windows.zip",
-      "size": 96650145,
-      "sha256": "3492fc288bc1fa8173fe95bc2ecb53503f4db2f01f7ca1a03af8540369e64bb5",
+      "name": "Sintonia_1.0.1_Windows.zip",
+      "size": 96629797,
+      "sha256": "1561baddcaa769cd9c5fcecc155543d85ac329ae8b7a0d724710b2a2945c5416",
       "download_verified": true
     },
     {
       "name": "VALIDACION-WINDOWS.json",
-      "size": 776,
-      "sha256": "6f75add6e65ff604b8e361085b9a424e8e294ac236fed7d69da4c10ef1d39773",
+      "size": 1001,
+      "sha256": "7c1cea0ba2cac6b7543e7815a5f2aacf6ebedb2f183a1451c46ea2d50c5cefbf",
       "download_verified": true
     }
   ],
   "windows_report": {
-    "version": "1.0.0",
-    "source_commit": "66744e5c30fd6e7171ab078fee9111c3d32d795f",
-    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/43722136970",
-    "verified_at_utc": "2026-11-15T14:03:23.2224766Z",
+    "version": "1.0.1",
+    "source_commit": "6dd7c2e0e5f2b2d1166bd0e1f2a8afc7f6b87828",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/43727016483",
+    "verified_at_utc": "2026-11-15T14:57:05.0229115Z",
     "environment": "Microsoft Windows 10.0.26100",
     "architecture": "X64",
-    "core_assertions_passed": 26,
+    "core_assertions_passed": 30,
     "native_windows_verified": true,
     "window_and_libvlc_initialized": true,
+    "fresh_launch_sources": 0,
+    "fresh_launch_channels": 0,
+    "empty_start_verified": true,
+    "legacy_automatic_source_removed": true,
+    "user_imports_preserved": true,
+    "favorites_and_volume_preserved": true,
     "empty_folder_verified": true,
     "moved_and_renamed_verified": true,
     "live_playback_in_executable_verified": false,
-    "known_limit": "El modo smoke-test comprueba ventana y carga de VLC. No reproduce emisiones ni acredita el funcionamiento de todos los canales.",
-    "executable_sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51"
-  },
-  "zip_executable_matches_direct_executable": true,
-  "all_published_downloads_verified": true
+    "known_limit": "La prueba comprueba arranque vacío, migración y carga de VLC. No reproduce emisiones ni acredita los canales añadidos por el usuario.",
+    "executable_sha256": "1bdbefd2094b9cf94bd33c0205e55e6cbb051b78420b7e09ee0ef26e412ea868"
+  }
 }
