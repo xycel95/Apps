@@ -1,3 +1,4 @@
+# Publicación única; la prueba espera la liberación de los archivos tras cerrar.
 name: Publicación inicial de Sintonía
 on:
   push:

@@ -11,8 +11,9 @@ function Test-Launch([string]$PathToExe) {
         if (Test-Path $log) { Get-Content $log -Tail 30 | Write-Host }
         throw 'El arranque nativo no terminó en 60 segundos.'
     }
-    $process.Refresh()
-    if ($process.ExitCode -ne 0 -or !(Test-Path $marker)) { throw 'No se ha confirmado la creación de la ventana y el inicio de LibVLC.' }
+    $exitCode = $process.ExitCode
+    $process.Dispose()
+    if ($exitCode -ne 0 -or !(Test-Path $marker)) { throw 'No se ha confirmado la creación de la ventana y el inicio de LibVLC.' }
     if (!(Get-Content $marker -Raw).Contains('VLC initialized')) { throw 'La comprobación de LibVLC no generó el marcador esperado.' }
 }
 $staging = Join-Path $env:RUNNER_TEMP ('SintoniaValidation-' + [guid]::NewGuid().ToString('N'))
@@ -23,7 +24,11 @@ Test-Launch $first
 $moved = Join-Path $staging 'movida'
 New-Item -ItemType Directory $moved | Out-Null
 $renamed = Join-Path $moved 'Television-portatil.exe'
-Move-Item $first $renamed
+$deadline = [DateTime]::UtcNow.AddSeconds(20)
+while ($true) {
+    try { Move-Item $first $renamed -ErrorAction Stop; break }
+    catch { if ([DateTime]::UtcNow -ge $deadline) { throw }; Start-Sleep -Milliseconds 500 }
+}
 Test-Launch $renamed
 $result = [ordered]@{
     version='1.0.0'; source_commit=$env:GITHUB_SHA;
