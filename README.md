@@ -34,7 +34,7 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
 5. **[Sintonía](https://github.com/xycel95/Apps/tree/sintonia/apps/sintonia)**
 
-   Reproductor IPTV para Windows con selección de España, listas M3U por enlace o archivo, buscador, favoritos y pantalla completa.
+   Reproductor IPTV para Windows sin listas precargadas: añade tus propias fuentes por enlace o archivo, con buscador, favoritos y pantalla completa.
 
    [Descripción del programa](https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/sintonia/apps/sintonia/notas-de-parche/README.md)
 
