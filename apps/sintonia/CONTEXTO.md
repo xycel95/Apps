@@ -15,12 +15,22 @@ de IPTV-org. Se creó Sintonía 1.0.0 y autorizó publicarla en xycel95/Apps.
 
 ## Estado
 
-Las 26 comprobaciones de importación, persistencia, filtrado y fallos HTTP pasan
-en Linux. La compilación Windows x64 se completó sin errores ni advertencias.
-Cinco señales consultadas devolvieron HLS y un fragmento de Telemadrid fue H.264.
-No se pudo ejecutar el EXE completo desde Linux. La publicación inicial incorpora
-una comprobación del arranque del EXE en Windows; consultar el informe final
-en docs/VALIDACION-WINDOWS.json y el estado de app.json antes de afirmarla.
+Sintonía 1.0.0 publicada en GitHub, etiqueta `sintonia-v1.0.0`.
+Código compilado: `66744e5c30fd6e7171ab078fee9111c3d32d795f`.
+
+Las 26 comprobaciones pasan en Windows. Se han confirmado ventana e inicio de
+LibVLC, apertura desde carpeta vacía y tras mover/renombrar el EXE. Se han
+verificado por descarga los cinco assets publicados, sus tamaños y SHA-256,
+la integridad de los ZIP y el EXE común al archivo suelto y al ZIP.
+
+La reproducción de directos dentro del EXE sigue pendiente de validación.
+Las consultas HLS y el fragmento analizado en Linux son evidencia de fuentes,
+no de reproducción integral del ejecutable. Consultar los informes de docs/.
+
+La comprobación de traslado espera hasta 20 segundos la liberación del archivo
+al cerrar; la apertura original ya había pasado antes de añadir esa espera.
+El flujo temporal de publicación se retira una vez completado y no queda un
+servicio ni automatismo recurrente. Las preferencias y datos reales no se suben.
 
 ## Organización
 

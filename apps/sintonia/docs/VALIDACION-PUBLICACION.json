@@ -1,0 +1,55 @@
+{
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/sintonia-v1.0.0",
+  "tag": "sintonia-v1.0.0",
+  "source_commit": "66744e5c30fd6e7171ab078fee9111c3d32d795f",
+  "assets": [
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 372,
+      "sha256": "f8becabb16e5fa163fee3171c95fa4ed29cca26b0fd552576684596916cbbd3f",
+      "download_verified": true
+    },
+    {
+      "name": "Sintonia_1.0_CodigoFuente.zip",
+      "size": 77948187,
+      "sha256": "ebc0d836bd2066c3c3cd97c36d7712dd771f80db36830f7d961285a96febc11d",
+      "download_verified": true
+    },
+    {
+      "name": "Sintonia_1.0_Windows.exe",
+      "size": 102277982,
+      "sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51",
+      "download_verified": true
+    },
+    {
+      "name": "Sintonia_1.0_Windows.zip",
+      "size": 96650145,
+      "sha256": "3492fc288bc1fa8173fe95bc2ecb53503f4db2f01f7ca1a03af8540369e64bb5",
+      "download_verified": true
+    },
+    {
+      "name": "VALIDACION-WINDOWS.json",
+      "size": 776,
+      "sha256": "6f75add6e65ff604b8e361085b9a424e8e294ac236fed7d69da4c10ef1d39773",
+      "download_verified": true
+    }
+  ],
+  "windows_report": {
+    "version": "1.0.0",
+    "source_commit": "66744e5c30fd6e7171ab078fee9111c3d32d795f",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/43722136970",
+    "verified_at_utc": "2026-11-15T14:03:23.2224766Z",
+    "environment": "Microsoft Windows 10.0.26100",
+    "architecture": "X64",
+    "core_assertions_passed": 26,
+    "native_windows_verified": true,
+    "window_and_libvlc_initialized": true,
+    "empty_folder_verified": true,
+    "moved_and_renamed_verified": true,
+    "live_playback_in_executable_verified": false,
+    "known_limit": "El modo smoke-test comprueba ventana y carga de VLC. No reproduce emisiones ni acredita el funcionamiento de todos los canales.",
+    "executable_sha256": "fd8fbff25b47ce84c0c72ee088d07f72a1adab9e11f01ddcca9e026e47701e51"
+  },
+  "zip_executable_matches_direct_executable": true,
+  "all_published_downloads_verified": true
+}
