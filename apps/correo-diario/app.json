@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "correo-diario",
   "name": "CorreoDiario",
-  "version": "0.4.5-beta.1",
+  "version": "0.4.6-beta.1",
   "release_date": "2026-11-22",
   "summary": "Exporta correos y adjuntos desde la pestaña de Outlook ya abierta en Edge o Chrome, con borrado opcional tras verificar.",
   "platforms": [
@@ -20,25 +20,25 @@
   "source_url": "https://github.com/xycel95/Apps/tree/correo-diario/apps/correo-diario/Codigo",
   "download": {
     "available": true,
-    "filename": "CorreoDiario_0.4.5_beta.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta.exe",
-    "sha256": "224ece13f041c2f1e98b676f05aad100c8f9a6b4dac6f1a55f7f321006d69260",
-    "size_bytes": 53955935,
+    "filename": "CorreoDiario_0.4.6_beta.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/CorreoDiario_0.4.6_beta.exe",
+    "sha256": "7e093e7787914466394ba87a3453455ee3b9c2fe5655895cd3dbc3cb203e2941",
+    "size_bytes": 53956326,
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.4.5-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.5-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.4.6-beta.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.6-beta.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/SHA256SUMS.txt"
   },
   "source_download": {
     "available": true,
-    "filename": "CorreoDiario_0.4.5_beta_fuentes.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta_fuentes.zip",
-    "sha256": "39ea5547523d248b7d4d9e03f72fccc0851d68ca276c9399846e9c2a79a42306",
-    "size_bytes": 129480,
+    "filename": "CorreoDiario_0.4.6_beta_fuentes.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/CorreoDiario_0.4.6_beta_fuentes.zip",
+    "sha256": "7a3478aaa9e5f8d6089e08ca296981d671d9d57c22078a9118be2f1a7aa0ebb6",
+    "size_bytes": 133009,
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.4.5-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.5-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.4.6-beta.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.6-beta.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/SHA256SUMS.txt"
   },
   "distribution": {
     "type": "portable-single-executable",
@@ -56,17 +56,17 @@
     "existing_browser_ui_verified": true,
     "embedded_login_ui_absent": true,
     "date_range_controls_verified": true,
-    "window_title": "CorreoDiario · 0.4.5 beta",
+    "window_title": "CorreoDiario · 0.4.6 beta",
     "windows": "Microsoft Windows NT 10.0.26100.0",
     "dotnet_sdk": "10.0.404",
-    "source_commit": "54b78cae66b25194cfea1da8bee8d0f796ae6b82",
-    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/44960977253",
+    "source_commit": "9ee3fc09a33a71c3527199546625899da3cbdba6",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/44962460588",
     "pdf_render_verified": true,
     "real_browser_attachment_verified": false,
     "outlook_profile_verified": false,
     "user_mail_accessed": false,
-    "limitation": "Botón y portapapeles Unicode comprobados en Windows con datos sintéticos. El error real de un carácter sigue pendiente de diagnóstico. Composición alternativa con cotejo íntegro de la secuencia, numeración, imágenes y registro comprobada con datos sintéticos. Cotejo de palabras partidas y tablas con formato fijo comprobados con PDF de WebView2 y datos sintéticos. Arranque Windows y flujo con Edge, servicio OWA sintético, intervalos de fechas inclusivos, contrato de adjuntos, búsquedas paginadas, PDF reales de WebView2, tamaños de almacén separados de contenido y segunda lectura de adjuntos comprobados. Pendientes la exportación con la cuenta real de Outlook y el perfil clásico del usuario.",
-    "core_tests_passed": 92,
+    "limitation": "Botón y portapapeles Unicode comprobados en Windows con datos sintéticos. El diagnóstico real identifica FE0F omitido: se excluyen solo FE0E/FE0F del cotejo, preservando letras, cifras y acentos. Pendiente confirmar la ejecución completa con la cuenta real. Composición alternativa con cotejo íntegro de la secuencia, numeración, imágenes y registro comprobada con datos sintéticos. Cotejo de palabras partidas y tablas con formato fijo comprobados con PDF de WebView2 y datos sintéticos. Arranque Windows y flujo con Edge, servicio OWA sintético, intervalos de fechas inclusivos, contrato de adjuntos, búsquedas paginadas, PDF reales de WebView2, tamaños de almacén separados de contenido y segunda lectura de adjuntos comprobados. Pendientes la exportación con la cuenta real de Outlook y el perfil clásico del usuario.",
+    "core_tests_passed": 100,
     "browser_wire_test_verified": true,
     "edge_synthetic_attachment_verified": true,
     "outlook_authentication_synthetic_verified": true,
@@ -91,9 +91,9 @@
     "copy_error_clipboard_verified": true,
     "error_report_without_receipt_verified": true,
     "pdf_code_point_diagnostics_verified": true,
-    "prerelease": true,
-    "published_downloads_verified": true,
-    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
+    "emoji_presentation_pdf_verified": true,
+    "emoji_presentation_negative_controls_verified": true,
+    "prerelease": true
   },
   "prerelease": true,
   "online_updates_configured": false,
@@ -103,25 +103,25 @@
   "permanent_deletion_supported": false,
   "executable": {
     "available": true,
-    "filename": "CorreoDiario_0.4.5_beta.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta.exe",
-    "sha256": "224ece13f041c2f1e98b676f05aad100c8f9a6b4dac6f1a55f7f321006d69260",
-    "size_bytes": 53955935,
+    "filename": "CorreoDiario_0.4.6_beta.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/CorreoDiario_0.4.6_beta.exe",
+    "sha256": "7e093e7787914466394ba87a3453455ee3b9c2fe5655895cd3dbc3cb203e2941",
+    "size_bytes": 53956326,
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.4.5-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.5-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.4.6-beta.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.6-beta.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/SHA256SUMS.txt"
   },
   "zip_download": {
     "available": true,
-    "filename": "CorreoDiario_0.4.5_beta.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta.zip",
-    "sha256": "547825cf99df5f90c084890854cef8e58146d29aa91d7dbef13c3263f2e659bd",
-    "size_bytes": 48313354,
+    "filename": "CorreoDiario_0.4.6_beta.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/CorreoDiario_0.4.6_beta.zip",
+    "sha256": "87d601e383f50cd5e5f393d87867090ac50c6b88e6c385e0a71099e91eefbde5",
+    "size_bytes": 48313941,
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.4.5-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.5-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.4.6-beta.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.6-beta.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.6-beta.1/SHA256SUMS.txt"
   },
   "authentication": {
     "flow": "existing-browser-session",
@@ -132,5 +132,5 @@
     "observed_request_authorization": true,
     "session_credentials_persisted": false
   },
-  "development_version": "0.4.6-beta.1"
+  "development_version": null
 }
