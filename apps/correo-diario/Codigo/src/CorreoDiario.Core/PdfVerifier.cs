@@ -21,16 +21,25 @@ public static class PdfVerifier
             }
             if (expectedVisibleText is not null)
             {
-                var actual = Tokens(text.ToString());
-                foreach (var token in Tokens(expectedVisibleText))
-                    if (!actual.TryGetValue(token.Key, out var count) || count < token.Value)
-                        throw new InvalidDataException("El texto del PDF no coincide por completo con el correo mostrado. Se conserva el correo original.");
+                var extracted = text.ToString();
+                var expectedWords = Words(expectedVisibleText);
+                var actualWords = Words(extracted);
+                var actual = actualWords.GroupBy(s => s, StringComparer.Ordinal)
+                    .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+                var completeWords = expectedWords.GroupBy(s => s, StringComparer.Ordinal)
+                    .All(g => actual.TryGetValue(g.Key, out var count) && count >= g.Count());
+                // PDF extraction inserts spaces/newlines inside words at line and
+                // page boundaries. Accept that case only when EVERY letter/digit
+                // agrees in order and multiplicity across the whole document.
+                // No percentage threshold, character bag or missing-word tolerance.
+                if (!completeWords && string.Concat(actualWords) != string.Concat(expectedWords))
+                    throw new InvalidDataException("El texto del PDF no coincide por completo con el correo mostrado. Se conserva el correo original.");
             }
         }
         catch (InvalidDataException) { throw; }
         catch (Exception ex) { throw new InvalidDataException("No se ha podido abrir y comprobar el PDF generado.", ex); }
     }
 
-    private static Dictionary<string, int> Tokens(string value) => Regex.Matches(value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{N}]+")
-        .Select(m => m.Value).GroupBy(s => s, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+    private static string[] Words(string value) => Regex.Matches(value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{M}\p{N}]+")
+        .Select(m => m.Value).ToArray();
 }

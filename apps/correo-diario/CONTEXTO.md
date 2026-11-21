@@ -2,6 +2,28 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.4.3: cotejo del PDF
+
+La captura de 0.4.2 muestra un rechazo del texto del PDF, con cero movimientos.
+No se dispone del correo/PDF original. Se reproduce el mismo rechazo con
+palabras completas que la extracción del PDF parte en líneas o páginas.
+El cotejo anterior comparaba solo bolsas de palabras. Se conserva ese cotejo
+y, cuando falla, se admite exclusivamente la igualdad de toda la secuencia
+de letras/cifras normalizadas, en orden y cantidad. No introducir porcentajes
+de similitud, tolerancias de caracteres ni desactivar la verificación.
+
+PdfRenderer elimina anchos/alturas/overflow restrictivos del cuerpo, adapta
+tablas a A4 y fuerza el formato de impresión antes de recoger innerText.
+La composición es fluida; no es una réplica visual del HTML de Outlook.
+83 pruebas de lógica (dos regresiones fallan antes de la corrección). El
+WindowsCheck usa el mismo PdfRenderer.cs: debe demostrar el falso rechazo del
+algoritmo anterior con un PDF real, luego conservar tablas anchas de 90 filas,
+texto final, Unicode, listas e imágenes CID. También rechaza contenido omitido.
+No afirmar que se ha verificado el correo concreto de la captura.
+La publicación solo se genera si las pruebas nativas terminan correctamente;
+consultar VALIDACION-WINDOWS.json para su resultado y commit de origen.
+Validaciones anteriores conservadas en docs/historico/0.4.2.
+
 ## Versión 0.4.2: todos los archivos juntos
 
 El usuario indica que 0.4.1 parece funcionar. Las tres carpetas que muestra

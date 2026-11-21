@@ -1,4 +1,4 @@
-CORREODIARIO 0.4.2 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.3 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -48,3 +48,9 @@ Los PDF y adjuntos quedan todos juntos en la carpeta elegida, sin crear
 subcarpetas. Si repites una exportación o coincide un nombre, se añade un
 número al PDF y a sus adjuntos para conservar los archivos anteriores.
 Cada intento mantiene un registro de comprobación independiente en esa carpeta.
+
+El cotejo admite palabras partidas entre líneas o páginas solo cuando todas
+las letras y cifras coinciden en orden y cantidad. Se mantienen las comprobaciones
+de palabras completas. Las tablas se adaptan al ancho de página y se retiran
+alturas fijas/recortes que impedirían imprimir su contenido. Si sigue faltando
+texto, la exportación se detiene y no comienza ningún movimiento.

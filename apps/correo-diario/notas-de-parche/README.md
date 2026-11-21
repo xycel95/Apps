@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 0.4.3-beta.1 · 21/11/2026
+
+- Corregido un falso rechazo del cotejo cuando el PDF parte palabras o
+  direcciones entre líneas o páginas. Solo se admite si todas las letras
+  y cifras coinciden en orden y cantidad en el documento completo.
+- Tablas adaptadas al ancho de página; retiradas alturas y recortes del HTML
+  que pueden ocultar contenido al imprimir. Cotejo bajo el formato de impresión.
+- 83 pruebas de lógica. Regresión de Windows con el renderizador real:
+  palabras largas, tablas de 90 filas, varias páginas, Unicode e imágenes CID.
+- Las palabras omitidas, cifras cambiadas y contenido truncado siguen fallando.
+- Se mantienen destino directo, Desde/Hasta, segunda lectura de adjuntos y
+  borrado opcional desmarcado. No se han usado correos reales en estas pruebas.
+
 ## 0.4.2-beta.1 · 21/11/2026
 
 - PDF y adjuntos directamente en la carpeta elegida, todos juntos.

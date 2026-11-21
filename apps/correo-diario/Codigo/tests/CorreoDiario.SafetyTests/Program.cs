@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).Concat(FlatExportChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).Concat(FlatExportChecks.All()).Concat(PdfTextChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {
@@ -226,11 +226,13 @@ sealed class FakeRenderer : IPdfRenderer
 {
     public int Renders;
     public bool Broken;
+    public bool MissingText;
     public Task<byte[]> RenderAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct)
     {
         Renders++;
         // The renderer is substituted here: these tests exercise export transactions,
         // not the Windows/Edge PDF engine. Live rendering must be checked on Windows.
+        if (MissingText) PdfVerifier.Validate(ValidPdf("Contenido"), "Contenido completo");
         return Task.FromResult(Broken ? Encoding.ASCII.GetBytes("%PDF-1.7\n" + new string(' ', 300)) : ValidPdf("Contenido completo"));
     }
     public static byte[] ValidPdf(string text)

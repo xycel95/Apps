@@ -51,7 +51,10 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
               for(const a of [...node.attributes]){
                 if(/^on/i.test(a.name)||['srcset','background','formaction','action','autofocus','contenteditable','srcdoc'].includes(a.name.toLowerCase()))node.removeAttribute(a.name);
               }
-              if(node.style){for(const p of ['position','top','left','right','bottom','z-index','transform'])node.style.removeProperty(p);}
+              if(node.style){for(const p of ['position','top','left','right','bottom','z-index','transform','float','columns','column-count','column-width','width','min-width','max-width','height','min-height','max-height','overflow','overflow-x','overflow-y','white-space','text-overflow','clip','clip-path'])node.style.removeProperty(p);}
+              if(['TABLE','TR','TD','TH','DIV','P','PRE'].includes(node.tagName)){
+                node.removeAttribute('width');node.removeAttribute('height');node.removeAttribute('nowrap');
+              }
               if(node.tagName==='A'){
                 const href=node.getAttribute('href')||'';
                 if(!/^(https?:|mailto:)/i.test(href))node.removeAttribute('href');
@@ -80,7 +83,20 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
         var html = """
             <!doctype html><html lang="es"><head><meta charset="utf-8">
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; form-action 'none'">
-            <style>@page{size:A4;margin:15mm}body{font:11pt 'Segoe UI',Arial,sans-serif;color:#111;line-height:1.4;overflow-wrap:anywhere}h1{font-size:18pt;margin:0 0 18px}table.header{width:100%;border-bottom:1px solid #aaa;padding-bottom:14px;margin-bottom:22px}table.header th{width:85px;text-align:left;vertical-align:top;padding:2px 14px 2px 0}table.header td{padding:2px 0}.message img{max-width:100%;height:auto}.message table{max-width:100%}.notice{margin-top:20px;color:#555;font-size:9pt}pre{white-space:pre-wrap}</style></head><body>
+            <style>
+            @page{size:A4;margin:15mm}
+            body{margin:0;max-width:180mm;font:11pt 'Segoe UI',Arial,sans-serif;color:#111;line-height:1.4;overflow-wrap:anywhere}
+            h1{font-size:18pt;margin:0 0 18px}
+            table.header{width:100%;table-layout:fixed;border-bottom:1px solid #aaa;padding-bottom:14px;margin-bottom:22px}
+            table.header th{width:85px;text-align:left;vertical-align:top;padding:2px 14px 2px 0}table.header td{padding:2px 0}
+            .message,.message *{box-sizing:border-box;min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important}
+            .message *:not(img){height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;white-space:normal!important;text-overflow:clip!important;float:none!important;columns:auto!important}
+            .message img{height:auto!important}
+            .message table{width:100%!important;table-layout:fixed!important}
+            .message thead,.message tfoot{display:table-row-group}
+            .message pre{white-space:pre-wrap!important}
+            .notice{margin-top:20px;color:#555;font-size:9pt}
+            </style></head><body>
             """;
         html += "<h1>" + E(item.Subject) + "</h1><table class=header>";
         foreach (var row in new[] { ("De:", item.From), ("Enviado:", local.ToString("dd/MM/yyyy HH:mm:ss")), ("Para:", item.To), ("CC:", item.Cc), ("CCO:", item.Bcc),
@@ -91,6 +107,9 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
             html += "<p class=notice>Las imágenes externas se han dejado indicadas en el texto. Las imágenes adjuntas están incluidas.</p>";
         html += "</body></html>";
         await NavigateAsync(html, ct);
+        // Measure the local print document under print media too, rather than
+        // comparing a wide screen layout with the A4 output.
+        await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Emulation.setEmulatedMedia", "{\"media\":\"print\"}").WaitAsync(ct);
         var ready = await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Runtime.evaluate", JsonSerializer.Serialize(new
         {
             expression = "(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode().catch(()=>{throw new Error('Imagen incompleta')})));return true})()",
@@ -109,6 +128,7 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
             settings.ShouldPrintHeaderAndFooter = false;
             settings.PageWidth = 8.2677;
             settings.PageHeight = 11.6929;
+            settings.MarginTop = settings.MarginBottom = settings.MarginLeft = settings.MarginRight = 15 / 25.4;
             if (!await browser.CoreWebView2.PrintToPdfAsync(path, settings).WaitAsync(ct))
                 throw new InvalidDataException("No se ha podido imprimir el correo a PDF.");
             var bytes = await File.ReadAllBytesAsync(path, ct);

@@ -50,6 +50,12 @@ No se crean subcarpetas por intento. Si ya hay archivos con esos nombres,
 el programa añade un número al grupo de correo y adjuntos y conserva lo anterior.
 Cada ejecución guarda su propio registro `Comprobacion_….json` en ese destino.
 
+Al crear el PDF se adaptan las tablas al ancho de página y se retiran alturas
+fijas y recortes del formato original. Se comprueba el texto impreso completo;
+una palabra partida entre líneas o páginas puede coincidir si conserva todas
+las letras y cifras. Si falta contenido, la operación se detiene. La composición
+puede cambiar de aspecto para que el contenido quepa en la página.
+
 ## Borrado opcional
 
 La casilla está desmarcada por defecto. Solo al marcarla se moverán mensajes a

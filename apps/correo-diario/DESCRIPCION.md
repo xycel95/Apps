@@ -1,6 +1,6 @@
 # Descripción del programa
 
-CorreoDiario 0.4.2 beta trabaja con la sesión de Outlook que ya tienes abierta
+CorreoDiario 0.4.3 beta trabaja con la sesión de Outlook que ya tienes abierta
 **en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
 una, seleccionar carpetas y un intervalo de fechas, y exportar los mensajes a PDF con sus
 adjuntos originales separados. Conserva el modo alternativo de Outlook clásico. Los campos **Desde** y **Hasta**
@@ -35,6 +35,11 @@ La compatibilidad del servicio interno de Outlook sigue dependiendo del servidor
 La conexión y la exportación con las cuentas del usuario no están certificadas
 por las pruebas simuladas. Las imágenes externas no se descargan y la composición
 PDF puede variar respecto al cuadro de impresión de Outlook.
+
+El PDF adapta las tablas al ancho de página y retira alturas fijas o recortes
+que pueden esconder texto al imprimir. El cotejo reconoce palabras partidas
+entre líneas o páginas si conserva todas sus letras y cifras. Si detecta una
+omisión, detiene la operación y conserva los correos.
 
 El borrado es opcional y mueve a Eliminados después de verificar toda la
 exportación. No vacía esa carpeta ni garantiza liberar cuota inmediatamente.

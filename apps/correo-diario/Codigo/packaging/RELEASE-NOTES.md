@@ -1,16 +1,20 @@
-# CorreoDiario 0.4.2 beta
+# CorreoDiario 0.4.3 beta
 
-Guarda todos los PDF y adjuntos directamente en la carpeta elegida. Ya no
-crea una subcarpeta por intento. Si coincide un nombre, añade un número al
-PDF y sus adjuntos y conserva lo anterior. Cada ejecución tiene su propio
-registro Comprobacion_fecha_hora_id.json en ese mismo destino.
+Corrige el falso aviso de texto incompleto cuando una palabra o dirección se
+parte entre líneas o páginas del PDF. La aceptación de esos saltos exige que
+todas las letras y cifras coincidan en orden y cantidad; se mantiene la
+comprobación de palabras completas y se siguen rechazando omisiones.
 
-Mantiene Desde/Hasta, la verificación de contenido con segunda lectura y
-SHA-256, y el borrado opcional desmarcado. No reintenta movimientos.
+Adapta tablas al ancho de página y retira alturas/recortes que pueden ocultar
+texto al imprimir. Recoge el texto con el formato de impresión activado.
+Mantiene todos los archivos juntos en el destino, Desde/Hasta y el borrado
+opcional desmarcado, sin movimientos antes de verificar toda la selección.
 
-Validación: 75 pruebas, incluyendo ejecuciones sucesivas y simultáneas sin
-sobrescrituras. Flujo Windows con Edge, servicio OWA sintético, cinco PDF
-reales de WebView2 y cinco adjuntos directamente en la carpeta elegida,
-sin subcarpetas y con cero movimientos.
+Validación: 83 pruebas de lógica y regresión de Windows con WebView2 real,
+palabras y direcciones largas, tabla ancha de 90 filas, varias páginas,
+Unicode e imágenes CID. La regresión reproduce el falso rechazo del cotejo
+anterior. Flujo con Edge y OWA sintético: cinco PDF, cinco adjuntos con
+segunda lectura y SHA-256, cero movimientos. No se han probado los correos
+concretos de la captura ni una cuenta real del usuario.
 
 EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.
