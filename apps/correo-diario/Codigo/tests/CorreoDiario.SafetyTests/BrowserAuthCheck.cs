@@ -93,7 +93,9 @@ internal static class BrowserAuthCheck
                     var id = body.RootElement.GetProperty("Body").GetProperty("FolderIds")[0].GetProperty("Id").GetString();
                     response = new { Body = new { Folders = new[] { new { FolderId = new { Id = "fixture-" + id }, DisplayName = id } } } };
                 }
-                await context.Response.WriteAsJsonAsync(response, ct);
+                context.Response.ContentType = "application/json";
+                // OWA uses PascalCase, unlike ASP.NET's web JSON defaults.
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response), ct);
             });
             await app.StartAsync(ct);
             Console.WriteLine("Fixture: servicio HTTPS preparado.");
