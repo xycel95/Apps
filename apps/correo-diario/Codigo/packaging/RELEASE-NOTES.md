@@ -1,20 +1,16 @@
-# CorreoDiario 0.4.1 beta
+# CorreoDiario 0.4.2 beta
 
-Corrige el aviso de tamaño de adjunto: Outlook puede informar el tamaño del
-objeto con sus propiedades, que no equivale al tamaño del archivo descargado.
+Guarda todos los PDF y adjuntos directamente en la carpeta elegida. Ya no
+crea una subcarpeta por intento. Si coincide un nombre, añade un número al
+PDF y sus adjuntos y conserva lo anterior. Cada ejecución tiene su propio
+registro Comprobacion_fecha_hora_id.json en ese mismo destino.
 
-La copia se comprueba con una segunda lectura de cada adjunto y comparación
-de longitud y SHA-256, además de la revisión del correo y de los bytes en disco.
-Si falla, no comienza el movimiento de ningún correo. El recibo distingue el
-tamaño informado por Outlook y el tamaño real guardado.
+Mantiene Desde/Hasta, la verificación de contenido con segunda lectura y
+SHA-256, y el borrado opcional desmarcado. No reintenta movimientos.
 
-Conserva Desde/Hasta, ambos días incluidos, y borrado opcional desmarcado.
-No reintenta movimientos ni vacía Eliminados.
-
-Validación: 71 pruebas, Edge real y servicio HTTPS sintético con tamaño de
-almacén 344 frente a contenido de 8 bytes; cinco PDF de WebView2, cinco
-adjuntos, diez lecturas y cero movimientos. Pendiente la exportación con la
-cuenta real y el perfil de Outlook clásico del usuario.
+Validación: 75 pruebas, incluyendo ejecuciones sucesivas y simultáneas sin
+sobrescrituras. Flujo Windows con Edge, servicio OWA sintético, cinco PDF
+reales de WebView2 y cinco adjuntos directamente en la carpeta elegida,
+sin subcarpetas y con cero movimientos.
 
 EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.
-Consulta SHA256SUMS.txt para verificar la descarga.

@@ -45,8 +45,10 @@ revisa los mensajes y selecciona el destino. Después pulsa **Guardar correos
 2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_ADJ01_Solicitud.pdf
 ```
 
-Cada ejecución crea una carpeta nueva. Los nombres relacionan cada PDF con
-sus adjuntos y evitan sobrescrituras. `Comprobacion.json` registra el resultado.
+Todos los PDF y adjuntos quedan **directamente en la carpeta que has elegido**.
+No se crean subcarpetas por intento. Si ya hay archivos con esos nombres,
+el programa añade un número al grupo de correo y adjuntos y conserva lo anterior.
+Cada ejecución guarda su propio registro `Comprobacion_….json` en ese destino.
 
 ## Borrado opcional
 
@@ -56,7 +58,7 @@ abrir y cotejar los PDF, verificar los archivos y volver a comprobar el origen.
 Cada adjunto se lee dos veces y se comparan su longitud y SHA-256. El tamaño
 del objeto en Outlook puede incluir propiedades y se registra aparte de los
 bytes reales del archivo; no se usa como una longitud exacta.
-`Comprobacion.json` conserva ambos tamaños y la verificación de la segunda lectura.
+El registro `Comprobacion_….json` conserva ambos tamaños y la verificación de la segunda lectura.
 Si falla esa fase no comienza el movimiento de ningún correo.
 
 No se vacía Eliminados. Esa carpeta puede seguir ocupando cuota del buzón.

@@ -120,5 +120,5 @@
     "observed_request_authorization": true,
     "session_credentials_persisted": false
   },
-  "development_version": null
+  "development_version": "0.4.2-beta.1"
 }

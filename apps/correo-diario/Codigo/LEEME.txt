@@ -1,4 +1,4 @@
-CORREODIARIO 0.4.1 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.2 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -42,4 +42,9 @@ Los tamaños de Outlook pueden incluir propiedades del objeto adjunto. Se
 registran aparte del tamaño real del fichero. Cada adjunto se lee dos veces
 y se comparan longitud y SHA-256, además de comprobar la escritura en disco.
 Si esas comprobaciones fallan no comienza ningún movimiento a Eliminados.
-El recibo Comprobacion.json conserva los tamaños y el resultado de la revisión.
+El recibo Comprobacion_fecha_hora_id.json conserva los tamaños y el resultado de la revisión.
+
+Los PDF y adjuntos quedan todos juntos en la carpeta elegida, sin crear
+subcarpetas. Si repites una exportación o coincide un nombre, se añade un
+número al PDF y a sus adjuntos para conservar los archivos anteriores.
+Cada intento mantiene un registro de comprobación independiente en esa carpeta.

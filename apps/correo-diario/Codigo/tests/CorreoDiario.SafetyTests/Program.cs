@@ -137,7 +137,7 @@ var tests = new (string Name, Func<Task> Test)[]
         var ex = await MustFail(() => env.Run(true));
         Check(ex is ExportException { Moved: 1 }, "Resultado parcial explícito");
         var dir = ((ExportException)ex).Directory;
-        using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(dir, "Comprobacion.json")));
+        using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(((ExportException)ex).ReceiptPath));
         Check(receipt.RootElement.GetProperty("Status").GetString() == "ERROR", "Registro del error");
         Check(receipt.RootElement.GetProperty("MovedToDeleted").GetArrayLength() == 1, "Registro del primer movimiento");
         Check(env.Source.MoveCalls == 2, "No reintenta un movimiento fallido");
@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).Concat(FlatExportChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {

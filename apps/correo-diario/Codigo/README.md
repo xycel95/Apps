@@ -1,4 +1,4 @@
-# CorreoDiario 0.4.1 beta
+# CorreoDiario 0.4.2 beta
 
 Aplicación portátil de Windows para exportar correos de un intervalo a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
@@ -8,7 +8,7 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 71 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
+- 75 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
 - La publicación comprueba el arranque nativo y la conexión a Edge real con un
   servicio HTTPS sintético que exige autorización y valida el contrato de búsqueda.
 - El flujo sintético incluye fecha/carpeta, paginación, lectura completa,
@@ -196,3 +196,24 @@ cinco PDF y cero movimientos, conservando el intervalo de dos días.
 
 Referencia primaria de la semántica de tamaño:
 https://learn.microsoft.com/office/client-developer/outlook/mapi/pidtagattachsize-canonical-property
+
+## Destino directo en 0.4.2
+
+El directorio de salida es el elegido por el usuario. No se crea una carpeta
+por ejecución. ReserveMessage comprueba los nombres existentes, incluidas
+exportaciones parciales con solo adjuntos; reserva el PDF con FileMode.CreateNew
+y comparte el sufijo numérico con todos sus adjuntos. Una colisión al reservar
+el PDF selecciona otro sufijo. Un fallo posterior al reservar no se confunde
+con una colisión ni reintenta escrituras o movimientos.
+
+Las escrituras de adjuntos siguen usando CreateNew. Ante un conflicto posterior
+a la reserva se detiene, conservando los archivos existentes y sin movimientos.
+Cada ejecución reserva un registro Comprobacion_fecha_hora_id.json con CreateNew.
+Las actualizaciones usan un temporal propio y sustitución del registro reservado.
+ExportResult y ExportException exponen ReceiptPath para localizar ese registro
+sin asumir que el directorio contiene una sola ejecución.
+
+Pruebas adicionales: destino sin subcarpetas, dos ejecuciones sucesivas que
+conservan todos los bytes anteriores, adjunto huérfano que reserva su grupo y
+dos exportaciones simultáneas con documentos/registros diferentes. El flujo
+Windows comprueba cinco PDF y cinco adjuntos directamente en el destino.

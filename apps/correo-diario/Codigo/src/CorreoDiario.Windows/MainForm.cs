@@ -18,7 +18,7 @@ internal sealed class MainForm : Form
     private readonly DateTimePicker dateThrough = new() { Format = DateTimePickerFormat.Short, Width = 130, AccessibleName = "Hasta" };
     private readonly Button list = new ThemedButton() { Text = "Buscar correos", AutoSize = true, Enabled = false };
     private readonly DataGridView messages = new() { Dock = DockStyle.Fill, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, BackgroundColor = Color.FromArgb(30, 41, 59), BorderStyle = BorderStyle.None };
-    private readonly TextBox destination = new() { Dock = DockStyle.Fill, ReadOnly = true, PlaceholderText = "Elige dónde guardar los PDF y los adjuntos" };
+    private readonly TextBox destination = new() { Dock = DockStyle.Fill, ReadOnly = true, PlaceholderText = "Elige la carpeta donde guardar todos los PDF y adjuntos juntos" };
     private readonly Button choose = new ThemedButton() { Text = "Elegir carpeta", AutoSize = true };
     private readonly CheckBox delete = new ThemedCheckBox() { Text = "Eliminar del buzón después de verificar la exportación", AutoSize = true, Checked = false };
     private readonly Button export = new ThemedButton() { Text = "Guardar correos y adjuntos", AutoSize = true, Enabled = false };
@@ -35,7 +35,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4.1 beta";
+        Text = "CorreoDiario · 0.4.2 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;

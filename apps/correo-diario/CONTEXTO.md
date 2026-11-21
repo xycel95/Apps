@@ -2,6 +2,28 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Versión 0.4.2: todos los archivos juntos
+
+El usuario indica que 0.4.1 parece funcionar. Las tres carpetas que muestra
+corresponden a ejecuciones distintas; la aplicación creaba una por intento.
+Requisito vigente: guardar todos los PDF y adjuntos directamente en el destino
+elegido, sin subcarpetas por ejecución. No volver a introducir ese agrupamiento.
+
+ExportEngine usa el destino directo y reserva un nombre común por mensaje.
+Comprueba archivos anteriores, incluidas copias parciales con solo adjuntos.
+Reserva PDF con CreateNew y añade sufijo numérico si ya existe. Los adjuntos
+usan CreateNew, conservando cualquier archivo de una carrera posterior.
+Los registros son Comprobacion_fecha_hora_id.json, independientes por intento,
+reservados sin sobrescribir y con temporales propios. ReceiptPath está en el
+resultado y en errores; no buscar un único Comprobacion.json por directorio.
+
+75 pruebas; incluye repetición en un mismo destino, conservación de bytes y
+registros, adjuntos previos sin PDF y dos ejecuciones simultáneas. El flujo
+Windows con cinco PDF/cinco adjuntos comprueba destino directo sin subcarpetas.
+No se han movido ni eliminado las carpetas que el usuario ya tenía en su PC.
+Se mantiene verificación de contenido, rango y borrado opcional desmarcado.
+Validación de 0.4.1 conservada en docs/historico/0.4.1.
+
 ## Corrección 0.4.1: tamaño de almacén frente a contenido
 
 La captura de 0.4 muestra que GetAttachment ya responde; se detiene porque

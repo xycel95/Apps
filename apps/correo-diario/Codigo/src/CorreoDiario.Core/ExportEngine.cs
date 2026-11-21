@@ -17,17 +17,17 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
             throw new InvalidOperationException("Hay correos repetidos en la selección. Vuelve a cargar la lista.");
         var destination = Path.GetFullPath(options.Destination);
         if (!Directory.Exists(destination)) throw new DirectoryNotFoundException("La carpeta de destino no existe.");
-        var run = Path.Combine(destination, "CorreoDiario_" + DateTime.Now.ToString("yyyy.MM.dd_HH.mm.ss") + "_" + Guid.NewGuid().ToString("N")[..6]);
-        Directory.CreateDirectory(run);
+        var run = destination;
+        var receiptPath = ReserveReceiptPath(run);
         var receipt = new ExportReceipt { DeletionRequested = options.MoveToDeleted };
         var snapshots = new List<MailInfo>();
         var locked = new List<FileStream>();
-        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var existingNames = Directory.EnumerateFileSystemEntries(run).Select(Path.GetFileName).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
         var attachmentChecks = new Dictionary<(string Mail, string Attachment), SavedAttachment>();
         var attachmentCount = 0;
         try
         {
-            await SaveReceiptAsync(run, receipt);
+            await SaveReceiptAsync(receiptPath, receipt);
             for (var i = 0; i < selection.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -50,12 +50,11 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 var timestamp = TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local);
                 var address = mail.Sent ? mail.To : mail.From;
                 var prefix = $"{timestamp:yyyy-MM-dd_HH.mm}_{(mail.Sent ? "ENVIADO" : "RECIBIDO")}_{SafeName(address, 75)}";
-                var candidate = prefix;
-                for (var suffix = 2; !names.Add(candidate); suffix++) candidate = prefix + "_" + suffix.ToString("00");
-                prefix = candidate;
                 var files = new List<SavedFile>();
                 var savedAttachments = new List<SavedAttachment>();
-                files.Add(await SaveVerifiedAsync(run, prefix + "_CORREO.pdf", pdf, ct));
+                var reserved = ReserveMessage(run, prefix, mail.Attachments, existingNames, ct);
+                prefix = reserved.Prefix;
+                files.Add(await SaveVerifiedAsync(run, prefix + "_CORREO.pdf", pdf, ct, reserved.Pdf));
                 for (var a = 0; a < mail.Attachments.Count; a++)
                 {
                     var info = mail.Attachments[a];
@@ -69,13 +68,13 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 }
                 receipt.Messages.Add(new(mail.Id, mail.Revision, mail.Subject, files) { Attachments = savedAttachments });
                 snapshots.Add(mail);
-                await SaveReceiptAsync(run, receipt);
+                await SaveReceiptAsync(receiptPath, receipt);
             }
 
             // The deletion phase cannot begin until EVERY message has been exported,
             // every source snapshot is rechecked, and all saved bytes are re-read.
             receipt.Status = "VERIFICANDO";
-            await SaveReceiptAsync(run, receipt);
+            await SaveReceiptAsync(receiptPath, receipt);
             progress?.Report(new("Comprobando todos los PDF y adjuntos…", selection.Count, selection.Count));
             var verifiedMessages = 0;
             foreach (var mail in snapshots)
@@ -105,7 +104,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                     throw new InvalidDataException($"El archivo «{file.Name}» no supera la comprobación. No comienza el borrado.");
             }
             receipt.Status = "VERIFICADO";
-            await SaveReceiptAsync(run, receipt);
+            await SaveReceiptAsync(receiptPath, receipt);
             if (options.MoveToDeleted)
             {
                 if (snapshots.Any(m => string.IsNullOrEmpty(m.Revision)))
@@ -115,25 +114,25 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 {
                     ct.ThrowIfCancellationRequested();
                     receipt.MoveInProgress = mail.Id;
-                    await SaveReceiptAsync(run, receipt);
+                    await SaveReceiptAsync(receiptPath, receipt);
                     await source.MoveToDeletedAsync(mail, ct);
                     receipt.MovedToDeleted.Add(mail.Id);
                     receipt.MoveInProgress = null;
                     // Persist each move so an interrupted run reports partial completion accurately.
-                    await SaveReceiptAsync(run, receipt);
+                    await SaveReceiptAsync(receiptPath, receipt);
                 }
             }
             receipt.Status = "COMPLETADO";
-            await SaveReceiptAsync(run, receipt);
-            return new(run, snapshots.Count, attachmentCount, receipt.MovedToDeleted.Count);
+            await SaveReceiptAsync(receiptPath, receipt);
+            return new(run, snapshots.Count, attachmentCount, receipt.MovedToDeleted.Count, receiptPath);
         }
         catch (Exception ex)
         {
             receipt.Status = ex is OperationCanceledException ? "CANCELADO" : "ERROR";
             receipt.Error = ex.Message;
-            try { await SaveReceiptAsync(run, receipt); } catch (IOException) { }
+            try { await SaveReceiptAsync(receiptPath, receipt); } catch (IOException) { }
             var pending = receipt.MoveInProgress is null ? "" : "\nEl último movimiento no ha quedado confirmado. Comprueba el buzón antes de repetirlo.";
-            throw new ExportException($"{ex.Message}\n\nArchivos guardados: {run}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex);
+            throw new ExportException($"{ex.Message}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
         }
         finally { foreach (var stream in locked) await stream.DisposeAsync(); }
     }
@@ -167,12 +166,38 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
         PdfVerifier.Validate(bytes);
     }
 
-    private static async Task<SavedFile> SaveVerifiedAsync(string directory, string name, byte[] bytes, CancellationToken ct)
+    private static (string Prefix, FileStream Pdf) ReserveMessage(string directory, string prefix, IReadOnlyList<AttachmentInfo> attachments, HashSet<string> existing, CancellationToken ct)
+    {
+        for (var suffix = 1; ; suffix++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var candidate = suffix == 1 ? prefix : prefix + "_" + suffix.ToString("00");
+            var pdfName = candidate + "_CORREO.pdf";
+            // A previous partial export may have only an attachment. Keep a new
+            // message and all its attachments under a separate shared stem.
+            if (existing.Contains(pdfName) || existing.Any(name => name.StartsWith(candidate + "_ADJ", StringComparison.OrdinalIgnoreCase))) continue;
+            var group = new[] { pdfName }.Concat(attachments.Select((a, i) => candidate + $"_ADJ{i + 1:00}_" + SafeName(a.Name, 95))).ToArray();
+            if (group.Any(name => File.Exists(Path.Combine(directory, name)) || Directory.Exists(Path.Combine(directory, name)))) continue;
+            FileStream output;
+            try { output = CreateOutput(directory, pdfName); }
+            catch (IOException) when (File.Exists(Path.Combine(directory, pdfName)) || Directory.Exists(Path.Combine(directory, pdfName))) { continue; }
+            foreach (var name in group) existing.Add(name);
+            return (candidate, output);
+        }
+    }
+
+    private static FileStream CreateOutput(string directory, string name)
     {
         var path = Path.Combine(directory, name);
         if (path.Length > 245) throw new PathTooLongException("El destino es demasiado largo. Elige una carpeta más cercana a la raíz.");
+        return new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None, 65536, FileOptions.Asynchronous | FileOptions.WriteThrough);
+    }
+
+    private static async Task<SavedFile> SaveVerifiedAsync(string directory, string name, byte[] bytes, CancellationToken ct, FileStream? reserved = null)
+    {
+        var path = Path.Combine(directory, name);
         var expected = Hash(bytes);
-        await using (var output = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None, 65536, FileOptions.Asynchronous | FileOptions.WriteThrough))
+        await using (var output = reserved ?? CreateOutput(directory, name))
         {
             await output.WriteAsync(bytes, ct);
             await output.FlushAsync(ct);
@@ -185,17 +210,37 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
     }
 
     private static string Hash(byte[] data) => Convert.ToHexString(SHA256.HashData(data));
-    private static async Task SaveReceiptAsync(string directory, ExportReceipt receipt)
+    private static string ReserveReceiptPath(string directory)
     {
-        var path = Path.Combine(directory, "Comprobacion.json");
-        var temporary = path + ".tmp";
-        await File.WriteAllTextAsync(temporary, JsonSerializer.Serialize(receipt, JsonOptions));
-        File.Move(temporary, path, true);
+        while (true)
+        {
+            var name = "Comprobacion_" + DateTime.Now.ToString("yyyy.MM.dd_HH.mm.ss") + "_" + Guid.NewGuid().ToString("N")[..12] + ".json";
+            try { using var file = CreateOutput(directory, name); return Path.Combine(directory, name); }
+            catch (IOException) when (File.Exists(Path.Combine(directory, name)) || Directory.Exists(Path.Combine(directory, name))) { }
+        }
+    }
+
+    private static async Task SaveReceiptAsync(string path, ExportReceipt receipt)
+    {
+        var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        var ownsTemporary = false;
+        try
+        {
+            await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                ownsTemporary = true;
+                await JsonSerializer.SerializeAsync(output, receipt, JsonOptions);
+                await output.FlushAsync(); output.Flush(true);
+            }
+            File.Move(temporary, path, true);
+        }
+        finally { if (ownsTemporary) File.Delete(temporary); }
     }
 }
 
-public sealed class ExportException(string message, string directory, int moved, Exception inner) : Exception(message, inner)
+public sealed class ExportException(string message, string directory, int moved, Exception inner, string receiptPath = "") : Exception(message, inner)
 {
     public string Directory { get; } = directory;
     public int Moved { get; } = moved;
+    public string ReceiptPath { get; } = receiptPath;
 }

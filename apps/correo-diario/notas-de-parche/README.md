@@ -1,5 +1,16 @@
 # Notas de parche
 
+## 0.4.2-beta.1 · 21/11/2026
+
+- PDF y adjuntos directamente en la carpeta elegida, todos juntos.
+- Retiradas las subcarpetas creadas por cada ejecución.
+- Nombres repetidos con sufijo numérico común para el PDF y sus adjuntos;
+  se conservan archivos existentes y exportaciones parciales.
+- Registro de comprobación independiente por ejecución dentro del destino.
+- 75 pruebas, incluidas ejecuciones sucesivas/simultáneas, y flujo Windows
+  con cinco PDF y cinco adjuntos en un único destino sin subcarpetas.
+- Se mantienen Desde/Hasta, verificación de contenido y borrado desmarcado.
+
 ## 0.4.1-beta.1 · 21/11/2026
 
 - Corregida la comparación del tamaño del objeto de Outlook con el tamaño del

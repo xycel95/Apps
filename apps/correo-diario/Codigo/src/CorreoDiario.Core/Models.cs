@@ -56,7 +56,7 @@ public record SavedMessage(string Id, string Revision, string Subject, IReadOnly
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.1-beta";
+    public string Version { get; set; } = "0.4.2-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }
@@ -65,4 +65,4 @@ public sealed class ExportReceipt
     public string? MoveInProgress { get; set; }
     public string? Error { get; set; }
 }
-public record ExportResult(string Directory, int Messages, int Attachments, int Moved);
+public record ExportResult(string Directory, int Messages, int Attachments, int Moved, string ReceiptPath = "");

@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE = Path(os.environ.get('GITHUB_WORKSPACE', Path.cwd()))
 OUT = WORKSPACE / '.correo-release'
 OUT.mkdir(exist_ok=True)
-TAG = 'correo-diario-v0.4.1-beta.1'
-PREFIX = 'CorreoDiario_0.4.1_beta'
+TAG = 'correo-diario-v0.4.2-beta.1'
+PREFIX = 'CorreoDiario_0.4.2_beta'
 BASE = 'https://github.com/xycel95/Apps/releases/download/' + TAG + '/'
 RELEASE = 'https://github.com/xycel95/Apps/releases/tag/' + TAG
 CODE = ROOT / 'Codigo'
@@ -28,14 +28,14 @@ shutil.copyfile(EXE, OUT / (PREFIX + '.exe'))
 
 log = (OUT / 'PRUEBAS.txt').read_text(encoding='utf-8-sig')
 matches = re.findall(r'(\d+)/(\d+) comprobaciones superadas\.', log)
-assert matches and matches[-1][0] == matches[-1][1] == '71'
+assert matches and matches[-1][0] == matches[-1][1] == '75'
 report_path = OUT / 'VALIDACION-WINDOWS.json'
 report = json.loads(report_path.read_text(encoding='utf-8-sig'))
 assert report['native_startup_verified'] and not report['deletion_checkbox_default_checked']
 assert report['existing_browser_ui_verified'] and report['embedded_login_ui_absent'] and report['date_range_controls_verified']
 wire = (OUT / 'BROWSER-BRIDGE.txt').read_text(encoding='utf-8-sig')
 assert 'PASS Conexión local' in wire
-report['core_tests_passed'] = 71
+report['core_tests_passed'] = 75
 report['browser_wire_test_verified'] = True
 auth = (OUT / 'OUTLOOK-AUTH.txt').read_text(encoding='utf-8-sig')
 assert 'PASS Edge real y servicio HTTPS sintético' in auth
@@ -55,6 +55,9 @@ report['attachment_contract_verified'] = True
 assert 'tamaño de almacén 344, contenido 8 bytes; segunda lectura y SHA-256 verificados' in native_pdf
 report['outlook_store_size_semantics_verified'] = True
 report['attachment_source_readback_verified'] = True
+assert 'directamente en la carpeta elegida, sin subcarpetas' in native_pdf
+report['flat_output_directory_verified'] = True
+report['existing_output_preserved_verified'] = True
 report['limitation'] = 'Arranque Windows y flujo con Edge, servicio OWA sintético, intervalos de fechas inclusivos, contrato de adjuntos, búsquedas paginadas, PDF reales de WebView2, tamaños de almacén separados de contenido y segunda lectura de adjuntos comprobados. Pendientes la exportación con la cuenta real de Outlook y el perfil clásico del usuario.'
 report['prerelease'] = True
 report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
@@ -81,7 +84,7 @@ def info(name):
 
 manifest_path = ROOT / 'app.json'
 manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-manifest['version'] = '0.4.1-beta.1'
+manifest['version'] = '0.4.2-beta.1'
 manifest['release_date'] = '2026-11-21'
 manifest['summary'] = 'Exporta correos y adjuntos desde la pestaña de Outlook ya abierta en Edge o Chrome, con borrado opcional tras verificar.'
 manifest['authentication'] = {'flow': 'existing-browser-session', 'embedded_login': False, 'browser_extension_required': False, 'browser_user_permission_required': True, 'default_browser_profile': True, 'observed_request_authorization': True, 'session_credentials_persisted': False}
@@ -101,7 +104,7 @@ shutil.copyfile(OUT / 'SHA256SUMS.txt', ROOT / 'descargas' / 'SHA256SUMS.txt')
 shutil.copyfile(report_path, ROOT / 'docs' / report_path.name)
 (ROOT / 'descargas' / 'README.md').write_text('''# Descargar
 
-**CorreoDiario 0.4.1 beta · Windows de 64 bits.**
+**CorreoDiario 0.4.2 beta · Windows de 64 bits.**
 
 - [Descargar el ejecutable](%s)
 - [Descargar el ZIP con el ejecutable, guía y licencias](%s)
@@ -120,14 +123,16 @@ Para un solo día, pon la misma fecha en los dos campos. No hay un formulario
 de inicio de sesión dentro de CorreoDiario ni se instala una extensión.
 Si Outlook pide renovar la conexión, pulsa **Actualizar** en su pestaña y vuelve
 a **Usar esta pestaña**. Las cabeceras de sesión se mantienen solo en memoria.
+Los PDF y adjuntos se guardan directamente en la carpeta elegida. Si un nombre
+coincide, se añade un número y se conservan los archivos anteriores.
 El modo clásico sigue disponible para perfiles configurados en Outlook clásico.
 
-**Validación:** 71 pruebas automáticas, transporte WebSocket local, arranque
+**Validación:** 75 pruebas automáticas, transporte WebSocket local, arranque
 del EXE y flujo con Edge real frente a un servicio HTTPS sintético que exige
 autorización y valida el contrato de búsqueda. Incluye búsquedas por intervalo de fechas y
 carpeta, paginación, contrato de adjuntos, segunda lectura del contenido y PDF
-reales de WebView2. Queda pendiente la
-exportación con las cuentas reales del usuario. [Informe](../docs/VALIDACION-WINDOWS.json).
+reales de WebView2. El usuario indica que 0.4.1 ha funcionado; estas pruebas
+automáticas utilizan un servicio de correo sintético. [Informe](../docs/VALIDACION-WINDOWS.json).
 
 El borrado es opcional y mueve a Eliminados después de verificar toda la
 exportación. No vacía esa carpeta; puede seguir ocupando cuota.

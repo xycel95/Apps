@@ -12,7 +12,7 @@ internal static class AttachmentConsistencyChecks
                 using var run = new TestRun(); SetStoreSizes(run.Source, reported);
                 var result = await run.Run(false);
                 if (result.Attachments != 2 || result.Moved != 0 || run.Source.Downloads != 4) throw new Exception("Deben verificarse las dos lecturas sin movimientos");
-                using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(result.Directory, "Comprobacion.json")));
+                using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(result.ReceiptPath));
                 foreach (var message in receipt.RootElement.GetProperty("Messages").EnumerateArray())
                 {
                     var proof = message.GetProperty("Attachments")[0];
