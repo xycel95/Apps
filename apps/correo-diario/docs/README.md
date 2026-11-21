@@ -1,56 +1,65 @@
 # Cómo funciona y guía
 
-1. Descarga el programa, descomprime el ZIP si lo has elegido y abre
-   `CorreoDiario.exe`. Puedes mover ese EXE a una carpeta compartida.
-2. Elige una conexión:
-   - **Personal · Outlook / Microsoft 365:** abre la ventana e inicia sesión
-     en la página de Microsoft. Vuelve a CorreoDiario cuando veas tu bandeja.
-   - **Trabajo · Outlook web:** permite indicar la dirección cuando la tengas.
-   - **Outlook del equipo (clásico):** usa las cuentas ya configuradas en ese
-     Outlook, sin necesitar conocer el enlace del trabajo.
-3. Pulsa **Cargar carpetas**, marca las que quieras, elige la fecha y pulsa
-   **Buscar correos**. Por defecto aparece el día de hoy.
-4. Revisa los mensajes, elige el destino y pulsa **Guardar correos y adjuntos**.
+## Conectar tu pestaña de Outlook
 
-Para la primera prueba conserva el borrado desmarcado y revisa los archivos.
+1. Abre tu correo en tu **Edge o Chrome habitual**, con tu sesión ya iniciada.
+2. Ejecuta `CorreoDiario.exe` y elige ese navegador.
+3. Pulsa **Cómo conectar**. Abre la dirección que muestra la guía:
+   `edge://inspect/#remote-debugging` en Edge o
+   `chrome://inspect/#remote-debugging` en Chrome.
+4. En **Remote debugging / Depuración remota**, activa **Allow remote debugging
+   for this browser instance** (permitir la conexión para esta instancia).
+5. Vuelve a CorreoDiario y pulsa **Buscar pestañas**. El navegador pedirá
+   permiso: pulsa **Permitir** si quieres conectar el programa.
+6. Elige tu pestaña de Outlook y pulsa **Usar esta pestaña**.
 
-## Archivos guardados
+La cuenta personal y la laboral se eligen por su pestaña; no necesitas introducir
+su dirección de acceso en el programa. El inicio de sesión, si hiciera falta,
+se realiza siempre en el navegador habitual.
+
+El permiso técnico del navegador da acceso a su sesión, aunque CorreoDiario
+opera sobre la pestaña seleccionada. **Desconectar** termina la conexión sin
+cerrar el navegador ni cerrar tu cuenta. Puedes desactivar también la opción
+del navegador al terminar. La aplicación no cambia esa opción automáticamente.
+
+Si la opción no aparece o está bloqueada por la organización, esta conexión no
+está disponible en ese equipo. Esta beta usa las carpetas estándar de Edge y
+Chrome; no detecta perfiles portátiles ni rutas personalizadas.
+
+## Guardar correos y adjuntos
+
+Marca carpetas (incluido Enviados), elige la fecha, pulsa **Buscar correos**,
+revisa los mensajes y selecciona el destino. Después pulsa **Guardar correos
+ y adjuntos**. Para la primera prueba, deja el borrado desmarcado.
 
 ```text
 2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_CORREO.pdf
 2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_ADJ01_Solicitud.pdf
 ```
 
-Se crea una carpeta nueva por ejecución. Si coinciden hora y remitente, añade
-un número para evitar sobrescrituras. `Comprobacion.json` registra los archivos
-comprobados y los movimientos confirmados.
+Cada ejecución crea una carpeta nueva. Los nombres relacionan cada PDF con
+sus adjuntos y evitan sobrescrituras. `Comprobacion.json` registra el resultado.
 
 ## Borrado opcional
 
-La casilla **Eliminar del buzón después de verificar la exportación** está
-desmarcada al abrir y se desmarca después de cada operación.
+La casilla está desmarcada por defecto. Solo al marcarla se moverán mensajes a
+**Eliminados**, tras completar la exportación de todos los seleccionados,
+abrir y cotejar los PDF, verificar los archivos y volver a comprobar el origen.
+Si falla esa fase no comienza el movimiento de ningún correo.
 
-Si la marcas, primero termina la exportación completa: abre los PDF, coteja su
-texto, verifica los bytes guardados y comprueba otra vez el origen. Si falla
-esta fase no comienza el movimiento de ningún mensaje. Solo después empieza
-a mover los mensajes a **Eliminados**, sin vaciar esa carpeta.
+No se vacía Eliminados. Esa carpeta puede seguir ocupando cuota del buzón.
+Si se pierde la conexión durante los movimientos, puede haber algunos
+confirmados y otro sin confirmar; el aviso y el registro lo indican. Comprueba
+el buzón antes de repetirlo. No se reintentan movimientos automáticamente.
 
-Un corte de conexión durante los movimientos puede dejar algunos confirmados
-y otro sin confirmar. El aviso y el registro lo indican; comprueba el buzón
-antes de repetirlo. La aplicación no reintenta movimientos automáticamente.
+## Outlook clásico y límites
 
-## Sesiones y límites de la beta
+El modo **Outlook del equipo (clásico)** conserva el acceso al perfil local
+configurado; no controla el nuevo Outlook. No necesita una conexión del navegador.
 
-Las sesiones web se guardan en el perfil de Windows del usuario, fuera de la
-carpeta compartida. **Cerrar sesión** borra la sesión de esta aplicación.
-**Desconectar** en modo clásico no cierra el Outlook que estabas utilizando.
-
-El programa no incorpora un instalador de Edge WebView2. La conexión web puede
-ser rechazada por ciertas versiones de Outlook o políticas del servidor.
-Los PDF conservan el texto e imágenes adjuntas, con cambios posibles de estilo;
-no son una réplica visual exacta. No se descargan imágenes externas. Ante
-adjuntos inaccesibles o texto no verificable, conserva los mensajes originales.
-
-La [validación de la publicación](VALIDACION-WINDOWS.json), cuando esté
-disponible, distingue las pruebas automáticas, el arranque y lo que sigue
-pendiente: inicio de sesión, impresión real y cuentas del usuario.
+El componente WebView2 del equipo se utiliza solo para componer el PDF. Los PDF
+no son una réplica visual exacta, las imágenes externas no se descargan y algunos
+formatos, adjuntos enlazados o protegidos no pueden verificarse en esta beta.
+Consulta la [validación de Windows](VALIDACION-WINDOWS.json) y la
+[verificación de la descarga](VALIDACION-PUBLICACION.json) para distinguir las
+pruebas simuladas de la conexión e impresión con tus cuentas reales.

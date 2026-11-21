@@ -1,70 +1,34 @@
-CORREODIARIO 0.1 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.2 BETA — WINDOWS DE 64 BITS
 
-PRIMERA VERSIÓN DE PRUEBA
-El ejecutable está compilado. Las 23 pruebas de lógica de exportación,
-comprobación y movimiento han pasado con datos simulados. Falta comprobar
-la interfaz, la impresión y el inicio de sesión real en Windows con tus cuentas.
-La compatibilidad con el Outlook del trabajo no está confirmada.
+Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
+No inicia sesión en una ventana del programa ni requiere una extensión.
 
-CÓMO ABRIRLO
-Descomprime el ZIP y ejecuta CorreoDiario.exe. Ese es el único archivo que
-necesitas mover a una carpeta compartida para abrir la aplicación.
-El programa lleva .NET incorporado. La ventana web y la impresión requieren
-el componente Microsoft Edge WebView2 Runtime del equipo. No instala una
-extensión en el navegador ni un complemento en Outlook.
+1. Abre tu correo en el navegador habitual.
+2. Abre CorreoDiario.exe y elige Edge o Chrome.
+3. Pulsa «Cómo conectar» para habilitar la opción indicada del navegador.
+4. Pulsa «Buscar pestañas», acepta el aviso del navegador y elige Outlook.
+5. Pulsa «Usar esta pestaña», selecciona carpetas, fecha y destino y guarda.
 
-CÓMO CONECTAR
-• Personal · Outlook / Microsoft 365: abre la página oficial de Outlook en
-  una ventana de la aplicación. Inicia sesión y vuelve a CorreoDiario.
-• Trabajo · Outlook web: permite indicar la dirección de acceso cuando la tengas.
-• Outlook del equipo (clásico): utiliza las cuentas ya configuradas en el
-  Outlook clásico instalado. No requiere conocer el enlace del trabajo.
-  Esta conexión no controla el nuevo Outlook; para ese cliente utiliza la web.
+El permiso técnico del navegador permite acceder a su sesión. CorreoDiario
+opera sobre la pestaña que elijas y verifica su origen antes de actuar.
+Desconectar termina la conexión; tu cuenta y tu pestaña permanecen abiertas.
+No cambia la configuración del navegador automáticamente.
 
-Pulsa «Cargar carpetas», marca las que quieras, elige la fecha (por defecto,
-hoy) y pulsa «Buscar correos». Puedes seleccionar Entrada, Enviados u otras
-carpetas accesibles. Después elige el destino y guarda.
+En Edge, la opción está en edge://inspect/#remote-debugging; en Chrome, en
+chrome://inspect/#remote-debugging. Si no está disponible o la organización la
+bloquea, esta conexión no puede utilizarse en ese equipo. Solo se detecta el
+perfil estándar del navegador, no rutas de datos personalizadas.
 
-QUÉ GUARDA
-Un PDF por correo, con asunto, remitente, fecha, destinatarios, CC/CCO y cuerpo.
-Los adjuntos originales se guardan por separado. Los nombres comparten
-fecha, hora, tipo y dirección para poder relacionarlos:
-2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_CORREO.pdf
-2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_ADJ01_Solicitud.pdf
-Si coinciden hora y remitente, añade un número para no sobrescribir archivos.
-Cada ejecución crea una carpeta nueva y un archivo Comprobacion.json con
-el resultado y los archivos comprobados.
+El borrado está desmarcado por defecto. Si lo marcas, solo comienza después de
+exportar y verificar todos los mensajes y adjuntos. Mueve a Eliminados, sin
+vaciar esa carpeta. Puede seguir ocupando cuota. Un movimiento sin confirmar
+por un corte de conexión requiere comprobar el buzón antes de repetirlo.
 
-BORRADO OPCIONAL
-La casilla está desmarcada al abrir la aplicación y se desmarca después
-de cada operación. Solo si la marcas se moverán correos a Eliminados.
-Primero debe terminar la exportación de todos los correos seleccionados,
-abrir los PDF, comprobar su texto, verificar los archivos guardados y volver
-a comprobar que los correos originales no han cambiado. Si falla esta fase,
-no comienza el movimiento de ningún correo.
-La aplicación no vacía Eliminados ni elimina definitivamente.
-Mover a Eliminados puede seguir ocupando cuota del buzón.
+El EXE incluye .NET. Necesita Edge WebView2 Runtime para la composición local
+de los PDF; no se usa para iniciar sesión. El modo Outlook clásico sigue
+requiriendo un perfil ya configurado en ese cliente.
 
-Si la conexión se interrumpe durante los movimientos, puede haber algunos
-ya completados y otro sin confirmar. El aviso y Comprobacion.json lo indican;
-comprueba el buzón antes de repetir la operación. No reintenta movimientos
-automáticamente.
-
-LÍMITES DE ESTA BETA
-La conexión web depende de que la versión y la configuración de Outlook
-permitan acceder a su servicio web. Algunos servidores o políticas del
-centro pueden impedirlo. No es compatibilidad universal con cualquier Outlook.
-Los PDF se componen a partir del HTML y las cabeceras del mensaje; no son
-una reproducción exacta del cuadro de impresión de Outlook. Conservan
-texto e imágenes adjuntas. Las imágenes externas no se descargan y aparecen
-indicadas; las reglas de estilo avanzadas pueden cambiar de aspecto.
-Si no puede recuperar un adjunto completo, un correo protegido o un archivo
-enlazado a la nube, detiene la operación y conserva los correos originales.
-La comparación del texto del PDF es estricta: si no se puede comprobar por
-completo, detiene la operación. Puede rechazar algunos formatos complejos.
-
-SESIONES
-Las sesiones web se guardan en el perfil de Windows de quien ejecuta la
-aplicación, no junto al EXE de la carpeta compartida. «Cerrar sesión» borra
-la sesión web de esta aplicación. En Outlook clásico, «Desconectar» deja
-de acceder al perfil y no cierra el Outlook que estabas usando.
+Es una beta: la lógica y el transporte pueden probarse con datos simulados,
+pero falta comprobar la conexión con el navegador y las cuentas reales del
+usuario. Los PDF pueden variar de aspecto y no descargan imágenes externas.
+Los adjuntos o textos que no puedan verificarse detienen la operación.

@@ -1,6 +1,22 @@
 # Continuar CorreoDiario
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
+
+## Requisito vigente desde 0.2
+
+El usuario rechazó iniciar sesión dentro del programa. Quiere utilizar la
+ventana de navegador que ya tiene abierta. No reintroducir la autenticación
+integrada. La versión 0.2 conecta con Edge/Chrome usando el descriptor local
+DevToolsActivePort y el permiso del navegador; no instala una extensión ni
+abre un perfil nuevo. Selecciona una pestaña HTTPS de Outlook y comprueba su
+identidad/origen antes de actuar. No lee las bases de cookies o contraseñas.
+El permiso técnico es de sesión del navegador, aunque la aplicación solo opera
+sobre la pestaña elegida; mantener esa explicación clara en la guía.
+WebView2 queda únicamente para la composición local de PDF. Conservar el
+modo clásico y las garantías del borrado opcional. Los servidores laborales
+y el control del navegador real siguen pendientes hasta una prueba del usuario.
+
+## Antecedentes de la primera beta
 Leer este archivo, `app.json`, las notas y la revisión remota antes de editar.
 
 El usuario pidió un EXE que pueda abrir desde una carpeta compartida para

@@ -20,3 +20,11 @@ Aplicar las instrucciones del AGENTS.md de la raíz. Responder en español.
   retirar el disparador al terminar. No crear programaciones ni actualizadores.
 - `main` solo recibe la entrada del catálogo. No fusionar automáticamente la rama
   ni modificar otras aplicaciones o el repositorio privado de la web.
+
+- Requisito vigente: el usuario rechaza iniciar sesión dentro del programa.
+  Utilizar su pestaña de navegador ya abierta, con su permiso. No reintroducir
+  autenticación integrada ni crear un perfil de navegador distinto.
+- No cambiar la opción de depuración/conexión ni aceptar sus permisos por el
+  usuario. No copiar bases de cookies o contraseñas; no presentar el permiso
+  del navegador como limitado técnicamente a una sola pestaña.
+- La desconexión cierra solo el enlace de CorreoDiario, no la cuenta ni el navegador.

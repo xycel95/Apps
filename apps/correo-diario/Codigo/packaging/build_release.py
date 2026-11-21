@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE = Path(os.environ.get('GITHUB_WORKSPACE', Path.cwd()))
 OUT = WORKSPACE / '.correo-release'
 OUT.mkdir(exist_ok=True)
-TAG = 'correo-diario-v0.1.0-beta.1'
-PREFIX = 'CorreoDiario_0.1_beta'
+TAG = 'correo-diario-v0.2.0-beta.1'
+PREFIX = 'CorreoDiario_0.2_beta'
 BASE = 'https://github.com/xycel95/Apps/releases/download/' + TAG + '/'
 RELEASE = 'https://github.com/xycel95/Apps/releases/tag/' + TAG
 CODE = ROOT / 'Codigo'
@@ -28,11 +28,15 @@ shutil.copyfile(EXE, OUT / (PREFIX + '.exe'))
 
 log = (OUT / 'PRUEBAS.txt').read_text(encoding='utf-8-sig')
 matches = re.findall(r'(\d+)/(\d+) comprobaciones superadas\.', log)
-assert matches and matches[-1][0] == matches[-1][1] == '23'
+assert matches and matches[-1][0] == matches[-1][1] == '35'
 report_path = OUT / 'VALIDACION-WINDOWS.json'
 report = json.loads(report_path.read_text(encoding='utf-8-sig'))
 assert report['native_startup_verified'] and not report['deletion_checkbox_default_checked']
-report['core_tests_passed'] = 23
+assert report['existing_browser_ui_verified'] and report['embedded_login_ui_absent']
+wire = (OUT / 'BROWSER-BRIDGE.txt').read_text(encoding='utf-8-sig')
+assert 'PASS Conexión local' in wire
+report['core_tests_passed'] = 35
+report['browser_wire_test_verified'] = True
 report['prerelease'] = True
 report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
@@ -58,6 +62,11 @@ def info(name):
 
 manifest_path = ROOT / 'app.json'
 manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+manifest['version'] = '0.2.0-beta.1'
+manifest['release_date'] = '2026-11-21'
+manifest['summary'] = 'Exporta correos y adjuntos desde la pestaña de Outlook ya abierta en Edge o Chrome, con borrado opcional tras verificar.'
+manifest['authentication'] = {'flow': 'existing-browser-session', 'embedded_login': False, 'browser_extension_required': False, 'browser_user_permission_required': True, 'default_browser_profile': True}
+manifest['development_version'] = None
 manifest['download'] = manifest['executable'] = info(PREFIX + '.exe')
 manifest['zip_download'] = info(PREFIX + '.zip')
 manifest['source_download'] = info(PREFIX + '_fuentes.zip')
@@ -72,7 +81,7 @@ shutil.copyfile(OUT / 'SHA256SUMS.txt', ROOT / 'descargas' / 'SHA256SUMS.txt')
 shutil.copyfile(report_path, ROOT / 'docs' / report_path.name)
 (ROOT / 'descargas' / 'README.md').write_text('''# Descargar
 
-**CorreoDiario 0.1 beta · Windows de 64 bits.**
+**CorreoDiario 0.2 beta · Windows de 64 bits.**
 
 - [Descargar el ejecutable](%s)
 - [Descargar el ZIP con el ejecutable, guía y licencias](%s)
@@ -84,13 +93,16 @@ Si eliges el ZIP, descomprímelo y abre `CorreoDiario.exe`. Puedes mover ese
 EXE a una carpeta compartida. Requiere Microsoft Edge WebView2 Runtime en
 el equipo; .NET está incluido y no se instala una extensión en el navegador.
 
-El modo clásico requiere Outlook clásico instalado y con una cuenta
-configurada. El modo web admite indicar la dirección de Outlook.
+Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
+Pulsa **Cómo conectar** para ver la opción del navegador que debes activar y
+acepta su aviso de conexión. Después selecciona tu pestaña. No hay un formulario
+de inicio de sesión dentro de CorreoDiario ni se instala una extensión.
+El modo clásico sigue disponible para perfiles configurados en Outlook clásico.
 
-**Validación:** 23 pruebas automáticas superadas en Windows, arranque del EXE
-y casilla de borrado desmarcada comprobados. Siguen pendientes la impresión
-real, la autenticación y las cuentas personales/laborales. No se garantiza
-cualquier servidor de Outlook. [Informe](../docs/VALIDACION-WINDOWS.json).
+**Validación:** 35 pruebas automáticas, conexión WebSocket local simulada,
+arranque del EXE, selector de pestañas y borrado desmarcado comprobados en
+Windows. Quedan pendientes el permiso y la conexión con tu navegador real,
+la impresión y las cuentas personales/laborales. [Informe](../docs/VALIDACION-WINDOWS.json).
 
 El borrado es opcional y mueve a Eliminados después de verificar toda la
 exportación. No vacía esa carpeta; puede seguir ocupando cuota.

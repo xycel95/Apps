@@ -1,4 +1,4 @@
-# CorreoDiario 0.1 beta
+# CorreoDiario 0.2 beta
 
 Aplicación portátil de Windows para exportar correos del día a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
@@ -8,7 +8,7 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 23 comprobaciones de lógica superadas en Linux con fuentes simuladas.
+- 35 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
 - Pendientes: prueba real de la interfaz Windows, WebView2, autenticación de
   Outlook.com/Microsoft 365, correo laboral y automatización del Outlook clásico.
 - La comprobación de renderizado Chromium incluida no pudo ejecutarse en este
@@ -44,9 +44,9 @@ después de su respuesta. No pretende una transacción atómica entre varios cor
 
 ## Conexiones
 
-`OwaSource` usa JSON de Outlook Web Access dentro de la propia sesión HTTPS,
+`OwaSource` usa JSON de Outlook Web Access dentro de la pestaña HTTPS elegida por el usuario,
 sin registro de una aplicación Entra y sin extraer tokens bearer del navegador.
-La sesión web aporta sus cookies y, cuando está disponible, el encabezado CSRF
+El navegador aporta su propia sesión y, cuando está disponible, el encabezado CSRF
 X-OWA-CANARY. Esta interfaz interna no tiene garantía de estabilidad y puede no
 estar disponible para determinados servidores/cuentas; se informa del fallo.
 No se omiten controles de acceso, MFA, certificados ni políticas del servidor.
@@ -76,3 +76,24 @@ aparecen, se mantienen.
 - [cli-365, referencia pública del protocolo OWA](https://github.com/lc0rp/cli-365).
 
 Las licencias de las dependencias redistribuidas se incluyen en `licencias`.
+
+## Conexión al navegador abierto
+
+La ventana de autenticación integrada se ha retirado. `BrowserSocket` conecta
+solo con el WebSocket de bucle local publicado en `DevToolsActivePort` tras
+habilitar el permiso en Edge o Chrome. No arranca otro perfil, no utiliza Node,
+no lee bases de cookies o contraseñas y no cierra el navegador al desconectar.
+`BrowserTabSession` fija la pestaña y verifica el origen antes de cada operación,
+con una segunda comprobación dentro de la página. `OwaPageTransport` conserva
+las llamadas de correo en ese contexto. No pide ni recibe contraseñas.
+El permiso del navegador es más amplio que la pestaña: el producto limita las
+operaciones, pero no presenta el permiso técnico como limitado por el navegador.
+
+Prueba adicional del transporte local (requiere sockets, se ejecuta en Windows CI):
+
+```sh
+dotnet run --project tests/CorreoDiario.SafetyTests/CorreoDiario.SafetyTests.csproj -c Release -- --verify-browser-bridge
+```
+
+Referencias: [Edge, conexión a la instancia abierta](https://learn.microsoft.com/microsoft-edge/web-platform/devtools-mcp-server)
+y [Chrome, conexión con permiso del usuario](https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session).

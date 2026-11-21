@@ -11,6 +11,12 @@ if (args.Length == 2 && args[0] == "--verify-render")
     Console.WriteLine("PASS PDF generado con Chromium: coincide todo el texto visible.");
     return 0;
 }
+if (args.Length == 1 && args[0] == "--verify-browser-bridge")
+{
+    await BrowserWireCheck.RunAsync();
+    Console.WriteLine("PASS Conexión local: WebSocket, respuestas fragmentadas y peticiones simultáneas.");
+    return 0;
+}
 
 var tests = new (string Name, Func<Task> Test)[]
 {
@@ -138,7 +144,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {
