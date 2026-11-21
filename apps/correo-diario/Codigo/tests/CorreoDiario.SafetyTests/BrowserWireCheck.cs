@@ -33,7 +33,7 @@ internal static class BrowserWireCheck
     private static async Task ServeAsync(HttpListener listener, CancellationToken ct)
     {
         var context = await listener.GetContextAsync().WaitAsync(ct);
-        if (context.Request.Headers["User-Agent"] != "CorreoDiario/0.2") throw new Exception("Cliente sin identificar");
+        if (context.Request.Headers["User-Agent"] != "CorreoDiario/0.3") throw new Exception("Cliente sin identificar");
         var connection = await context.AcceptWebSocketAsync(null);
         using var socket = connection.WebSocket;
         var buffer = new byte[8192];

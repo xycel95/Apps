@@ -20,11 +20,12 @@ public interface IOutlookPage
     Task<JsonElement> EvaluateAsync(string expression, CancellationToken ct);
 }
 
-public sealed class BrowserTabSession : IOutlookPage
+public sealed class BrowserTabSession : IOutlookPage, IOutlookAuthorizationSource, IDisposable
 {
     private readonly IBrowserProtocol protocol;
     private readonly BrowserTab tab;
     private readonly string sessionId;
+    private OutlookAuthorizationCapture? authorization;
     public string Origin { get; }
 
     private BrowserTabSession(IBrowserProtocol protocol, BrowserTab tab, string sessionId)
@@ -48,8 +49,24 @@ public sealed class BrowserTabSession : IOutlookPage
         var session = new BrowserTabSession(protocol, tab, response.GetProperty("sessionId").GetString()
             ?? throw new InvalidDataException("No se ha podido conectar con esa pestaña."));
         await session.CheckOriginAsync(ct);
+        if (protocol is IBrowserEvents events)
+        {
+            var frames = await protocol.RequestAsync("Page.getFrameTree", new { }, session.sessionId, ct);
+            var frame = frames.GetProperty("frameTree").GetProperty("frame").GetProperty("id").GetString()
+                ?? throw new InvalidDataException("No se puede identificar la pestaña de Outlook.");
+            session.authorization = new(events, session.sessionId, frame, session.Origin);
+            try { await protocol.RequestAsync("Network.enable", new { }, session.sessionId, ct); }
+            catch { session.Dispose(); throw; }
+        }
         return session;
     }
+    public async Task<OutlookAuthorization?> GetAuthorizationAsync(bool waitForFreshRequest, CancellationToken ct)
+    {
+        await CheckOriginAsync(ct);
+        return authorization is null ? null : await authorization.GetAsync(waitForFreshRequest, ct);
+    }
+    public void InvalidateAuthorization(OutlookAuthorization value) => authorization?.Invalidate(value);
+    public void Dispose() { authorization?.Dispose(); authorization = null; }
 
     private async Task CheckOriginAsync(CancellationToken ct)
     {

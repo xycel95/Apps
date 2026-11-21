@@ -1,4 +1,4 @@
-# CorreoDiario 0.2 beta
+# CorreoDiario 0.3 beta
 
 Aplicación portátil de Windows para exportar correos del día a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
@@ -8,9 +8,11 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 35 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
-- Pendientes: prueba real de la interfaz Windows, WebView2, autenticación de
-  Outlook.com/Microsoft 365, correo laboral y automatización del Outlook clásico.
+- 50 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
+- La publicación comprueba el arranque nativo y la conexión a Edge real con un
+  servicio HTTPS sintético que exige autorización.
+- Pendientes: cuentas reales de Outlook.com/Microsoft 365, correo laboral,
+  impresión WebView2 y automatización del Outlook clásico.
 - La comprobación de renderizado Chromium incluida no pudo ejecutarse en este
   entorno por restricciones del proceso del navegador; no se contabiliza como
   una prueba superada. Las comprobaciones del lector PDF sí se ejecutaron.
@@ -45,9 +47,11 @@ después de su respuesta. No pretende una transacción atómica entre varios cor
 ## Conexiones
 
 `OwaSource` usa JSON de Outlook Web Access dentro de la pestaña HTTPS elegida por el usuario,
-sin registro de una aplicación Entra y sin extraer tokens bearer del navegador.
-El navegador aporta su propia sesión y, cuando está disponible, el encabezado CSRF
-X-OWA-CANARY. Esta interfaz interna no tiene garantía de estabilidad y puede no
+sin registro de una aplicación Entra. Observa solicitudes correctas del marco
+principal de esa pestaña y conserva en memoria únicamente las cabeceras de sesión
+permitidas y el destino OWA utilizado. No persiste esas credenciales. El navegador
+aporta sus cookies sin copiar sus bases de datos; las cabeceras Authorization y
+X-OWA-CANARY se reutilizan cuando las emplea la propia pestaña. Esta interfaz interna no tiene garantía de estabilidad y puede no
 estar disponible para determinados servidores/cuentas; se informa del fallo.
 No se omiten controles de acceso, MFA, certificados ni políticas del servidor.
 
@@ -60,7 +64,7 @@ aparecen, se mantienen.
 
 - `src/CorreoDiario.Core`: contratos, conexión OWA independiente de la interfaz,
   exportación, comprobación de PDF y recibos de movimientos.
-- `src/CorreoDiario.Windows`: interfaz, sesiones WebView2, impresión y Outlook clásico.
+- `src/CorreoDiario.Windows`: interfaz, impresión WebView2 y Outlook clásico.
 - `tests/CorreoDiario.SafetyTests`: pruebas de fallos, ausencia de borrado, cambios
   de origen, integridad, colisiones, paginación y cambio de hora.
 - `tests/renderer-check.cjs`: comprobación adicional del saneado HTML y del PDF
@@ -97,3 +101,19 @@ dotnet run --project tests/CorreoDiario.SafetyTests/CorreoDiario.SafetyTests.csp
 
 Referencias: [Edge, conexión a la instancia abierta](https://learn.microsoft.com/microsoft-edge/web-platform/devtools-mcp-server)
 y [Chrome, conexión con permiso del usuario](https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session).
+
+Prueba de regresión del 401 (Windows con Edge, sin cuenta real):
+
+```sh
+dotnet run --project tests/CorreoDiario.SafetyTests -c Release -- --verify-outlook-auth
+```
+
+El fixture crea un certificado local de corta duración, instala solo su CA pública
+en el almacén de confianza del usuario de CI y la elimina al terminar. Usa un
+perfil de Edge desechable únicamente en la prueba. Comprueba un 401 inicial,
+la observación de una solicitud nativa autorizada, la regeneración de
+X-OWA-UrlPostData y la lectura de Entrada/Enviados. No desactiva TLS ni accede a
+cuentas del usuario. El programa distribuido nunca crea ese perfil.
+
+Una lectura rechazada por 401/440 puede esperar una autorización renovada y
+repetirse una sola vez. MoveItem nunca se reintenta, ni siquiera tras un 401.

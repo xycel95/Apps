@@ -1,6 +1,6 @@
 # Descripción del programa
 
-CorreoDiario 0.2 beta trabaja con la sesión de Outlook que ya tienes abierta
+CorreoDiario 0.3 beta trabaja con la sesión de Outlook que ya tienes abierta
 **en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
 una, seleccionar carpetas y fecha, y exportar los mensajes a PDF con sus
 adjuntos originales separados. Conserva el modo alternativo de Outlook clásico.
@@ -8,7 +8,9 @@ adjuntos originales separados. Conserva el modo alternativo de Outlook clásico.
 El acceso web se realiza con el permiso que solicita Edge o Chrome. No hay
 una pantalla de inicio de sesión dentro del programa. No se instala una extensión,
 no se lanza un perfil de navegador nuevo y no se copian bases de contraseñas
-ni cookies de tu perfil.
+ni cookies de tu perfil. Reutiliza las cabeceras de autorización de solicitudes
+correctas de la pestaña elegida; se mantienen solo en memoria y se descartan
+al desconectar. Si es necesario, pide pulsar Actualizar en Outlook.
 
 ## Conexión con tu navegador
 

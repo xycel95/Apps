@@ -27,7 +27,7 @@ public record SavedFile(string Name, long Length, string Sha256);
 public record SavedMessage(string Id, string Revision, string Subject, IReadOnlyList<SavedFile> Files);
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.2.0-beta";
+    public string Version { get; set; } = "0.3.0-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }

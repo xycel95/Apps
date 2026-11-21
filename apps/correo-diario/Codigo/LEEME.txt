@@ -1,4 +1,4 @@
-CORREODIARIO 0.2 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.3 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -7,12 +7,15 @@ No inicia sesión en una ventana del programa ni requiere una extensión.
 2. Abre CorreoDiario.exe y elige Edge o Chrome.
 3. Pulsa «Cómo conectar» para habilitar la opción indicada del navegador.
 4. Pulsa «Buscar pestañas», acepta el aviso del navegador y elige Outlook.
-5. Pulsa «Usar esta pestaña», selecciona carpetas, fecha y destino y guarda.
+5. Pulsa «Usar esta pestaña». Si lo pide, pulsa Actualizar en Outlook y repite
+   «Usar esta pestaña». Selecciona carpetas, fecha y destino y guarda.
 
 El permiso técnico del navegador permite acceder a su sesión. CorreoDiario
 opera sobre la pestaña que elijas y verifica su origen antes de actuar.
 Desconectar termina la conexión; tu cuenta y tu pestaña permanecen abiertas.
-No cambia la configuración del navegador automáticamente.
+No cambia la configuración del navegador automáticamente. Las cabeceras de
+autorización se toman de solicitudes correctas de esa pestaña y se mantienen
+solo en memoria; se descartan al desconectar.
 
 En Edge, la opción está en edge://inspect/#remote-debugging; en Chrome, en
 chrome://inspect/#remote-debugging. Si no está disponible o la organización la
@@ -29,6 +32,6 @@ de los PDF; no se usa para iniciar sesión. El modo Outlook clásico sigue
 requiriendo un perfil ya configurado en ese cliente.
 
 Es una beta: la lógica y el transporte pueden probarse con datos simulados,
-pero falta comprobar la conexión con el navegador y las cuentas reales del
-usuario. Los PDF pueden variar de aspecto y no descargan imágenes externas.
+y con Edge real frente a un servicio HTTPS sintético; falta comprobar las
+cuentas reales del usuario y la impresión. Los PDF pueden variar de aspecto y no descargan imágenes externas.
 Los adjuntos o textos que no puedan verificarse detienen la operación.

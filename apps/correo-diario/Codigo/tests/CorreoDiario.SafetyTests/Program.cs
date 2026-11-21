@@ -17,6 +17,12 @@ if (args.Length == 1 && args[0] == "--verify-browser-bridge")
     Console.WriteLine("PASS Conexión local: WebSocket, respuestas fragmentadas y peticiones simultáneas.");
     return 0;
 }
+if (args.Length == 1 && args[0] == "--verify-outlook-auth")
+{
+    await BrowserAuthCheck.RunAsync();
+    Console.WriteLine("PASS Edge real y servicio HTTPS sintético: 401 sin autorización, contexto observado y lectura de carpetas autenticada.");
+    return 0;
+}
 
 var tests = new (string Name, Func<Task> Test)[]
 {
@@ -144,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {

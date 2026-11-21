@@ -104,5 +104,6 @@
     "browser_extension_required": false,
     "browser_user_permission_required": true,
     "default_browser_profile": true
-  }
+  },
+  "development_version": "0.3.0-beta.1"
 }

@@ -2,6 +2,25 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.3: error 401 reportado por el usuario
+
+La versión 0.2 detectó la pestaña real, pero Outlook rechazó la lectura con 401.
+El transporte usaba cookies/CSRF y no reutilizaba Authorization ni el contexto
+real de servicio. No atribuir el fallo a una contraseña del usuario.
+
+0.3 observa solicitudes OWA correctas exclusivamente de la sesión CDP y marco
+principal elegidos. Reutiliza Authorization (Bearer/MSAuth1.0), cabeceras de
+sesión permitidas y destino HTTPS observado; no persiste credenciales ni copia
+bases del perfil. El permiso del navegador sigue siendo más amplio que la
+pestaña. Una lectura puede reintentarse una vez tras autorización renovada;
+MoveItem nunca se reintenta. La sesión se conserva tras un error de carga para
+que Actualizar en Outlook permita repetir Usar esta pestaña. No forzar recargas.
+
+50 comprobaciones de lógica y una regresión con Edge real/servicio HTTPS
+sintético; distinguir de autenticación contra Microsoft, exportación y cuentas
+reales, que siguen pendientes. Corregidos contraste de botones deshabilitados,
+texto de casilla y espacio del subtítulo. Conservar informes históricos de 0.1/0.2.
+
 ## Requisito vigente desde 0.2
 
 El usuario rechazó iniciar sesión dentro del programa. Quiere utilizar la

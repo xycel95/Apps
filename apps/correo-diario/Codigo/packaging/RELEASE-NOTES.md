@@ -1,19 +1,19 @@
-CorreoDiario 0.2 beta usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
+# CorreoDiario 0.3 beta
 
-- Retirado el inicio de sesión dentro del programa.
-- Selector de navegador y pestaña, con permiso solicitado por el propio navegador.
-- Guía para habilitar la conexión de Edge o Chrome sin extensión ni nueva sesión.
-- Conexión local; desconectar no cierra tu pestaña ni tu cuenta.
-- Comprobaciones del origen y de la pestaña antes de operar.
-- Se conserva la exportación de PDF y adjuntos y el borrado opcional tras verificar todo.
+Corrige la conexión que detectaba la pestaña de Outlook pero devolvía 401 al
+leer las carpetas. Reutiliza la autorización de solicitudes correctas de esa
+pestaña, solo en memoria. Mantiene el navegador habitual, sin inicio de sesión
+dentro del programa ni extensión.
 
-Primera prueba: abre tu correo en Edge, pulsa «Cómo conectar» en CorreoDiario,
-activa la opción indicada, busca pestañas, acepta «Permitir» en Edge y elige Outlook.
+Si pide renovar la conexión, pulsa **Actualizar** en Outlook y vuelve a
+**Usar esta pestaña**. Corregido también el contraste de los textos y el subtítulo.
 
-Requiere un navegador que ofrezca esa opción y Edge WebView2 Runtime para
-componer los PDF localmente. El permiso técnico da acceso a la sesión del
-navegador; la aplicación opera sobre la pestaña que elijas. Las políticas del
-centro pueden impedir la conexión.
+El borrado sigue desmarcado y solo mueve a Eliminados tras verificar toda la
+exportación. No se reintentan movimientos ni se vacía Eliminados.
 
-Beta: comprobados la lógica, el transporte local simulado y el arranque de
-Windows; pendiente conectar con el navegador y los correos reales del usuario.
+Validación: 50 pruebas de lógica, transporte WebSocket, arranque nativo Windows y
+conexión a Edge real con servicio HTTPS sintético que reproduce 401 y exige
+cabeceras de autorización. Pendientes las cuentas reales y la impresión del usuario.
+
+Descarga el EXE o el ZIP. Windows x64; .NET incluido; necesita WebView2 Runtime
+para componer los PDF. Consulta SHA256SUMS.txt para comprobar integridad.

@@ -11,6 +11,11 @@ public interface IBrowserProtocol
     Task<JsonElement> RequestAsync(string method, object? parameters, string? sessionId, CancellationToken ct);
 }
 
+public interface IBrowserEvents
+{
+    event Action<string, string?, JsonElement>? EventReceived;
+}
+
 public static class BrowserEndpoint
 {
     // Read only this connection descriptor. Never read browser cookies, passwords,
@@ -28,8 +33,9 @@ public static class BrowserEndpoint
         Regex.IsMatch(endpoint.AbsolutePath, @"^/devtools/browser/[A-Za-z0-9_-]+$");
 }
 
-public sealed class BrowserSocket : IBrowserProtocol, IDisposable
+public sealed class BrowserSocket : IBrowserProtocol, IBrowserEvents, IDisposable
 {
+    public event Action<string, string?, JsonElement>? EventReceived;
     private readonly ClientWebSocket socket = new();
     private readonly SemaphoreSlim sending = new(1, 1);
     private readonly ConcurrentDictionary<long, TaskCompletionSource<JsonElement>> pending = new();
@@ -41,7 +47,7 @@ public sealed class BrowserSocket : IBrowserProtocol, IDisposable
     public async Task ConnectAsync(Uri endpoint, CancellationToken ct)
     {
         if (!BrowserEndpoint.IsLocal(endpoint)) throw new InvalidOperationException("La conexión debe pertenecer al navegador de este equipo.");
-        socket.Options.SetRequestHeader("User-Agent", "CorreoDiario/0.2");
+        socket.Options.SetRequestHeader("User-Agent", "CorreoDiario/0.3");
         socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct, lifetime.Token);
         timeout.CancelAfter(TimeSpan.FromSeconds(90));
@@ -57,7 +63,7 @@ public sealed class BrowserSocket : IBrowserProtocol, IDisposable
     public async Task<JsonElement> RequestAsync(string method, object? parameters, string? sessionId, CancellationToken ct)
     {
         if (method is not ("Browser.getVersion" or "Target.getTargets" or "Target.getTargetInfo" or
-            "Target.attachToTarget" or "Target.detachFromTarget" or "Runtime.evaluate"))
+            "Target.attachToTarget" or "Target.detachFromTarget" or "Runtime.evaluate" or "Page.getFrameTree" or "Network.enable" or "Network.disable"))
             throw new InvalidOperationException("Operación de navegador no permitida.");
         if (disposed || socket.State != WebSocketState.Open) throw new InvalidOperationException("Se ha perdido la conexión con el navegador.");
         var id = Interlocked.Increment(ref sequence);
@@ -96,6 +102,17 @@ public sealed class BrowserSocket : IBrowserProtocol, IDisposable
                     if (data.Length > 512L * 1024 * 1024) throw new InvalidDataException("La respuesta del correo es demasiado grande para procesarla.");
                 } while (!frame.EndOfMessage);
                 using var message = JsonDocument.Parse(data.ToArray());
+                if (message.RootElement.TryGetProperty("method", out var method) && method.ValueKind == JsonValueKind.String &&
+                    message.RootElement.TryGetProperty("params", out var parameters))
+                {
+                    var session = message.RootElement.TryGetProperty("sessionId", out var sid) ? sid.GetString() : null;
+                    // Transient events are consumed synchronously. Never log or persist
+                    // protocol messages: request events can contain session credentials.
+                    if (EventReceived is { } handlers)
+                        foreach (Action<string, string?, JsonElement> handler in handlers.GetInvocationList())
+                            try { handler(method.GetString()!, session, parameters); } catch (Exception) { }
+                    continue;
+                }
                 if (!message.RootElement.TryGetProperty("id", out var id) || !id.TryGetInt64(out var number) || !pending.TryGetValue(number, out var completion)) continue;
                 if (message.RootElement.TryGetProperty("error", out _))
                     completion.TrySetException(new InvalidOperationException("El navegador ha rechazado la operación. Vuelve a seleccionar la pestaña de Outlook."));
@@ -117,6 +134,7 @@ public sealed class BrowserSocket : IBrowserProtocol, IDisposable
     {
         if (disposed) return;
         disposed = true;
+        EventReceived = null;
         lifetime.Cancel();
         socket.Abort();
         socket.Dispose();

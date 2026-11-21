@@ -12,6 +12,8 @@
 5. Vuelve a CorreoDiario y pulsa **Buscar pestañas**. El navegador pedirá
    permiso: pulsa **Permitir** si quieres conectar el programa.
 6. Elige tu pestaña de Outlook y pulsa **Usar esta pestaña**.
+7. Si pide renovar la conexión, pulsa **Actualizar** en Outlook y vuelve a
+   **Usar esta pestaña**. Mantén seleccionada la misma pestaña.
 
 La cuenta personal y la laboral se eligen por su pestaña; no necesitas introducir
 su dirección de acceso en el programa. El inicio de sesión, si hiciera falta,
@@ -19,7 +21,9 @@ se realiza siempre en el navegador habitual.
 
 El permiso técnico del navegador da acceso a su sesión, aunque CorreoDiario
 opera sobre la pestaña seleccionada. **Desconectar** termina la conexión sin
-cerrar el navegador ni cerrar tu cuenta. Puedes desactivar también la opción
+cerrar el navegador ni cerrar tu cuenta. Las cabeceras de autorización de las
+solicitudes correctas de Outlook se conservan solo en memoria y se descartan al
+desconectar. Puedes desactivar también la opción
 del navegador al terminar. La aplicación no cambia esa opción automáticamente.
 
 Si la opción no aparece o está bloqueada por la organización, esta conexión no

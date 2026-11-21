@@ -9,23 +9,24 @@ internal sealed class MainForm : Form
     private readonly Color surface = Color.FromArgb(30, 41, 59);
     private readonly ComboBox account = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 250 };
     private readonly ComboBox tabs = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 730 };
-    private readonly Button findTabs = new() { Text = "Buscar pestañas", AutoSize = true };
-    private readonly Button connectTab = new() { Text = "Usar esta pestaña", AutoSize = true, Enabled = false };
-    private readonly Button disconnect = new() { Text = "Desconectar", AutoSize = true, Enabled = false };
-    private readonly Button help = new() { Text = "Cómo conectar", AutoSize = true };
+    private readonly Button findTabs = new ThemedButton() { Text = "Buscar pestañas", AutoSize = true };
+    private readonly Button connectTab = new ThemedButton() { Text = "Usar esta pestaña", AutoSize = true, Enabled = false };
+    private readonly Button disconnect = new ThemedButton() { Text = "Desconectar", AutoSize = true, Enabled = false };
+    private readonly Button help = new ThemedButton() { Text = "Cómo conectar", AutoSize = true };
     private readonly CheckedListBox folders = new() { Dock = DockStyle.Fill, CheckOnClick = true, BorderStyle = BorderStyle.None };
     private readonly DateTimePicker date = new() { Format = DateTimePickerFormat.Short, Width = 130 };
-    private readonly Button list = new() { Text = "Buscar correos", AutoSize = true, Enabled = false };
+    private readonly Button list = new ThemedButton() { Text = "Buscar correos", AutoSize = true, Enabled = false };
     private readonly DataGridView messages = new() { Dock = DockStyle.Fill, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, BackgroundColor = Color.FromArgb(30, 41, 59), BorderStyle = BorderStyle.None };
     private readonly TextBox destination = new() { Dock = DockStyle.Fill, ReadOnly = true, PlaceholderText = "Elige dónde guardar los PDF y los adjuntos" };
-    private readonly Button choose = new() { Text = "Elegir carpeta", AutoSize = true };
-    private readonly CheckBox delete = new() { Text = "Eliminar del buzón después de verificar la exportación", AutoSize = true, Checked = false };
-    private readonly Button export = new() { Text = "Guardar correos y adjuntos", AutoSize = true, Enabled = false };
-    private readonly Button cancel = new() { Text = "Cancelar", AutoSize = true, Enabled = false };
-    private readonly Button openResult = new() { Text = "Abrir resultado", AutoSize = true, Enabled = false };
+    private readonly Button choose = new ThemedButton() { Text = "Elegir carpeta", AutoSize = true };
+    private readonly CheckBox delete = new ThemedCheckBox() { Text = "Eliminar del buzón después de verificar la exportación", AutoSize = true, Checked = false };
+    private readonly Button export = new ThemedButton() { Text = "Guardar correos y adjuntos", AutoSize = true, Enabled = false };
+    private readonly Button cancel = new ThemedButton() { Text = "Cancelar", AutoSize = true, Enabled = false };
+    private readonly Button openResult = new ThemedButton() { Text = "Abrir resultado", AutoSize = true, Enabled = false };
     private readonly Label status = new() { Text = "Abre tu correo en el navegador y pulsa «Buscar pestañas».", AutoSize = false, Dock = DockStyle.Fill };
     private readonly ProgressBar progress = new() { Dock = DockStyle.Fill, Height = 8 };
     private BrowserSocket? browser;
+    private BrowserTabSession? selectedSession;
     private IMailSource? source;
     private PdfRenderer? renderer;
     private CancellationTokenSource? operation;
@@ -33,7 +34,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.2 beta";
+        Text = "CorreoDiario · 0.3 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -41,12 +42,13 @@ internal sealed class MainForm : Form
         BackColor = background;
         ForeColor = Color.FromArgb(235, 241, 250);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(26, 20, 26, 18), ColumnCount = 1, RowCount = 8 };
-        foreach (var height in new[] { 66F, 124F, 48F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
+        foreach (var height in new[] { 82F, 124F, 48F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
         layout.RowStyles.Add(new(SizeType.Percent, 100));
         foreach (var height in new[] { 46F, 47F, 45F, 52F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
         var title = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
-        title.Controls.Add(new Label { Text = "CorreoDiario", Font = new("Segoe UI Semibold", 25), AutoSize = true });
-        title.Controls.Add(new Label { Text = "Guarda tu correo usando la pestaña que ya tienes abierta.", AutoSize = true, ForeColor = Color.FromArgb(156, 174, 197) });
+        title.RowStyles.Add(new(SizeType.Absolute, 48)); title.RowStyles.Add(new(SizeType.Absolute, 24));
+        title.Controls.Add(new Label { Text = "CorreoDiario", Font = new("Segoe UI Semibold", 25), AutoSize = false, Dock = DockStyle.Fill, Margin = Padding.Empty });
+        title.Controls.Add(new Label { Text = "Guarda tu correo usando la pestaña que ya tienes abierta.", AutoSize = false, Dock = DockStyle.Fill, Margin = Padding.Empty, ForeColor = Color.FromArgb(156, 174, 197) });
         layout.Controls.Add(title, 0, 0);
         account.Items.AddRange(["Microsoft Edge · ya abierto", "Google Chrome · ya abierto", "Outlook del equipo (clásico)"]);
         account.SelectedIndex = 0;
@@ -58,9 +60,9 @@ internal sealed class MainForm : Form
         connection.Controls.Add(new Label { Text = "La primera vez, pulsa «Cómo conectar». El navegador te pedirá permitir la conexión; después elige tu pestaña de Outlook.", AutoSize = true, ForeColor = Color.FromArgb(156, 174, 197), Margin = new(3, 5, 0, 0) });
         layout.Controls.Add(connection, 0, 1);
         var filter = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new(0, 4, 0, 4) };
-        var today = new Button { Text = "Hoy", AutoSize = true };
-        var all = new Button { Text = "Marcar todos", AutoSize = true };
-        var none = new Button { Text = "Desmarcar todos", AutoSize = true };
+        var today = new ThemedButton { Text = "Hoy", AutoSize = true };
+        var all = new ThemedButton { Text = "Marcar todos", AutoSize = true };
+        var none = new ThemedButton { Text = "Desmarcar todos", AutoSize = true };
         filter.Controls.AddRange([new Label { Text = "Fecha", AutoSize = true, Margin = new(0, 7, 8, 0) }, date, today, list, all, none]);
         layout.Controls.Add(filter, 0, 2);
         var split = new SplitContainer { Size = new(1180, 430), Dock = DockStyle.Fill, SplitterDistance = 245, FixedPanel = FixedPanel.Panel1, BackColor = background };
@@ -137,13 +139,15 @@ internal sealed class MainForm : Form
         connectTab.Click += async (_, _) => await SafeAsync(async ct =>
         {
             if (browser is null || tabs.SelectedItem is not BrowserTab selected) throw new InvalidOperationException("Selecciona primero una pestaña de Outlook.");
-            var session = await BrowserTabSession.AttachAsync(browser, selected, ct);
-            source = new OwaSource(new OwaPageTransport(session));
+            selectedSession ??= await BrowserTabSession.AttachAsync(browser, selected, ct);
+            source = new OwaSource(new OwaPageTransport(selectedSession));
+            status.Text = "Leyendo las carpetas. Si tarda, pulsa Actualizar en tu pestaña de Outlook para renovar la conexión.";
             await LoadFoldersAsync(ct);
         });
         tabs.SelectedIndexChanged += (_, _) =>
         {
             if (source is not OutlookClassicSource) { source = null; folders.Items.Clear(); messages.Rows.Clear(); }
+            selectedSession?.Dispose(); selectedSession = null;
             delete.Checked = false; RefreshButtons();
         };
         disconnect.Click += (_, _) => { Disconnect(); status.Text = "Desconectado. Tu correo continúa abierto en el navegador."; RefreshButtons(); };
@@ -200,8 +204,8 @@ internal sealed class MainForm : Form
 
     private async Task LoadFoldersAsync(CancellationToken ct)
     {
-        var result = await source!.FoldersAsync(ct);
         folders.Items.Clear(); messages.Rows.Clear();
+        var result = await source!.FoldersAsync(ct);
         foreach (var folder in result) folders.Items.Add(new FolderLabel(folder), result.IndexOfReference(folder) < 2);
         var notice = source is OwaSource web ? web.OtherFoldersNotice : (source as OutlookClassicSource)?.Notice;
         status.Text = notice ?? $"Conexión preparada. {result.Count} carpetas disponibles.";
@@ -209,6 +213,7 @@ internal sealed class MainForm : Form
     private void Disconnect()
     {
         (source as IDisposable)?.Dispose(); source = null;
+        selectedSession?.Dispose(); selectedSession = null;
         browser?.Dispose(); browser = null;
         tabs.Items.Clear(); folders.Items.Clear(); messages.Rows.Clear();
         delete.Checked = false;
@@ -246,6 +251,7 @@ internal sealed class MainForm : Form
         foreach (Control c in parent.Controls)
         {
             if (c is Button b) { b.FlatStyle = FlatStyle.Flat; b.FlatAppearance.BorderSize = 0; b.BackColor = Color.FromArgb(46, 64, 87); b.ForeColor = ForeColor; b.Padding = new(10, 4, 10, 4); b.Cursor = Cursors.Hand; }
+            else if (c is CheckBox) { c.BackColor = background; c.ForeColor = ForeColor; }
             else if (c is TextBox or ComboBox or CheckedListBox) { c.BackColor = surface; c.ForeColor = ForeColor; }
             if (c is not DataGridView) PaintControls(c);
         }

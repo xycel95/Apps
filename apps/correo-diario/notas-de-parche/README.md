@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 0.3.0-beta.1 · 21/11/2026
+
+- Corregida la causa de autorización detectada tras el error 401: se reutilizan
+  las cabeceras y el destino de solicitudes correctas de la pestaña elegida.
+- Credenciales de sesión solo en memoria; se descartan al desconectar.
+- Renovación mediante Actualizar en Outlook, conservando la pestaña seleccionada.
+- Una lectura puede repetirse una vez con autorización renovada. Los movimientos
+  nunca se reintentan automáticamente.
+- Mejor contraste de botones deshabilitados y casilla; subtítulo sin recorte.
+- 50 pruebas de lógica y regresión con Edge real frente a un servicio HTTPS
+  sintético que exige autorización. Las cuentas y la impresión reales siguen
+  pendientes de comprobar.
+
 ## 0.2.0-beta.1 · 21/11/2026
 
 - Retirado el inicio de sesión dentro del programa.

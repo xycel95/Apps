@@ -23,9 +23,9 @@ internal static class BrowserHelp
             BackColor = Color.FromArgb(30, 41, 59), ForeColor = Color.White };
         body.Controls.Add(url, 0, 1);
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new(0, 8, 0, 0) };
-        var open = new Button { Text = "Abrir esa opción", AutoSize = true };
-        var copy = new Button { Text = "Copiar dirección", AutoSize = true };
-        var close = new Button { Text = "Entendido", AutoSize = true, DialogResult = DialogResult.OK };
+        var open = new ThemedButton { Text = "Abrir esa opción", AutoSize = true };
+        var copy = new ThemedButton { Text = "Copiar dirección", AutoSize = true };
+        var close = new ThemedButton { Text = "Entendido", AutoSize = true, DialogResult = DialogResult.OK };
         foreach (var button in new[] { open, copy, close })
         {
             button.FlatStyle = FlatStyle.Flat; button.FlatAppearance.BorderSize = 0;

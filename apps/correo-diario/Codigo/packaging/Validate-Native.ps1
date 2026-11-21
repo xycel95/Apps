@@ -56,7 +56,7 @@ try {
     real_browser_attachment_verified = $false
     outlook_profile_verified = $false
     user_mail_accessed = $false
-    limitation = 'Arranque, interfaz de pestañas y borrado desmarcado; pendiente la autorización del navegador real, la impresión y las cuentas del usuario.'
+    limitation = 'Arranque e interfaz comprobados; el informe de empaquetado añade la prueba autenticada con Edge y servicio HTTPS sintético. Pendientes las cuentas y la impresión del usuario.'
   }
   $report | ConvertTo-Json -Depth 6 | Set-Content -Encoding utf8 .correo-release/VALIDACION-WINDOWS.json
   Write-Host 'PASS Arranque Windows: selector de pestañas, sin inicio de sesión integrado y borrado desmarcado.'

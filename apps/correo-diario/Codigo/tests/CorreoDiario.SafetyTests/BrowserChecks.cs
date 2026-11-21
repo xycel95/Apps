@@ -83,7 +83,7 @@ internal static class BrowserChecks
         {
             var page = new FakePage();
             await new OwaPageTransport(page).ActionAsync("GetFolder", new { }, default);
-            Require(page.Script.Contains("credentials:'same-origin'"), "Sesión del navegador");
+            Require(page.Script.Contains("'same-origin'"), "Sesión del navegador");
             Require(!page.Script.Contains("Authorization", StringComparison.OrdinalIgnoreCase), "Sin extracción de bearer");
             Require(page.Script.Contains("candidates.includes(selected)"), "Rutas de servicio limitadas");
         });

@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE = Path(os.environ.get('GITHUB_WORKSPACE', Path.cwd()))
 OUT = WORKSPACE / '.correo-release'
 OUT.mkdir(exist_ok=True)
-TAG = 'correo-diario-v0.2.0-beta.1'
-PREFIX = 'CorreoDiario_0.2_beta'
+TAG = 'correo-diario-v0.3.0-beta.1'
+PREFIX = 'CorreoDiario_0.3_beta'
 BASE = 'https://github.com/xycel95/Apps/releases/download/' + TAG + '/'
 RELEASE = 'https://github.com/xycel95/Apps/releases/tag/' + TAG
 CODE = ROOT / 'Codigo'
@@ -28,15 +28,21 @@ shutil.copyfile(EXE, OUT / (PREFIX + '.exe'))
 
 log = (OUT / 'PRUEBAS.txt').read_text(encoding='utf-8-sig')
 matches = re.findall(r'(\d+)/(\d+) comprobaciones superadas\.', log)
-assert matches and matches[-1][0] == matches[-1][1] == '35'
+assert matches and matches[-1][0] == matches[-1][1] == '50'
 report_path = OUT / 'VALIDACION-WINDOWS.json'
 report = json.loads(report_path.read_text(encoding='utf-8-sig'))
 assert report['native_startup_verified'] and not report['deletion_checkbox_default_checked']
 assert report['existing_browser_ui_verified'] and report['embedded_login_ui_absent']
 wire = (OUT / 'BROWSER-BRIDGE.txt').read_text(encoding='utf-8-sig')
 assert 'PASS Conexión local' in wire
-report['core_tests_passed'] = 35
+report['core_tests_passed'] = 50
 report['browser_wire_test_verified'] = True
+auth = (OUT / 'OUTLOOK-AUTH.txt').read_text(encoding='utf-8-sig')
+assert 'PASS Edge real y servicio HTTPS sintético' in auth
+report['edge_synthetic_attachment_verified'] = True
+report['outlook_authentication_synthetic_verified'] = True
+report['outlook_authentication_verified'] = False
+report['limitation'] = 'Arranque Windows y conexión autenticada con Edge y servicio HTTPS sintético comprobados. Pendientes la cuenta real de Outlook, la impresión y el perfil clásico del usuario.'
 report['prerelease'] = True
 report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
@@ -62,11 +68,12 @@ def info(name):
 
 manifest_path = ROOT / 'app.json'
 manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-manifest['version'] = '0.2.0-beta.1'
+manifest['version'] = '0.3.0-beta.1'
 manifest['release_date'] = '2026-11-21'
 manifest['summary'] = 'Exporta correos y adjuntos desde la pestaña de Outlook ya abierta en Edge o Chrome, con borrado opcional tras verificar.'
-manifest['authentication'] = {'flow': 'existing-browser-session', 'embedded_login': False, 'browser_extension_required': False, 'browser_user_permission_required': True, 'default_browser_profile': True}
+manifest['authentication'] = {'flow': 'existing-browser-session', 'embedded_login': False, 'browser_extension_required': False, 'browser_user_permission_required': True, 'default_browser_profile': True, 'observed_request_authorization': True, 'session_credentials_persisted': False}
 manifest['development_version'] = None
+manifest['requirements'] = ['Microsoft Edge WebView2 Runtime en el equipo', 'Edge/Chrome con permiso de conexión, o Outlook clásico configurado']
 manifest['download'] = manifest['executable'] = info(PREFIX + '.exe')
 manifest['zip_download'] = info(PREFIX + '.zip')
 manifest['source_download'] = info(PREFIX + '_fuentes.zip')
@@ -81,7 +88,7 @@ shutil.copyfile(OUT / 'SHA256SUMS.txt', ROOT / 'descargas' / 'SHA256SUMS.txt')
 shutil.copyfile(report_path, ROOT / 'docs' / report_path.name)
 (ROOT / 'descargas' / 'README.md').write_text('''# Descargar
 
-**CorreoDiario 0.2 beta · Windows de 64 bits.**
+**CorreoDiario 0.3 beta · Windows de 64 bits.**
 
 - [Descargar el ejecutable](%s)
 - [Descargar el ZIP con el ejecutable, guía y licencias](%s)
@@ -97,12 +104,13 @@ Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 Pulsa **Cómo conectar** para ver la opción del navegador que debes activar y
 acepta su aviso de conexión. Después selecciona tu pestaña. No hay un formulario
 de inicio de sesión dentro de CorreoDiario ni se instala una extensión.
+Si Outlook pide renovar la conexión, pulsa **Actualizar** en su pestaña y vuelve
+a **Usar esta pestaña**. Las cabeceras de sesión se mantienen solo en memoria.
 El modo clásico sigue disponible para perfiles configurados en Outlook clásico.
 
-**Validación:** 35 pruebas automáticas, conexión WebSocket local simulada,
-arranque del EXE, selector de pestañas y borrado desmarcado comprobados en
-Windows. Quedan pendientes el permiso y la conexión con tu navegador real,
-la impresión y las cuentas personales/laborales. [Informe](../docs/VALIDACION-WINDOWS.json).
+**Validación:** 50 pruebas automáticas, transporte WebSocket local, arranque
+del EXE y conexión con Edge real frente a un servicio HTTPS sintético que exige
+autorización. Quedan pendientes las cuentas reales del usuario y la impresión. [Informe](../docs/VALIDACION-WINDOWS.json).
 
 El borrado es opcional y mueve a Eliminados después de verificar toda la
 exportación. No vacía esa carpeta; puede seguir ocupando cuota.
