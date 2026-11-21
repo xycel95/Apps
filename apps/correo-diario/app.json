@@ -79,7 +79,9 @@
     "attachment_contract_verified": true,
     "outlook_store_size_semantics_verified": true,
     "attachment_source_readback_verified": true,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,

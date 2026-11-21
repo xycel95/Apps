@@ -1,0 +1,90 @@
+{
+  "release_tag": "correo-diario-v0.4.1-beta.1",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.1-beta.1",
+  "source_commit": "df94acde543c39e393bba9b85cff2203ea7d4c42",
+  "published_downloads_verified": true,
+  "files": [
+    {
+      "filename": "BROWSER-BRIDGE.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/BROWSER-BRIDGE.txt",
+      "size_bytes": 85,
+      "sha256": "4444dac189c7136d13bf578fb8bd6475952fa8568b9178b6c82dac8d4063b329",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.1_beta.exe",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/CorreoDiario_0.4.1_beta.exe",
+      "size_bytes": 53942491,
+      "sha256": "e228d738f114a256505a86615e56e74cfbc2a4a0485bca33d40dbeb03455e13d",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.1_beta.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/CorreoDiario_0.4.1_beta.zip",
+      "size_bytes": 48299075,
+      "sha256": "9dc06c211aea17d08f3b4be3b4179f05065d37e9bbbb50c426bd3762d43b58a3",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.1_beta_fuentes.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/CorreoDiario_0.4.1_beta_fuentes.zip",
+      "size_bytes": 107144,
+      "sha256": "275b4512b128afa72081e893d4182cb60abc1c8cec9646bb8ddca7f8146b143b",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "OUTLOOK-AUTH.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/OUTLOOK-AUTH.txt",
+      "size_bytes": 958,
+      "sha256": "e50a8a7aee9558f230a4a224a584a40c5a0e0c9a55b66cf6d8e772b5ee815085",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PDF-REAL.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/PDF-REAL.txt",
+      "size_bytes": 949,
+      "sha256": "b96cc48dfa0f17c1cf7433eb4e8c4d637b29f6a96df160178a2564c41f87455f",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PRUEBAS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/PRUEBAS.txt",
+      "size_bytes": 4626,
+      "sha256": "7a53bf2490b6e2d612fde974f8ee20c89e509a282a8950bd1394ab9105c508eb",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "SHA256SUMS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/SHA256SUMS.txt",
+      "size_bytes": 713,
+      "sha256": "ab2340c27d2d7c6d8f6ee7fa126afc744c18939173098776ecfb53ee0f18e83c",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "VALIDACION-WINDOWS.json",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.1-beta.1/VALIDACION-WINDOWS.json",
+      "size_bytes": 1664,
+      "sha256": "e2e8253ec890b094e794db2a431696b90a75a38110c5356c4ec210ee8b6c8265",
+      "github_asset_digest_verified": true
+    }
+  ],
+  "sha256sums_verified": true,
+  "zip_crc_verified": true,
+  "standalone_matches_zipped_executable": true,
+  "windows_x64_gui_executable_verified": true,
+  "core_tests_passed": 71,
+  "authenticated_edge_synthetic_fixture_verified": true,
+  "outlook_search_contract_verified": true,
+  "native_pdf_render_synthetic_verified": true,
+  "synthetic_mail_export_verified": true,
+  "date_range_controls_verified": true,
+  "date_range_synthetic_verified": true,
+  "attachment_contract_verified": true,
+  "outlook_store_size_semantics_verified": true,
+  "attachment_source_readback_verified": true,
+  "real_outlook_account_verified": false,
+  "user_mail_accessed": false,
+  "verification_date": "2026-11-21",
+  "source_archive_matches_repository": true,
+  "temporary_workflow_removed": true
+}
