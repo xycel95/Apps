@@ -1,6 +1,11 @@
 # Descripción del programa
 
-CorreoDiario 0.4.4 beta trabaja con la sesión de Outlook que ya tienes abierta
+Los avisos incluyen **Copiar error**. También puedes usar **Copiar último error**
+en la ventana principal mientras el programa siga abierto, aunque cierres el
+aviso o borres el registro. El informe contiene versión, mensaje y diagnóstico
+de la exportación, sin copiar el cuerpo del correo.
+
+CorreoDiario 0.4.5 beta trabaja con la sesión de Outlook que ya tienes abierta
 **en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
 una, seleccionar carpetas y un intervalo de fechas, y exportar los mensajes a PDF con sus
 adjuntos originales separados. Conserva el modo alternativo de Outlook clásico. Los campos **Desde** y **Hasta**

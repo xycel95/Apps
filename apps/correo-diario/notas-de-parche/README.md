@@ -1,5 +1,17 @@
 # Notas de parche
 
+## 0.4.5-beta.1 · 22/11/2026
+
+- Botón **Copiar error** en el aviso, con informe seleccionable y desplazable.
+- Botón **Copiar último error** en la ventana principal. Conserva el informe
+  durante la sesión, aunque se cierre el aviso o se borre el archivo de registro.
+- Copia versión, mensaje, progreso y diagnóstico de ambos cotejos. Añade códigos
+  Unicode del primer carácter diferente, categoría y tipo de diferencia;
+  no copia palabras ni fragmentos del cuerpo ni vuelca datos de sesión.
+- 92 pruebas y comprobación del botón con el portapapeles real de Windows.
+- No se cambia la aceptación del texto ni el borrado: sigue bloqueado ante
+  una discrepancia. El fallo real de un carácter sigue pendiente de diagnóstico.
+
 ## 0.4.4-beta.1 · 21/11/2026
 
 - La 0.4.3 seguía mostrando un rechazo en el caso real reportado. Esta versión

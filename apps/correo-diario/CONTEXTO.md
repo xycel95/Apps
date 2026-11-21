@@ -2,6 +2,39 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Versión 0.4.5: copiar el error sin depender del registro
+
+La captura de 0.4.4 avanza hasta un correo intermedio y falla con diferencia
+de longitud de un carácter. Se pidieron los datos PdfFailure, pero el usuario
+había borrado el registro. Petición explícita: botón para copiar el error.
+No afirmar la causa del carácter perdido ni quitar la verificación sin datos.
+
+ErrorDialog sustituye los avisos de SafeAsync y ThreadException. Muestra el
+informe completo en un TextBox de solo lectura, con Copiar error y feedback.
+MainForm conserva únicamente el último informe en memoria y añade Copiar
+último error. Disponible hasta cerrar el programa; no requiere leer el JSON
+ni crea un archivo adicional. Si falla el portapapeles, permite seleccionar
+y copiar manualmente. No transmite informes automáticamente.
+
+ErrorReport.Build incluye versión/sistema, mensaje mostrado y exclusivamente
+ExportErrorContext/PdfRenderFailure/PdfTextCheck de las excepciones. No volcar
+Exception.Data completo, stack ni mensajes arbitrarios de excepciones internas.
+El aviso puede incluir rutas de destino y nombres de archivo ya presentes en
+el error; no incluye el cuerpo del correo ni cabeceras de sesión.
+
+PdfTextCheck añade códigos Unicode aislados, categoría y tipo de primera
+diferencia sobre la secuencia normalizada, sin palabras ni fragmentos del
+cuerpo. Distingue omisión, añadido, cambio y diferencia más extensa. NO modifica
+la normalización ni la aceptación del PDF. Un selector de variante omitido
+se diagnostica y sigue fallando; no usarlo para dar por probado el caso real.
+
+92 pruebas; reporte disponible después de borrar su registro, lista cerrada
+de datos copiados, código invisible y cifra cambiada. CopyErrorCheck compila
+el diálogo real y pulsa su botón, comprobando todo el texto Unicode en el
+portapapeles del escritorio CI; exige GITHUB_ACTIONS=true. El arranque del EXE
+comprueba Copiar último error deshabilitado antes del primer fallo. Consultar
+VALIDACION-WINDOWS.json para el commit y resultado. Históricos en docs/historico/0.4.4.
+
 ## Corrección 0.4.4: segunda composición verificada y diagnóstico
 
 Nueva captura de 0.4.3: persiste el rechazo del texto, cero movimientos. No

@@ -134,6 +134,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
         }
         catch (Exception ex)
         {
+            var failedPhase = receipt.Status;
             receipt.Status = ex is OperationCanceledException ? "CANCELADO" : "ERROR";
             receipt.Error = ex.Message;
             receipt.PdfFailure = ex.Data[PdfVerifier.FailureDataKey] as PdfRenderFailure;
@@ -143,7 +144,11 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
             try { await SaveReceiptAsync(receiptPath, receipt); } catch (IOException) { }
             var pending = receipt.MoveInProgress is null ? "" : "\nEl último movimiento no ha quedado confirmado. Comprueba el buzón antes de repetirlo.";
             var failedPdf = receipt.FailedMessageNumber is int number ? $"\nCorreo en comprobación: {number}/{selection.Count}. Diagnóstico numérico en PdfFailure del registro." : "";
-            throw new ExportException($"{ex.Message}{failedPdf}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
+            var error = new ExportException($"{ex.Message}{failedPdf}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
+            error.Data[ErrorReport.ExportContextDataKey] = new ExportErrorContext(selection.Count, receipt.Messages.Count, attachmentCount,
+                receipt.MovedToDeleted.Count, receipt.FailedMessageNumber, failedPhase, receipt.DeletionRequested);
+            if (receipt.PdfFailure is not null) error.Data[PdfVerifier.FailureDataKey] = receipt.PdfFailure;
+            throw error;
         }
         finally { foreach (var stream in locked) await stream.DisposeAsync(); }
     }

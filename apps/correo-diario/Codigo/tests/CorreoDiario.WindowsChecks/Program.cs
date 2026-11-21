@@ -12,6 +12,7 @@ internal static class Program
         {
             try
             {
+                CopyErrorCheck.Run(host);
                 using var renderer = new PdfRenderer();
                 await PdfLayoutCheck.RunAsync(renderer);
                 await PdfReflowCheck.RunAsync(renderer);

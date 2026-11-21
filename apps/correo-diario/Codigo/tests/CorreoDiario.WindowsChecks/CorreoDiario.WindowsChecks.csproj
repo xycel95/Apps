@@ -9,6 +9,8 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4370.26" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <Compile Include="../../src/CorreoDiario.Windows/PdfRenderer.cs" Link="PdfRenderer.cs" />
+    <Compile Include="../../src/CorreoDiario.Windows/ErrorDialog.cs" Link="ErrorDialog.cs" />
+    <Compile Include="../../src/CorreoDiario.Windows/ThemedControls.cs" Link="ThemedControls.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/BrowserAuthCheck.cs" Link="BrowserAuthCheck.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaMailboxFixture.cs" Link="OwaMailboxFixture.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaSearchContract.cs" Link="OwaSearchContract.cs" />

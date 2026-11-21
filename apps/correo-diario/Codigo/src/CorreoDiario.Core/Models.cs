@@ -47,9 +47,18 @@ public interface IVerifiedPdfRenderer : IPdfRenderer
 {
     Task<PdfRenderOutput> RenderVerifiedAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct);
 }
-// Counts only: no body text, missing words or session data in diagnostics.
+// Counts and isolated Unicode code points, never body fragments/session data.
 public sealed record PdfTextCheck(int Pages, int ExpectedWords, int ExtractedWords, int MissingWords,
-    int ExpectedCharacters, int ExtractedCharacters, int FirstDifference, bool CompleteWords, bool ExactSequence);
+    int ExpectedCharacters, int ExtractedCharacters, int FirstDifference, bool CompleteWords, bool ExactSequence)
+{
+    public string? ExpectedCodePoint { get; init; }
+    public string? ExtractedCodePoint { get; init; }
+    public string? ExpectedUnicodeCategory { get; init; }
+    public string? ExtractedUnicodeCategory { get; init; }
+    public string DifferenceKind { get; init; } = "identical";
+}
+public sealed record ExportErrorContext(int SelectedMessages, int SavedMessages, int SavedAttachments,
+    int ConfirmedMoves, int? FailedMessageNumber, string Phase, bool DeletionRequested);
 public sealed record PdfRenderVerification(string Mode, PdfTextCheck Text, PdfTextCheck? FormattedFailure = null);
 public sealed record PdfRenderOutput(byte[] Bytes, PdfRenderVerification Verification);
 public sealed record PdfRenderFailure(PdfTextCheck? Formatted, PdfTextCheck? Simplified);
@@ -67,7 +76,7 @@ public record SavedMessage(string Id, string Revision, string Subject, IReadOnly
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.4-beta";
+    public string Version { get; set; } = "0.4.5-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }

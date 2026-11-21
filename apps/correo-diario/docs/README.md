@@ -1,5 +1,15 @@
 # Cómo funciona y guía
 
+## Copiar un error
+
+En el aviso pulsa **Copiar error** y pega el texto donde quieras revisarlo.
+El informe incluye versión, mensaje, progreso y datos del cotejo, con códigos
+Unicode del primer carácter diferente. No copia el cuerpo del correo.
+
+Si ya has cerrado el aviso, pulsa **Copiar último error** en la ventana
+principal. Está disponible hasta que cierres CorreoDiario y funciona aunque
+hayas borrado el archivo de registro. No se envía nada automáticamente.
+
 ## Conectar tu pestaña de Outlook
 
 1. Abre tu correo en tu **Edge o Chrome habitual**, con tu sesión ya iniciada.

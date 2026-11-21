@@ -12,6 +12,7 @@ public static class CorreoDiarioWindowCheck {
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr window, StringBuilder text, int maximum);
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetClassName(IntPtr window, StringBuilder text, int maximum);
   [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wparam, IntPtr lparam);
+  [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr window);
   public static IntPtr FindText(IntPtr parent, string caption) {
     IntPtr found=IntPtr.Zero;
     EnumChildWindows(parent, (window, parameter) => {
@@ -48,6 +49,8 @@ try {
   if ($checkbox -eq [IntPtr]::Zero) { throw 'No se encuentra la casilla de borrado en la ventana.' }
   $state = [CorreoDiarioWindowCheck]::SendMessage($checkbox, 0x00F0, [IntPtr]::Zero, [IntPtr]::Zero).ToInt64()
   if ($state -ne 0) { throw 'La casilla de borrado no está desmarcada al arrancar.' }
+  $copyError = [CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Copiar último error')
+  if ($copyError -eq [IntPtr]::Zero -or [CorreoDiarioWindowCheck]::IsWindowEnabled($copyError)) { throw 'Falta Copiar último error o está activo sin haber un error.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Buscar pestañas') -eq [IntPtr]::Zero) { throw 'Falta el selector de navegador.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Usar esta pestaña') -eq [IntPtr]::Zero) { throw 'Falta la conexión a la pestaña seleccionada.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Cómo conectar') -eq [IntPtr]::Zero) { throw 'Falta la guía de conexión.' }
@@ -59,6 +62,7 @@ try {
     native_startup_verified = $true
     deletion_checkbox_found = $true
     deletion_checkbox_default_checked = $false
+    copy_last_error_control_verified = $true
     existing_browser_ui_verified = $true
     embedded_login_ui_absent = $true
     date_range_controls_verified = $true

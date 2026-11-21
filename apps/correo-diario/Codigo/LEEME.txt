@@ -1,4 +1,10 @@
-CORREODIARIO 0.4.4 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.5 BETA — WINDOWS DE 64 BITS
+
+Los avisos tienen un botón «Copiar error». Copia el informe y pégalo para
+revisarlo: incluye versión, mensaje, progreso y diagnóstico del PDF, sin
+el cuerpo del correo. «Copiar último error» lo conserva mientras la aplicación
+siga abierta, aunque cierres el aviso o borres el registro. No se envía nada
+automáticamente. Esta versión añade diagnóstico; no desactiva la verificación.
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.

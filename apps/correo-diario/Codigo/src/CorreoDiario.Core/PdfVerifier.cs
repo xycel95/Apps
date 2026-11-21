@@ -41,7 +41,14 @@ public static class PdfVerifier
                 while (difference < Math.Min(expectedSequence.Length, actualSequence.Length) && expectedSequence[difference] == actualSequence[difference]) difference++;
                 var same = expectedSequence == actualSequence;
                 var check = new PdfTextCheck(pdf.NumberOfPages, expectedWords.Length, actualWords.Length, missingWords,
-                    expectedSequence.Length, actualSequence.Length, same ? -1 : difference, missingWords == 0, same);
+                    expectedSequence.Length, actualSequence.Length, same ? -1 : difference, missingWords == 0, same)
+                {
+                    ExpectedCodePoint = same ? null : CodePoint(expectedSequence, difference),
+                    ExtractedCodePoint = same ? null : CodePoint(actualSequence, difference),
+                    ExpectedUnicodeCategory = same ? null : Category(expectedSequence, difference),
+                    ExtractedUnicodeCategory = same ? null : Category(actualSequence, difference),
+                    DifferenceKind = same ? "identical" : DifferenceKind(expectedSequence, actualSequence, difference)
+                };
                 // PDF extraction inserts spaces/newlines inside words at line and
                 // page boundaries. Accept that case only when EVERY letter/digit
                 // agrees in order and multiplicity across the whole document.
@@ -62,4 +69,19 @@ public static class PdfVerifier
 
     private static string[] Words(string value) => Regex.Matches(value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{M}\p{N}]+")
         .Select(m => m.Value).ToArray();
+
+    private static string CodePoint(string text, int index) => index >= text.Length ? "END" :
+        Rune.TryGetRuneAt(text, index, out var rune) ? $"U+{rune.Value:X4}" : $"U+{(int)text[index]:X4}";
+    private static string Category(string text, int index) => index >= text.Length ? "END" :
+        Rune.TryGetRuneAt(text, index, out var rune) ? Rune.GetUnicodeCategory(rune).ToString() : char.GetUnicodeCategory(text[index]).ToString();
+    private static int RuneLength(string text, int index) => index >= text.Length ? 0 :
+        Rune.TryGetRuneAt(text, index, out var rune) ? rune.Utf16SequenceLength : 1;
+    private static string DifferenceKind(string expected, string actual, int index)
+    {
+        var e = RuneLength(expected, index); var a = RuneLength(actual, index);
+        if (e > 0 && expected.AsSpan(index + e).SequenceEqual(actual.AsSpan(index))) return "missing-code-point";
+        if (a > 0 && expected.AsSpan(index).SequenceEqual(actual.AsSpan(index + a))) return "extra-code-point";
+        if (e > 0 && a > 0 && expected.AsSpan(index + e).SequenceEqual(actual.AsSpan(index + a))) return "changed-code-point";
+        return "sequence-difference";
+    }
 }

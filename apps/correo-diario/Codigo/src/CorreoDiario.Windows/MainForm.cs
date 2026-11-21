@@ -24,6 +24,7 @@ internal sealed class MainForm : Form
     private readonly Button export = new ThemedButton() { Text = "Guardar correos y adjuntos", AutoSize = true, Enabled = false };
     private readonly Button cancel = new ThemedButton() { Text = "Cancelar", AutoSize = true, Enabled = false };
     private readonly Button openResult = new ThemedButton() { Text = "Abrir resultado", AutoSize = true, Enabled = false };
+    private readonly Button copyLastError = new ThemedButton() { Text = "Copiar último error", AutoSize = true, Enabled = false };
     private readonly Label status = new() { Text = "Abre tu correo en el navegador y pulsa «Buscar pestañas».", AutoSize = false, Dock = DockStyle.Fill };
     private readonly ProgressBar progress = new() { Dock = DockStyle.Fill, Height = 8 };
     private BrowserSocket? browser;
@@ -32,10 +33,11 @@ internal sealed class MainForm : Form
     private PdfRenderer? renderer;
     private CancellationTokenSource? operation;
     private string? lastDirectory;
+    private string? lastErrorReport;
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4.4 beta";
+        Text = "CorreoDiario · 0.4.5 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -96,7 +98,7 @@ internal sealed class MainForm : Form
         deletionRow.Controls.Add(delete);
         layout.Controls.Add(deletionRow, 0, 5);
         var actions = new FlowLayoutPanel { Dock = DockStyle.Fill };
-        actions.Controls.AddRange([export, cancel, openResult]);
+        actions.Controls.AddRange([export, cancel, openResult, copyLastError]);
         layout.Controls.Add(actions, 0, 6);
         var footer = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
         footer.RowStyles.Add(new(SizeType.Percent, 100)); footer.RowStyles.Add(new(SizeType.Absolute, 8));
@@ -209,6 +211,12 @@ internal sealed class MainForm : Form
             MessageBox.Show(this, status.Text, "Exportación completada", MessageBoxButtons.OK, MessageBoxIcon.Information);
         });
         cancel.Click += (_, _) => operation?.Cancel();
+        copyLastError.Click += (_, _) =>
+        {
+            if (lastErrorReport is null) return;
+            if (!ErrorDialog.TryCopy(lastErrorReport, out var feedback)) ErrorDialog.ShowReport(this, lastErrorReport);
+            status.Text = feedback;
+        };
         openResult.Click += (_, _) => { if (lastDirectory is not null) Process.Start(new ProcessStartInfo(lastDirectory) { UseShellExecute = true }); };
         FormClosing += (_, e) =>
         {
@@ -244,10 +252,16 @@ internal sealed class MainForm : Form
         catch (Exception ex)
         {
             if (ex is ExportException exportError) { lastDirectory = exportError.Directory; openResult.Enabled = true; }
-            status.Text = "La operación se ha detenido. Revisa el aviso antes de repetirla.";
-            MessageBox.Show(this, ex.Message, "CorreoDiario", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            ShowError(ex);
         }
         finally { operation.Dispose(); operation = null; delete.Checked = false; RefreshButtons(); }
+    }
+    internal void ShowError(Exception error)
+    {
+        lastErrorReport = ErrorDialog.CreateReport(error);
+        status.Text = "La operación se ha detenido. Puedes copiar el error desde el aviso o con «Copiar último error».";
+        copyLastError.Enabled = operation is null;
+        ErrorDialog.ShowReport(this, lastErrorReport);
     }
     private void RefreshButtons()
     {
@@ -260,6 +274,7 @@ internal sealed class MainForm : Form
         list.Enabled = !busy && source is not null && folders.Items.Count > 0;
         export.Enabled = !busy && source is not null && messages.Rows.Count > 0 && destination.Text.Length > 0;
         cancel.Enabled = busy;
+        copyLastError.Enabled = !busy && lastErrorReport is not null;
     }
     private void PaintControls(Control parent)
     {

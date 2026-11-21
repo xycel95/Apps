@@ -1,20 +1,18 @@
-# CorreoDiario 0.4.4 beta
+# CorreoDiario 0.4.5 beta
 
-Añade una segunda composición cuando el PDF con formato no supera el cotejo.
-Usa texto sencillo, conserva la numeración de listas y reúne las imágenes al
-final. Esa copia solo se acepta si toda la secuencia de letras y cifras coincide
-en orden y cantidad. El PDF indica el formato y el aviso final cuenta las
-copias simplificadas. No se reutiliza como válida la primera copia rechazada.
+Añade Copiar error en los avisos y Copiar último error en la ventana principal.
+El informe sigue disponible durante la sesión aunque cierres el aviso o borres
+el archivo de registro. El texto también se puede seleccionar y copiar a mano.
 
-Si fallan ambos intentos, se detiene y registra el número de correo y recuentos
-de ambos cotejos en PdfFailure, sin copiar palabras ni fragmentos del cuerpo
-en ese diagnóstico. Mantiene destino directo, Desde/Hasta, segunda lectura de
-adjuntos y SHA-256, y borrado desmarcado sin movimientos antes de verificar todo.
+Incluye versión, mensaje, progreso y los diagnósticos de ambos intentos del PDF.
+Añade códigos Unicode del primer carácter diferente, categoría y tipo de cambio,
+sin copiar palabras ni fragmentos del cuerpo ni volcar las cabeceras de sesión.
+No se transmite nada automáticamente.
 
-Validación: 88 pruebas y flujo Windows con WebView2 real. Incluye un rechazo
-que podía persistir en 0.4.3, composición alternativa completa de varias páginas,
-listas romanas/alfabéticas, imagen y adjunto leído dos veces, recibo y cero
-movimientos. El caso concreto del usuario sigue pendiente de comprobación;
-las pruebas de publicación utilizan correos sintéticos.
+Validación: 92 pruebas, informe disponible tras borrar el registro y pulsación
+del botón real con comprobación del portapapeles Unicode en Windows. Conserva
+el flujo con Edge/OWA sintético, PDF e imágenes reales y segunda lectura de
+adjuntos. El fallo concreto de un carácter sigue pendiente de diagnóstico:
+esta versión no cambia las reglas de aceptación ni permite borrar ante un fallo.
 
 EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.
