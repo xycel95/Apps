@@ -74,7 +74,9 @@
     "synthetic_mail_export_verified": true,
     "native_pdf_render_synthetic_verified": true,
     "real_outlook_export_verified": false,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
