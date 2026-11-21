@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: publicar-correo-diario-0-3-beta
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   publicar:
     runs-on: windows-latest
@@ -33,6 +33,7 @@ jobs:
           dotnet run --project tests/CorreoDiario.SafetyTests/CorreoDiario.SafetyTests.csproj -c Release -- --verify-browser-bridge 2>&1 | Tee-Object "$env:GITHUB_WORKSPACE/.correo-release/BROWSER-BRIDGE.txt"
           if ($LASTEXITCODE -ne 0) { throw 'Ha fallado la prueba de conexión local.' }
       - name: Reproducir y corregir 401 con Edge real y servicio HTTPS sintético
+        timeout-minutes: 3
         shell: pwsh
         run: |
           Set-Location apps/correo-diario/Codigo

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
 internal static class BrowserAuthCheck
 {
@@ -19,6 +20,7 @@ internal static class BrowserAuthCheck
     public static async Task RunAsync()
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Esta prueba requiere Windows y Edge.");
+        if (Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != "true") throw new InvalidOperationException("Esta prueba se ejecuta únicamente en el Windows efímero de CI.");
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         var ct = timeout.Token;
         var directory = Path.Combine(Path.GetTempPath(), "correo-auth-fixture-" + Guid.NewGuid().ToString("N"));
@@ -38,8 +40,11 @@ internal static class BrowserAuthCheck
         request.CertificateExtensions.Add(names.Build());
         using var signed = request.Create(root, DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(2), RandomNumberGenerator.GetBytes(16));
         using var certificate = signed.CopyWithPrivateKey(key);
-        using var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
+        // CurrentUser Root may show an interactive Windows trust prompt. The
+        // ephemeral CI machine runs elevated; its machine store has no prompt.
+        using var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
         store.Open(OpenFlags.ReadWrite); store.Add(publicRoot);
+        Console.WriteLine("Fixture: CA pública temporal registrada en el equipo efímero de CI.");
         Process? browser = null;
         WebApplication? app = null;
         var rejected = 0; var accepted = 0;
@@ -47,6 +52,7 @@ internal static class BrowserAuthCheck
         {
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [] });
             builder.Logging.ClearProviders();
+            builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(5));
             builder.WebHost.ConfigureKestrel(options => options.Listen(IPAddress.Loopback, 0, listen => listen.UseHttps(certificate)));
             app = builder.Build();
             app.MapGet("/mail", () => Results.Content("""
@@ -87,16 +93,19 @@ internal static class BrowserAuthCheck
                 await context.Response.WriteAsJsonAsync(response, ct);
             });
             await app.StartAsync(ct);
+            Console.WriteLine("Fixture: servicio HTTPS preparado.");
             var address = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
             var edge = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft", "Edge", "Application", "msedge.exe");
             if (!File.Exists(edge)) edge = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft", "Edge", "Application", "msedge.exe");
             var start = new ProcessStartInfo(edge) { UseShellExecute = false, CreateNoWindow = true };
             foreach (var arg in new[] { "--headless=new", "--no-first-run", "--no-default-browser-check", "--remote-debugging-port=0", "--user-data-dir=" + directory, address + "/mail" }) start.ArgumentList.Add(arg);
             browser = Process.Start(start) ?? throw new Exception("No se pudo iniciar Edge para la prueba.");
+            Console.WriteLine("Fixture: Edge de prueba iniciado.");
             var descriptor = Path.Combine(directory, "DevToolsActivePort");
             while (!File.Exists(descriptor)) { ct.ThrowIfCancellationRequested(); if (browser.HasExited) throw new Exception("Edge terminó antes de conectar."); await Task.Delay(100, ct); }
             using var protocol = new BrowserSocket();
             await protocol.ConnectAsync(BrowserEndpoint.Parse(await File.ReadAllTextAsync(descriptor, ct)), ct);
+            Console.WriteLine("Fixture: conexión CDP establecida.");
             BrowserTab? tab = null;
             while (tab is null)
             {
@@ -104,18 +113,21 @@ internal static class BrowserAuthCheck
                 if (tab is null) await Task.Delay(100, ct);
             }
             using var session = await BrowserTabSession.AttachAsync(protocol, tab, ct);
+            Console.WriteLine("Fixture: pestaña sintética conectada.");
             var baseline = await session.EvaluateAsync("(async()=>{const r=await fetch('/owa/0/service.svc?action=GetFolder',{method:'POST',body:'{}'});return r.status;})()", ct);
             if (baseline.GetInt32() != 401) throw new Exception("La prueba no reproduce el 401 original.");
+            Console.WriteLine("Fixture: 401 sin autorización reproducido.");
             // Equivalent to the user clicking Refresh in their already open tab.
             var status = await session.EvaluateAsync("fixtureRefresh()", ct);
             if (status.GetInt32() != 200 || await session.GetAuthorizationAsync(true, ct) is null) throw new Exception("No se observó la autorización de la pestaña.");
+            Console.WriteLine("Fixture: autorización observada en la solicitud correcta.");
             var folders = await new OwaSource(new OwaPageTransport(session)).FoldersAsync(ct);
             if (folders.Count != 2 || folders[0].Id != "fixture-inbox" || folders[1].Id != "fixture-sentitems" || rejected != 1 || accepted < 4)
                 throw new Exception("La lectura autenticada no conserva las carpetas completas.");
         }
         finally
         {
-            if (browser is not null) { try { if (!browser.HasExited) browser.Kill(true); await browser.WaitForExitAsync(CancellationToken.None); } catch (InvalidOperationException) { } browser.Dispose(); }
+            if (browser is not null) { try { if (!browser.HasExited) browser.Kill(true); await browser.WaitForExitAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(10)); } catch (InvalidOperationException) { } browser.Dispose(); }
             if (app is not null) await app.DisposeAsync();
             store.Remove(publicRoot);
             try { Directory.Delete(directory, true); } catch (IOException) { }

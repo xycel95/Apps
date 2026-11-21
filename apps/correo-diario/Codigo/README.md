@@ -102,14 +102,16 @@ dotnet run --project tests/CorreoDiario.SafetyTests/CorreoDiario.SafetyTests.csp
 Referencias: [Edge, conexión a la instancia abierta](https://learn.microsoft.com/microsoft-edge/web-platform/devtools-mcp-server)
 y [Chrome, conexión con permiso del usuario](https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session).
 
-Prueba de regresión del 401 (Windows con Edge, sin cuenta real):
+Prueba de regresión del 401 (Windows efímero de CI con Edge, sin cuenta real):
 
 ```sh
 dotnet run --project tests/CorreoDiario.SafetyTests -c Release -- --verify-outlook-auth
 ```
 
 El fixture crea un certificado local de corta duración, instala solo su CA pública
-en el almacén de confianza del usuario de CI y la elimina al terminar. Usa un
+en el almacén de confianza del equipo efímero de CI y la elimina al terminar.
+Solo se ejecuta dentro de GitHub Actions en Windows con permisos de su runner;
+no cambia certificados en el equipo del usuario. Usa un
 perfil de Edge desechable únicamente en la prueba. Comprueba un 401 inicial,
 la observación de una solicitud nativa autorizada, la regeneración de
 X-OWA-UrlPostData y la lectura de Entrada/Enviados. No desactiva TLS ni accede a
