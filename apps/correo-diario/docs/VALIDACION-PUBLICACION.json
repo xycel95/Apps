@@ -1,0 +1,92 @@
+{
+  "release_tag": "correo-diario-v0.4.2-beta.1",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.2-beta.1",
+  "source_commit": "6753550aa644b38fe771ce2d52982ac825e19124",
+  "published_downloads_verified": true,
+  "files": [
+    {
+      "filename": "BROWSER-BRIDGE.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/BROWSER-BRIDGE.txt",
+      "size_bytes": 85,
+      "sha256": "4444dac189c7136d13bf578fb8bd6475952fa8568b9178b6c82dac8d4063b329",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.2_beta.exe",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/CorreoDiario_0.4.2_beta.exe",
+      "size_bytes": 53943794,
+      "sha256": "c88eb2bc7d245f141365205c449b52f6a0295daa82556e5137e800c74f16a41f",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.2_beta.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/CorreoDiario_0.4.2_beta.zip",
+      "size_bytes": 48300620,
+      "sha256": "343b3f91feed3e6959fcdecde852f3c2111d72425ae8b6d62ff5b521e410c6ea",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.2_beta_fuentes.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/CorreoDiario_0.4.2_beta_fuentes.zip",
+      "size_bytes": 110003,
+      "sha256": "aae40980021b18448555d830dc981815cb22d3249c8967b51152fb2c09aa052e",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "OUTLOOK-AUTH.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/OUTLOOK-AUTH.txt",
+      "size_bytes": 1048,
+      "sha256": "275ef2178ae17f58e73ca5b2c136a44f08bda1b581317939c9afc7d8d9ec5c40",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PDF-REAL.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/PDF-REAL.txt",
+      "size_bytes": 1039,
+      "sha256": "46491a12b92338d81d6100422016cf9360b949658b9a8116761ced8df707be8d",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PRUEBAS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/PRUEBAS.txt",
+      "size_bytes": 4951,
+      "sha256": "99be640ae94b9379e6ae97d9caee9c75c7661b87cca6c56cf73af9ab31ecd935",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "SHA256SUMS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/SHA256SUMS.txt",
+      "size_bytes": 713,
+      "sha256": "9bed367ac9e6133114a51d583d8049e345969cec3996a5ccf0b2cb4e27b62c72",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "VALIDACION-WINDOWS.json",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.2-beta.1/VALIDACION-WINDOWS.json",
+      "size_bytes": 1754,
+      "sha256": "a6ba7c6b5878df8b208e507142b4da0ec1d124cb1a11e11ebfc3fdc6c5e9dc62",
+      "github_asset_digest_verified": true
+    }
+  ],
+  "sha256sums_verified": true,
+  "zip_crc_verified": true,
+  "standalone_matches_zipped_executable": true,
+  "windows_x64_gui_executable_verified": true,
+  "core_tests_passed": 75,
+  "authenticated_edge_synthetic_fixture_verified": true,
+  "outlook_search_contract_verified": true,
+  "native_pdf_render_synthetic_verified": true,
+  "synthetic_mail_export_verified": true,
+  "date_range_controls_verified": true,
+  "date_range_synthetic_verified": true,
+  "attachment_contract_verified": true,
+  "outlook_store_size_semantics_verified": true,
+  "attachment_source_readback_verified": true,
+  "flat_output_directory_verified": true,
+  "existing_output_preserved_verified": true,
+  "real_outlook_account_verified": false,
+  "user_mail_accessed": false,
+  "verification_date": "2026-11-21",
+  "source_archive_matches_repository": true,
+  "temporary_workflow_removed": true
+}

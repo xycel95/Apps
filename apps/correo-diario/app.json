@@ -81,7 +81,9 @@
     "attachment_source_readback_verified": true,
     "flat_output_directory_verified": true,
     "existing_output_preserved_verified": true,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
