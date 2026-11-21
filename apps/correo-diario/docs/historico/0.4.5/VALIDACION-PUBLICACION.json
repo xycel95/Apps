@@ -1,0 +1,103 @@
+{
+  "release_tag": "correo-diario-v0.4.5-beta.1",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.5-beta.1",
+  "source_commit": "54b78cae66b25194cfea1da8bee8d0f796ae6b82",
+  "published_downloads_verified": true,
+  "files": [
+    {
+      "filename": "BROWSER-BRIDGE.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/BROWSER-BRIDGE.txt",
+      "size_bytes": 85,
+      "sha256": "4444dac189c7136d13bf578fb8bd6475952fa8568b9178b6c82dac8d4063b329",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.5_beta.exe",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta.exe",
+      "size_bytes": 53955935,
+      "sha256": "224ece13f041c2f1e98b676f05aad100c8f9a6b4dac6f1a55f7f321006d69260",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.5_beta.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta.zip",
+      "size_bytes": 48313354,
+      "sha256": "547825cf99df5f90c084890854cef8e58146d29aa91d7dbef13c3263f2e659bd",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_0.4.5_beta_fuentes.zip",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/CorreoDiario_0.4.5_beta_fuentes.zip",
+      "size_bytes": 129480,
+      "sha256": "39ea5547523d248b7d4d9e03f72fccc0851d68ca276c9399846e9c2a79a42306",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "OUTLOOK-AUTH.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/OUTLOOK-AUTH.txt",
+      "size_bytes": 1048,
+      "sha256": "275ef2178ae17f58e73ca5b2c136a44f08bda1b581317939c9afc7d8d9ec5c40",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PDF-REAL.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/PDF-REAL.txt",
+      "size_bytes": 1980,
+      "sha256": "682ca0c5a068f164cd4d3ee1b25d9d1853423a4ad6491ce44845deac29441bde",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "PRUEBAS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/PRUEBAS.txt",
+      "size_bytes": 6183,
+      "sha256": "107f9c02725712ff7784296152e3ef3396c2d59ba46cf1d2dbff234975fdd979",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "SHA256SUMS.txt",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/SHA256SUMS.txt",
+      "size_bytes": 713,
+      "sha256": "332237abcf07780e974c16349b86f86739c424379a7f309db99db23c6e5b2ff9",
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "VALIDACION-WINDOWS.json",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.5-beta.1/VALIDACION-WINDOWS.json",
+      "size_bytes": 2570,
+      "sha256": "e75bcc1a0244b54c409954f5303cc5cacd97a9be7ce00596df543cab7dbe7b4e",
+      "github_asset_digest_verified": true
+    }
+  ],
+  "sha256sums_verified": true,
+  "zip_crc_verified": true,
+  "standalone_matches_zipped_executable": true,
+  "windows_x64_gui_executable_verified": true,
+  "core_tests_passed": 92,
+  "authenticated_edge_synthetic_fixture_verified": true,
+  "outlook_search_contract_verified": true,
+  "native_pdf_render_synthetic_verified": true,
+  "synthetic_mail_export_verified": true,
+  "date_range_controls_verified": true,
+  "date_range_synthetic_verified": true,
+  "attachment_contract_verified": true,
+  "outlook_store_size_semantics_verified": true,
+  "attachment_source_readback_verified": true,
+  "flat_output_directory_verified": true,
+  "existing_output_preserved_verified": true,
+  "pdf_wrapped_words_verified": true,
+  "pdf_complex_layout_verified": true,
+  "pdf_missing_content_rejected": true,
+  "pdf_simplified_fallback_verified": true,
+  "pdf_simplified_sequence_verified": true,
+  "pdf_failure_diagnostics_verified": true,
+  "copy_error_clipboard_verified": true,
+  "copy_last_error_control_verified": true,
+  "error_report_without_receipt_verified": true,
+  "pdf_code_point_diagnostics_verified": true,
+  "real_outlook_account_verified": false,
+  "user_mail_accessed": false,
+  "verified_at_utc": "2026-11-21T23:20:03.831456+00:00",
+  "source_archive_matches_repository": true,
+  "source_archive_complete": true,
+  "temporary_workflow_removed": true
+}

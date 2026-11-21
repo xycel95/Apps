@@ -1,18 +1,17 @@
-# CorreoDiario 0.4.5 beta
+# CorreoDiario 0.4.6 beta
 
-Añade Copiar error en los avisos y Copiar último error en la ventana principal.
-El informe sigue disponible durante la sesión aunque cierres el aviso o borres
-el archivo de registro. El texto también se puede seleccionar y copiar a mano.
+Corrige el falso aviso de texto incompleto identificado por el diagnóstico:
+el selector U+FE0F de presentación emoji se omitía al extraer el texto del PDF.
+Ahora el cotejo excluye únicamente FE0E/FE0F, sin cambiar el HTML ni las imágenes.
+Sigue exigiendo las letras, cifras, acentos y otras marcas. El registro cuenta
+los selectores de presentación en el texto esperado y el extraído.
 
-Incluye versión, mensaje, progreso y los diagnósticos de ambos intentos del PDF.
-Añade códigos Unicode del primer carácter diferente, categoría y tipo de cambio,
-sin copiar palabras ni fragmentos del cuerpo ni volcar las cabeceras de sesión.
-No se transmite nada automáticamente.
+Validación: 100 pruebas. Cuatro regresiones fallaban antes de corregir la
+normalización; se mantienen negativos de letras, cifras, acentos y otros
+selectores. PDF reales de WebView2 en Windows con FE0E/FE0F y cifra cambiada
+rechazada. Conserva Copiar error/Copiar último error, fechas y destino directo,
+segunda lectura/SHA-256 de adjuntos y verificación global antes de movimientos.
 
-Validación: 92 pruebas, informe disponible tras borrar el registro y pulsación
-del botón real con comprobación del portapapeles Unicode en Windows. Conserva
-el flujo con Edge/OWA sintético, PDF e imágenes reales y segunda lectura de
-adjuntos. El fallo concreto de un carácter sigue pendiente de diagnóstico:
-esta versión no cambia las reglas de aceptación ni permite borrar ante un fallo.
-
+Corregido el mecanismo identificado; pendiente confirmar la ejecución completa
+con la cuenta real. Las pruebas de publicación utilizan correos sintéticos.
 EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.

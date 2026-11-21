@@ -47,7 +47,9 @@ public static class PdfVerifier
                     ExtractedCodePoint = same ? null : CodePoint(actualSequence, difference),
                     ExpectedUnicodeCategory = same ? null : Category(expectedSequence, difference),
                     ExtractedUnicodeCategory = same ? null : Category(actualSequence, difference),
-                    DifferenceKind = same ? "identical" : DifferenceKind(expectedSequence, actualSequence, difference)
+                    DifferenceKind = same ? "identical" : DifferenceKind(expectedSequence, actualSequence, difference),
+                    ExpectedPresentationSelectorsIgnored = PresentationSelectors(expectedVisibleText),
+                    ExtractedPresentationSelectorsIgnored = PresentationSelectors(extracted)
                 };
                 // PDF extraction inserts spaces/newlines inside words at line and
                 // page boundaries. Accept that case only when EVERY letter/digit
@@ -67,8 +69,15 @@ public static class PdfVerifier
         catch (Exception ex) { throw new InvalidDataException("No se ha podido abrir y comprobar el PDF generado.", ex); }
     }
 
-    private static string[] Words(string value) => Regex.Matches(value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{M}\p{N}]+")
+    // UTS #51: FE0E/FE0F select text/emoji presentation. A PDF may omit these
+    // non-glyph selectors. Exclude ONLY these two from text comparison, keeping
+    // accents and all other combining marks. Do not change the HTML or images.
+    // https://unicode.org/reports/tr51/#def_emoji_presentation_selector
+    private static string[] Words(string value) => Regex.Matches(value.Replace("\ufe0e", "", StringComparison.Ordinal).Replace("\ufe0f", "", StringComparison.Ordinal)
+        .Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{M}\p{N}]+")
         .Select(m => m.Value).ToArray();
+
+    private static int PresentationSelectors(string value) => value.Count(c => c is '\ufe0e' or '\ufe0f');
 
     private static string CodePoint(string text, int index) => index >= text.Length ? "END" :
         Rune.TryGetRuneAt(text, index, out var rune) ? $"U+{rune.Value:X4}" : $"U+{(int)text[index]:X4}";

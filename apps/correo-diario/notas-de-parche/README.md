@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 0.4.6-beta.1 · 22/11/2026
+
+- Corregido el falso rechazo identificado con Copiar error: U+FE0F de
+  presentación emoji aparecía como un carácter de texto perdido en el PDF.
+- El cotejo excluye únicamente los selectores de presentación FE0E/FE0F.
+  No cambia el HTML ni las imágenes y mantiene letras, cifras, acentos y
+  otras marcas combinadas. No introduce tolerancias por número de caracteres.
+- El registro cuenta los selectores excluidos en cada lado de la comparación.
+- 100 pruebas, incluyendo casos que fallaban antes de esta corrección,
+  negativos de letras/cifras/acentos y PDF reales de Windows con emoji.
+- Conserva Copiar error/Copiar último error, fechas, destino directo,
+  lectura doble de adjuntos y verificación global antes de mover a Eliminados.
+
 ## 0.4.5-beta.1 · 22/11/2026
 
 - Botón **Copiar error** en el aviso, con informe seleccionable y desplazable.

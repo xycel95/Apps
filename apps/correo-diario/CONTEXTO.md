@@ -2,6 +2,33 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.4.6: presentación emoji FE0F confirmada por diagnóstico
+
+El usuario entrega un diagnóstico de 0.4.5: ambos cotejos tienen DifferenceKind
+missing-code-point y ExpectedCodePoint U+FE0F. Es un selector de presentación
+emoji, no una letra/cifra. No copiar el informe real, rutas ni correos al repo.
+Referencia primaria: https://unicode.org/reports/tr51/#def_emoji_presentation_selector
+FE0E solicita presentación textual y FE0F presentación emoji.
+
+Words excluye únicamente FE0E y FE0F de ambos textos antes de normalizar y
+tokenizar. No elimina categorías completas de marcas ni acepta porcentajes
+de similitud. El HTML, los bytes originales y la composición de imágenes
+se conservan. PdfTextCheck cuenta Expected/ExtractedPresentationSelectorsIgnored.
+La regla se aplica también a la secuencia completa del formato simplificado.
+Mantener los negativos de letras, cifras, acentos y otros selectores FE00.
+
+100 pruebas: cuatro fallan antes de la corrección (96/100) y pasan después.
+El antiguo test diagnóstico con FE0F se sustituye por un acento combinado real
+omitido, que debe seguir fallando. Prueba de continuación y verificación global
+antes de movimientos con la excepción limitada a presentación. EmojiPdfCheck
+compone PDF reales con FE0E/FE0F en Windows, comprueba la secuencia y recuentos,
+y rechaza una cifra cambiada. Si el runtime omite el selector, también demuestra
+el rechazo del comparador anterior; si lo conserva, ambos lados se normalizan.
+
+Se ha identificado y corregido el mecanismo del fallo reportado. No afirmar
+que se ha probado toda la ejecución con la cuenta real; queda confirmarla.
+Validaciones anteriores en docs/historico/0.4.5.
+
 ## Versión 0.4.5: copiar el error sin depender del registro
 
 La captura de 0.4.4 avanza hasta un correo intermedio y falla con diferencia

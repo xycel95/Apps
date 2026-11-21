@@ -56,6 +56,8 @@ public sealed record PdfTextCheck(int Pages, int ExpectedWords, int ExtractedWor
     public string? ExpectedUnicodeCategory { get; init; }
     public string? ExtractedUnicodeCategory { get; init; }
     public string DifferenceKind { get; init; } = "identical";
+    public int ExpectedPresentationSelectorsIgnored { get; init; }
+    public int ExtractedPresentationSelectorsIgnored { get; init; }
 }
 public sealed record ExportErrorContext(int SelectedMessages, int SavedMessages, int SavedAttachments,
     int ConfirmedMoves, int? FailedMessageNumber, string Phase, bool DeletionRequested);
@@ -76,7 +78,7 @@ public record SavedMessage(string Id, string Revision, string Subject, IReadOnly
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.5-beta";
+    public string Version { get; set; } = "0.4.6-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }

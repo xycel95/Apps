@@ -14,6 +14,7 @@ internal static class Program
             {
                 CopyErrorCheck.Run(host);
                 using var renderer = new PdfRenderer();
+                await EmojiPdfCheck.RunAsync(renderer);
                 await PdfLayoutCheck.RunAsync(renderer);
                 await PdfReflowCheck.RunAsync(renderer);
                 await BrowserAuthCheck.RunAsync(renderer);

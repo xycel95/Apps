@@ -4,10 +4,10 @@ internal static class ErrorReportChecks
 {
     public static IEnumerable<(string Name, Func<Task> Test)> All()
     {
-        yield return ("Diagnóstico: identifica un carácter invisible omitido sin aceptar la pérdida", () =>
+        yield return ("Diagnóstico: identifica un acento combinado omitido sin aceptar la pérdida", () =>
         {
-            var check = Mismatch("ABC DEF", "ABC\uFE0F DEF");
-            Require(check.ExpectedCharacters == check.ExtractedCharacters + 1 && check.ExpectedCodePoint == "U+FE0F" &&
+            var check = Mismatch("ABQ DEF", "ABQ\u0301 DEF");
+            Require(check.ExpectedCharacters == check.ExtractedCharacters + 1 && check.ExpectedCodePoint == "U+0301" &&
                 check.ExpectedUnicodeCategory == "NonSpacingMark" && check.DifferenceKind == "missing-code-point" && !check.ExactSequence);
             return Task.CompletedTask;
         });

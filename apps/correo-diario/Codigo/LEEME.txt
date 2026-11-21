@@ -1,4 +1,9 @@
-CORREODIARIO 0.4.5 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.6 BETA — WINDOWS DE 64 BITS
+
+Corrige el falso aviso por FE0F de presentación emoji omitido en el PDF.
+El cotejo excluye únicamente FE0E/FE0F y mantiene letras, cifras, acentos y
+otras marcas. No cambia el HTML ni las imágenes; registra esos selectores
+aparte y conserva toda la verificación antes de mover correos a Eliminados.
 
 Los avisos tienen un botón «Copiar error». Copia el informe y pégalo para
 revisarlo: incluye versión, mensaje, progreso y diagnóstico del PDF, sin

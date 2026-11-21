@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
-    <AssemblyName>CorreoDiario</AssemblyName><Version>0.4.5</Version><Product>CorreoDiario</Product><Company>XyceL</Company>
+    <AssemblyName>CorreoDiario</AssemblyName><Version>0.4.6</Version><Product>CorreoDiario</Product><Company>XyceL</Company>
     <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <DebugType>none</DebugType><DebugSymbols>false</DebugSymbols><PublishTrimmed>false</PublishTrimmed>
