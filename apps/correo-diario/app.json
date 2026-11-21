@@ -63,7 +63,9 @@
     "user_mail_accessed": false,
     "limitation": "Prueba de arranque y casilla por defecto; no autentica cuentas, no imprime correo ni realiza movimientos reales.",
     "core_tests_passed": 23,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
