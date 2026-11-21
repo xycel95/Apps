@@ -66,7 +66,9 @@
     "limitation": "Arranque, interfaz de pestañas y borrado desmarcado; pendiente la autorización del navegador real, la impresión y las cuentas del usuario.",
     "core_tests_passed": 35,
     "browser_wire_test_verified": true,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
@@ -96,8 +98,6 @@
     "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.2.0-beta.1",
     "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.2.0-beta.1/SHA256SUMS.txt"
   },
-  "development_version": null,
-  "development_status": "Compilación de la conexión a la pestaña existente en curso. La descarga anterior conserva su versión.",
   "authentication": {
     "flow": "existing-browser-session",
     "embedded_login": false,
