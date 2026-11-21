@@ -14,7 +14,8 @@ internal sealed class MainForm : Form
     private readonly Button disconnect = new ThemedButton() { Text = "Desconectar", AutoSize = true, Enabled = false };
     private readonly Button help = new ThemedButton() { Text = "Cómo conectar", AutoSize = true };
     private readonly CheckedListBox folders = new() { Dock = DockStyle.Fill, CheckOnClick = true, BorderStyle = BorderStyle.None };
-    private readonly DateTimePicker date = new() { Format = DateTimePickerFormat.Short, Width = 130 };
+    private readonly DateTimePicker dateFrom = new() { Format = DateTimePickerFormat.Short, Width = 130, AccessibleName = "Desde" };
+    private readonly DateTimePicker dateThrough = new() { Format = DateTimePickerFormat.Short, Width = 130, AccessibleName = "Hasta" };
     private readonly Button list = new ThemedButton() { Text = "Buscar correos", AutoSize = true, Enabled = false };
     private readonly DataGridView messages = new() { Dock = DockStyle.Fill, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = true, BackgroundColor = Color.FromArgb(30, 41, 59), BorderStyle = BorderStyle.None };
     private readonly TextBox destination = new() { Dock = DockStyle.Fill, ReadOnly = true, PlaceholderText = "Elige dónde guardar los PDF y los adjuntos" };
@@ -34,7 +35,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.3.1 beta";
+        Text = "CorreoDiario · 0.4 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -52,6 +53,7 @@ internal sealed class MainForm : Form
         layout.Controls.Add(title, 0, 0);
         account.Items.AddRange(["Microsoft Edge · ya abierto", "Google Chrome · ya abierto", "Outlook del equipo (clásico)"]);
         account.SelectedIndex = 0;
+        dateFrom.Value = dateThrough.Value = DateTime.Today;
         var connection = new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = true, Padding = new(0, 10, 0, 0) };
         connection.Controls.AddRange([account, findTabs, disconnect, help]);
         connection.SetFlowBreak(help, true);
@@ -63,7 +65,8 @@ internal sealed class MainForm : Form
         var today = new ThemedButton { Text = "Hoy", AutoSize = true };
         var all = new ThemedButton { Text = "Marcar todos", AutoSize = true };
         var none = new ThemedButton { Text = "Desmarcar todos", AutoSize = true };
-        filter.Controls.AddRange([new Label { Text = "Fecha", AutoSize = true, Margin = new(0, 7, 8, 0) }, date, today, list, all, none]);
+        filter.Controls.AddRange([new Label { Text = "Desde", AutoSize = true, Margin = new(0, 7, 8, 0) }, dateFrom,
+            new Label { Text = "Hasta", AutoSize = true, Margin = new(8, 7, 8, 0) }, dateThrough, today, list, all, none]);
         layout.Controls.Add(filter, 0, 2);
         var split = new SplitContainer { Size = new(1180, 430), Dock = DockStyle.Fill, SplitterDistance = 245, FixedPanel = FixedPanel.Panel1, BackColor = background };
         var folderLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1, Padding = new(12), BackColor = surface };
@@ -74,7 +77,8 @@ internal sealed class MainForm : Form
         split.Panel2.Controls.Add(messages);
         layout.Controls.Add(split, 0, 3);
         messages.Columns.Add(new DataGridViewCheckBoxColumn { Name = "Selected", HeaderText = "", FillWeight = 10, ReadOnly = false });
-        messages.Columns.Add(new DataGridViewTextBoxColumn { Name = "Time", HeaderText = "Hora", FillWeight = 16, ReadOnly = true });
+        messages.Columns.Add(new DataGridViewTextBoxColumn { Name = "Time", HeaderText = "Fecha y hora", FillWeight = 31, ReadOnly = true,
+            ValueType = typeof(DateTime), DefaultCellStyle = new() { Format = "dd/MM/yyyy HH:mm" } });
         messages.Columns.Add(new DataGridViewTextBoxColumn { Name = "Direction", HeaderText = "Tipo", FillWeight = 23, ReadOnly = true });
         messages.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", HeaderText = "De / Para", FillWeight = 45, ReadOnly = true });
         messages.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subject", HeaderText = "Asunto", FillWeight = 80, ReadOnly = true });
@@ -157,15 +161,25 @@ internal sealed class MainForm : Form
             var selected = folders.CheckedItems.Cast<FolderLabel>().Select(x => x.Folder).ToList();
             if (selected.Count == 0) throw new InvalidOperationException("Marca al menos una carpeta.");
             messages.Rows.Clear();
-            var result = await source!.ListAsync(selected, DateOnly.FromDateTime(date.Value), TimeZoneInfo.Local, ct);
+            var dates = new MailDateRange(DateOnly.FromDateTime(dateFrom.Value), DateOnly.FromDateTime(dateThrough.Value));
+            var result = await source!.ListAsync(selected, dates, TimeZoneInfo.Local, ct);
             foreach (var mail in result)
             {
-                var row = messages.Rows[messages.Rows.Add(true, TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local).ToString("HH:mm"), mail.Sent ? "ENVIADO" : "RECIBIDO", mail.Sent ? mail.To : mail.From, mail.Subject)];
+                var row = messages.Rows[messages.Rows.Add(true, TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local).DateTime, mail.Sent ? "ENVIADO" : "RECIBIDO", mail.Sent ? mail.To : mail.From, mail.Subject)];
                 row.Tag = mail;
             }
-            status.Text = $"{result.Count} correos encontrados para el {date.Value:dd/MM/yyyy}. Los adjuntos se descargarán y comprobarán al guardar.";
+            status.Text = $"{result.Count} correos encontrados del {dates.From:dd/MM/yyyy} al {dates.Through:dd/MM/yyyy}, ambos incluidos. Los adjuntos se comprobarán al guardar.";
         });
-        today.Click += (_, _) => date.Value = DateTime.Today;
+        today.Click += (_, _) => { dateFrom.Value = DateTime.Today; dateThrough.Value = DateTime.Today; };
+        void DatesChanged(object? sender, EventArgs e)
+        {
+            if (operation is not null) return;
+            messages.Rows.Clear(); delete.Checked = false;
+            status.Text = "Fechas cambiadas. Pulsa «Buscar correos» para cargar el intervalo.";
+            RefreshButtons();
+        }
+        dateFrom.ValueChanged += DatesChanged;
+        dateThrough.ValueChanged += DatesChanged;
         all.Click += (_, _) => { if (operation is null) foreach (DataGridViewRow row in messages.Rows) row.Cells[0].Value = true; };
         none.Click += (_, _) => { if (operation is null) foreach (DataGridViewRow row in messages.Rows) row.Cells[0].Value = false; };
         choose.Click += (_, _) =>
@@ -237,7 +251,7 @@ internal sealed class MainForm : Form
     private void RefreshButtons()
     {
         var busy = operation is not null;
-        account.Enabled = findTabs.Enabled = choose.Enabled = date.Enabled = folders.Enabled = messages.Enabled = delete.Enabled = !busy;
+        account.Enabled = findTabs.Enabled = choose.Enabled = dateFrom.Enabled = dateThrough.Enabled = folders.Enabled = messages.Enabled = delete.Enabled = !busy;
         tabs.Enabled = !busy && account.SelectedIndex != 2;
         help.Enabled = !busy && account.SelectedIndex != 2;
         connectTab.Enabled = !busy && browser is not null && tabs.SelectedItem is BrowserTab;

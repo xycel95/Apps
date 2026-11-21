@@ -79,6 +79,15 @@ internal static class BrowserAuthCheck
                     'X-OWA-UrlPostData':encodeURIComponent(JSON.stringify(envelope))},body:JSON.stringify(envelope)});
                   return response.status;
                 };
+                window.fixtureLegacyAttachment=async()=>{
+                  const envelope={Header:{RequestServerVersion:'Exchange2016'},Body:{__type:'GetAttachmentRequest:#Exchange',
+                    AttachmentShape:{IncludeMimeContent:true},AttachmentIds:[{__type:'AttachmentId:#Exchange',Id:'attachment-fixture-in-1'}]}};
+                  const response=await fetch('/owa/0/service.svc?action=GetAttachment',{method:'POST',headers:{
+                    'Content-Type':'application/json','Authorization':'Bearer fixture-session','X-OWA-CANARY':'fixture-canary',
+                    'X-OWA-SessionId':'fixture-session-id','X-AnchorMailbox':'fixture@example.invalid',
+                    'X-OWA-UrlPostData':encodeURIComponent(JSON.stringify(envelope))},body:JSON.stringify(envelope)});
+                  return response.status;
+                };
                 </script>
                 """, "text/html"));
             app.MapPost("/owa/0/service.svc", async (HttpContext context) =>
@@ -150,15 +159,18 @@ internal static class BrowserAuthCheck
             if ((await session.EvaluateAsync("fixtureLegacySearch()", ct)).GetInt32() != 400)
                 throw new Exception("La prueba no reproduce el 400 del filtro antiguo.");
             Console.WriteLine("Fixture: 400 del filtro antiguo reproducido por el contrato de búsqueda.");
-            var messages = await source.ListAsync(folders, new(2026, 11, 20), TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid"), ct);
-            if (messages.Count != 4 || messages.Count(m => m.Sent) != 1 || messages.Any(m => m.Id == "fixture-other-day") || mailbox.Searches != 4)
+            if ((await session.EvaluateAsync("fixtureLegacyAttachment()", ct)).GetInt32() != 400)
+                throw new Exception("La prueba no reproduce el 400 del adjunto sin BaseShape.");
+            Console.WriteLine("Fixture: 400 del adjunto antiguo reproducido por el contrato de AttachmentShape.");
+            var messages = await source.ListAsync(folders, new(new(2026, 11, 20), new(2026, 11, 21)), TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid"), ct);
+            if (messages.Count != 5 || messages.Count(m => m.Sent) != 1 || !messages.Any(m => m.Id == "fixture-last-day") || messages.Any(m => m.Id == "fixture-other-day") || mailbox.Searches != 5)
                 throw new Exception("La búsqueda no respeta fecha, carpetas o paginación.");
             var output = Path.Combine(directory, "export-results"); Directory.CreateDirectory(output);
             var exported = await new ExportEngine(source, renderer ?? new OwaMailboxFixture.Renderer()).RunAsync(messages, new(output, false), null, ct);
-            if (exported.Messages != 4 || exported.Attachments != 4 || exported.Moved != 0 || mailbox.Moves != 0 || mailbox.FullReads != 8 || mailbox.AttachmentReads != 4 ||
-                Directory.GetFiles(exported.Directory, "*_CORREO.pdf").Length != 4 || Directory.GetFiles(exported.Directory, "*_ADJ01_*").Length != 4)
+            if (exported.Messages != 5 || exported.Attachments != 5 || exported.Moved != 0 || mailbox.Moves != 0 || mailbox.FullReads != 10 || mailbox.AttachmentReads != 5 ||
+                Directory.GetFiles(exported.Directory, "*_CORREO.pdf").Length != 5 || Directory.GetFiles(exported.Directory, "*_ADJ01_*").Length != 5)
                 throw new Exception("La exportación sintética no se completó o intentó mover correos.");
-            Console.WriteLine("Fixture: búsqueda de Entrada, Enviados y carpeta adicional; cuatro correos y cuatro adjuntos verificados, cero movimientos.");
+            Console.WriteLine("Fixture: intervalo de dos días en Entrada, Enviados y carpeta adicional; cinco correos y cinco adjuntos verificados, cero movimientos.");
         }
         finally
         {

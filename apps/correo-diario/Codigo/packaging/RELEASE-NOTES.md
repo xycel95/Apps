@@ -1,19 +1,18 @@
-# CorreoDiario 0.3.1 beta
+# CorreoDiario 0.4 beta
 
-Corrige el error 400 al buscar mensajes por fecha. El filtro utiliza ahora
-la envoltura y el nombre de constante que exige el contrato JSON de OWA.
-Mantiene la conexión con la pestaña abierta y la sesión del navegador.
+Corrige la petición de descarga de adjuntos que omitía BaseShape, obligatorio
+en AttachmentShape y causante del 400 del formato anterior.
 
-La consulta usa resúmenes de destinatarios y obtiene los datos completos al
-exportar. Se limpia la lista anterior antes de buscar y los avisos identifican
-la operación que falla.
+Añade Desde y Hasta: ambos días completos incluidos. Para un solo día, pon
+la misma fecha en los dos campos. Hoy pone ambos en el día actual. Funciona
+con la conexión web y con Outlook clásico. La lista muestra fecha y hora,
+ordena cronológicamente y se limpia cuando cambias las fechas.
 
-Validación: 59 pruebas; formatos antiguos rechazados con 400 por un lector
-independiente del contrato; Edge real y servicio HTTPS sintético con búsquedas
-por fecha y carpeta, paginación, cuatro PDF del renderizador WebView2 real y
-cuatro adjuntos originales. Cero movimientos con el borrado desmarcado.
-Pendiente confirmar la exportación con las cuentas reales del usuario.
+Validación: 65 pruebas; lector independiente de contratos de búsqueda y adjuntos;
+Edge real y servicio HTTPS sintético, intervalo de dos días, cinco PDF del
+renderizador WebView2 real y cinco adjuntos originales. Borrado desmarcado,
+cero movimientos. Pendiente confirmar la exportación con las cuentas reales.
 
-Descarga el EXE o el ZIP para Windows x64. .NET incluido; necesita WebView2
-Runtime para los PDF. La casilla de borrado sigue opcional y desmarcada. Solo
-mueve a Eliminados tras verificar toda la exportación y nunca reintenta movimientos.
+Windows x64, .NET incluido; necesita WebView2 Runtime para los PDF. Conserva
+la sesión del navegador abierto. El borrado sigue opcional y desmarcado; solo
+mueve a Eliminados tras verificar todo, sin reintentos de movimientos.

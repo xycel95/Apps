@@ -43,8 +43,8 @@ internal sealed class OwaMailboxFixture
         }
         if (action == "GetAttachment")
         {
+            var id = OwaAttachmentContract.Read(request);
             Interlocked.Increment(ref AttachmentReads);
-            var id = request.GetProperty("AttachmentIds")[0].GetProperty("Id").GetString();
             if (id is null || !id.StartsWith("attachment-fixture-")) throw new InvalidDataException("Adjunto de prueba desconocido.");
             return Reply("Attachments", new[] { new { AttachmentId = new { Id = id }, Content = "b3JpZ2luYWw=" } });
         }
@@ -65,7 +65,8 @@ internal sealed class OwaMailboxFixture
             ("fixture-in-2", "fixture-inbox", "2026-11-20T10:15:00Z", "2026-11-20T10:10:00Z"),
             ("fixture-sent-1", "fixture-sentitems", "2026-11-19T08:15:00Z", "2026-11-20T09:00:00Z"),
             ("fixture-custom-1", "fixture-custom", "2026-11-20T11:00:00Z", "2026-11-19T10:55:00Z"),
-            ("fixture-other-day", "fixture-inbox", "2026-11-21T08:15:00Z", "2026-11-21T08:10:00Z") })
+            ("fixture-last-day", "fixture-inbox", "2026-11-21T08:15:00Z", "2026-11-21T08:10:00Z"),
+            ("fixture-other-day", "fixture-inbox", "2026-11-22T08:15:00Z", "2026-11-22T08:10:00Z") })
         {
             yield return D(("ItemId", D(("Id", id), ("ChangeKey", "fixture-rev"))), ("ParentFolderId", D(("Id", folder))),
                 ("Subject", "Prueba de correo"), ("DateTimeReceived", received), ("DateTimeSent", sent), ("ItemClass", "IPM.Note"),

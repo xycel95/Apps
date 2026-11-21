@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 0.4.0-beta.1 · 21/11/2026
+
+- Corregida la petición GetAttachment: incluye BaseShape obligatorio para
+  evitar el 400 del formato anterior. No se altera el identificador del adjunto.
+- Campos Desde/Hasta, con los dos días completos incluidos, en web y clásico.
+- Hoy selecciona el día actual en ambos campos; fechas iguales buscan un día.
+- Fecha y hora en la tabla y ordenación cronológica entre meses.
+- Cambiar fechas limpia la lista anterior y desmarca el borrado.
+- 65 pruebas y flujo Windows con intervalo de dos días, cinco PDF reales de
+  WebView2 y cinco adjuntos frente a un servicio HTTPS sintético que valida
+  búsqueda y adjuntos. Se mantienen cero movimientos con borrado desmarcado.
+- Pendiente confirmar la exportación con las cuentas reales del usuario.
+
 ## 0.3.1-beta.1 · 21/11/2026
 
 - Corregido el formato del filtro por fecha que provocaba un 400 al buscar.

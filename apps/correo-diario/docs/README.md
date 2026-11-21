@@ -32,7 +32,11 @@ Chrome; no detecta perfiles portátiles ni rutas personalizadas.
 
 ## Guardar correos y adjuntos
 
-Marca carpetas (incluido Enviados), elige la fecha, pulsa **Buscar correos**,
+Marca carpetas (incluido Enviados), elige **Desde** y **Hasta** y pulsa
+**Buscar correos**. Ambos días se incluyen completos. Para buscar un único día,
+pon la misma fecha en los dos campos. **Hoy** pone ambos en el día actual.
+La lista muestra fecha y hora; al cambiar las fechas se limpia la búsqueda anterior.
+Después,
 revisa los mensajes y selecciona el destino. Después pulsa **Guardar correos
  y adjuntos**. Para la primera prueba, deja el borrado desmarcado.
 

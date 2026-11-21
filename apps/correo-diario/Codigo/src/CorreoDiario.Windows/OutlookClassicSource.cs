@@ -93,10 +93,9 @@ internal sealed class OutlookClassicSource : IMailSource, IDisposable
         }
     }
 
-    public async Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, DateOnly date, TimeZoneInfo zone, CancellationToken ct)
+    public async Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, MailDateRange dates, TimeZoneInfo zone, CancellationToken ct)
     {
-        var start = TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified), zone);
-        var end = TimeZoneInfo.ConvertTimeToUtc(date.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified), zone);
+        var (start, end) = dates.UtcBounds(zone);
         var result = new Dictionary<string, MailInfo>(StringComparer.Ordinal);
         foreach (var selected in folders)
         {
@@ -119,7 +118,7 @@ internal sealed class OutlookClassicSource : IMailSource, IDisposable
                     {
                         if ((int)mail.Class != 43 || !(bool)mail.Sent) continue;
                         var item = Snapshot(mail, selected, false);
-                        if (DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(item.Timestamp, zone).DateTime) == date) result[item.Id] = item;
+                        if (dates.Contains(item.Timestamp, zone)) result[item.Id] = item;
                     }
                     finally { Release(mail); }
                     if (i % 20 == 0) await Task.Yield();

@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {
@@ -186,7 +186,7 @@ sealed class FakeSource : IMailSource
     public bool BadSize, ChangeAfterExport, WrongId, FailSecondMove;
     public Action? OnVerify, OnMove;
     public Task<IReadOnlyList<MailFolder>> FoldersAsync(CancellationToken ct) => Task.FromResult<IReadOnlyList<MailFolder>>([new("inbox", "Entrada")]);
-    public Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, DateOnly date, TimeZoneInfo zone, CancellationToken ct) => Task.FromResult<IReadOnlyList<MailInfo>>(Items);
+    public Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, MailDateRange dates, TimeZoneInfo zone, CancellationToken ct) => Task.FromResult<IReadOnlyList<MailInfo>>(Items);
     public Task<MailInfo> ReadAsync(MailInfo item, CancellationToken ct)
     {
         Reads++;

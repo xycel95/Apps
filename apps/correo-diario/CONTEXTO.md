@@ -2,6 +2,29 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Versión 0.4: adjuntos e intervalos
+
+El usuario confirma por captura que 0.3.1 busca correos reales. Falla GetAttachment
+con 400 antes de exportar; el aviso indica cero movimientos. AttachmentShape
+omitía BaseShape, requerido por ResponseShape. Se añade AllProperties y se
+mantienen IncludeMimeContent e identificadores originales. No cambiar de nuevo
+la sesión del navegador ni pedir al usuario contraseñas o datos de sesión.
+OwaAttachmentContract es un lector independiente del contrato; rechaza el formato
+antiguo. El servidor de prueba también lo exige, además del contrato de búsqueda.
+
+Requisito nuevo: Desde/Hasta, ambos días completos. MailDateRange centraliza
+validación, medianoches UTC y pertenencia para OWA y Outlook clásico. Hoy pone
+ambas fechas actuales. Fecha y hora en la tabla, con DateTime para ordenar;
+cambiar fechas limpia selección y desmarca borrado. No exportar datos de una
+consulta anterior cuando cambien las fechas. No se limita artificialmente el rango.
+
+65 comprobaciones; incluye intervalos invertidos, límites, cambios de hora,
+contrato de adjuntos e identificador con caracteres especiales. Flujo Windows
+con Edge y servicio HTTPS sintético: dos días, cinco PDF reales de WebView2,
+cinco adjuntos y cero movimientos. Distinguir de exportación en el servidor real,
+que sigue pendiente. La interfaz nativa comprueba Desde/Hasta y dos calendarios.
+Conservar validaciones de 0.3.1 en docs/historico/0.3.1.
+
 ## Corrección 0.3.1: error 400 al buscar correos
 
 La captura del usuario confirma que 0.3 conecta y lista las carpetas reales.

@@ -1,6 +1,6 @@
 # CorreoDiario
 
-Guarda los correos del día en PDF y sus adjuntos originales por separado,
+Guarda los correos de un intervalo de fechas en PDF y sus adjuntos originales por separado,
 utilizando la **pestaña de Outlook que ya tienes abierta en Edge o Chrome**.
 El navegador pide autorizar la conexión. El borrado viene desmarcado y solo
 mueve a Eliminados después de completar y verificar la exportación.

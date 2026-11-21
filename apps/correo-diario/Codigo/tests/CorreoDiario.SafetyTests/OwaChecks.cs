@@ -27,7 +27,7 @@ internal static class OwaChecks
             };
             var source = new OwaSource(transport);
             var folders = await source.FoldersAsync(default);
-            var result = await source.ListAsync([folders[0]], new(2026, 3, 29), TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid"), default);
+            var result = await source.ListAsync([folders[0]], new MailDateRange(new(2026, 3, 29), new(2026, 3, 29)), TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid"), default);
             Require(result.Count == 2 && findCalls == 2, "Todas las páginas");
         });
         yield return ("Outlook: paginación desconocida impide una selección parcial", async () =>
@@ -37,7 +37,7 @@ internal static class OwaChecks
                 : FolderResponse(a, r) };
             var source = new OwaSource(transport);
             var folders = await source.FoldersAsync(default);
-            await Fails(() => source.ListAsync([folders[0]], new(2026, 11, 21), TimeZoneInfo.Utc, default));
+            await Fails(() => source.ListAsync([folders[0]], new MailDateRange(new(2026, 11, 21), new(2026, 11, 21)), TimeZoneInfo.Utc, default));
         });
         yield return ("Outlook: no acepta adjuntos anunciados sin lista", async () =>
         {

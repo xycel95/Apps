@@ -12,6 +12,7 @@
     <Compile Include="../CorreoDiario.SafetyTests/BrowserAuthCheck.cs" Link="BrowserAuthCheck.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaMailboxFixture.cs" Link="OwaMailboxFixture.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaSearchContract.cs" Link="OwaSearchContract.cs" />
+    <Compile Include="../CorreoDiario.SafetyTests/OwaAttachmentContract.cs" Link="OwaAttachmentContract.cs" />
   </ItemGroup>
   <Target Name="RemoveUnusedWpfReference" BeforeTargets="ResolveAssemblyReferences">
     <ItemGroup><Reference Remove="@(Reference)" Condition="'%(Filename)' == 'Microsoft.Web.WebView2.Wpf'" /></ItemGroup>

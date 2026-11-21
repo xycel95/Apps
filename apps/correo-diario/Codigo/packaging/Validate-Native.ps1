@@ -10,6 +10,7 @@ public static class CorreoDiarioWindowCheck {
   public delegate bool EnumProc(IntPtr window, IntPtr parameter);
   [DllImport("user32.dll")] public static extern bool EnumChildWindows(IntPtr parent, EnumProc callback, IntPtr parameter);
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr window, StringBuilder text, int maximum);
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetClassName(IntPtr window, StringBuilder text, int maximum);
   [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wparam, IntPtr lparam);
   public static IntPtr FindText(IntPtr parent, string caption) {
     IntPtr found=IntPtr.Zero;
@@ -19,6 +20,16 @@ public static class CorreoDiarioWindowCheck {
       return true;
     },IntPtr.Zero);
     return found;
+  }
+  public static int CountClass(IntPtr parent, string name) {
+    int count=0;
+    EnumChildWindows(parent, (window, parameter) => {
+      var text=new StringBuilder(256); GetClassName(window,text,256);
+      var className=text.ToString();
+      if(className==name || className.StartsWith("WindowsForms10."+name+".",StringComparison.Ordinal)) count++;
+      return true;
+    },IntPtr.Zero);
+    return count;
   }
 }
 '@
@@ -41,12 +52,16 @@ try {
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Usar esta pestaña') -eq [IntPtr]::Zero) { throw 'Falta la conexión a la pestaña seleccionada.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Cómo conectar') -eq [IntPtr]::Zero) { throw 'Falta la guía de conexión.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Abrir Outlook') -ne [IntPtr]::Zero) { throw 'Sigue existiendo el inicio de sesión integrado.' }
+  if ([CorreoDiarioWindowCheck]::CountClass($process.MainWindowHandle, 'SysDateTimePick32') -ne 2 -or
+      [CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Desde') -eq [IntPtr]::Zero -or
+      [CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Hasta') -eq [IntPtr]::Zero) { throw 'Faltan los dos controles del intervalo de fechas.' }
   $report = [ordered]@{
     native_startup_verified = $true
     deletion_checkbox_found = $true
     deletion_checkbox_default_checked = $false
     existing_browser_ui_verified = $true
     embedded_login_ui_absent = $true
+    date_range_controls_verified = $true
     window_title = $process.MainWindowTitle
     windows = [Environment]::OSVersion.VersionString
     dotnet_sdk = $sdk

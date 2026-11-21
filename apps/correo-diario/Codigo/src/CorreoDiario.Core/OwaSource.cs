@@ -67,11 +67,11 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
     }
     public string? OtherFoldersNotice { get; private set; }
 
-    public async Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, DateOnly date, TimeZoneInfo zone, CancellationToken ct)
+    public async Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, MailDateRange dates, TimeZoneInfo zone, CancellationToken ct)
     {
-        var startLocal = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
-        var start = TimeZoneInfo.ConvertTimeToUtc(startLocal, zone).ToString("O", CultureInfo.InvariantCulture);
-        var end = TimeZoneInfo.ConvertTimeToUtc(startLocal.AddDays(1), zone).ToString("O", CultureInfo.InvariantCulture);
+        var (startUtc, endUtc) = dates.UtcBounds(zone);
+        var start = startUtc.ToString("O", CultureInfo.InvariantCulture);
+        var end = endUtc.ToString("O", CultureInfo.InvariantCulture);
         var result = new Dictionary<string, MailInfo>(StringComparer.Ordinal);
         foreach (var folder in folders)
         {
@@ -97,8 +97,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
                 {
                     if (item.TryGetProperty("IsDraft", out var draft) && draft.ValueKind == JsonValueKind.True) continue;
                     var mail = Parse(item, folder);
-                    var day = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(mail.Timestamp, zone).DateTime);
-                    if (day == date) result[mail.Id] = mail;
+                    if (dates.Contains(mail.Timestamp, zone)) result[mail.Id] = mail;
                 }
                 if (LastPage(root, offset, items.Count)) break;
                 if (items.Count == 0 || page == 9999) throw new InvalidDataException("Outlook ha devuelto una lista incompleta. No se exporta una selección parcial.");
@@ -133,7 +132,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
     public async Task<byte[]> AttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct)
     {
         var json = await session.ActionAsync("GetAttachment", D(("__type", "GetAttachmentRequest:#Exchange"),
-            ("AttachmentShape", D(("IncludeMimeContent", true))),
+            ("AttachmentShape", D(("BaseShape", "AllProperties"), ("IncludeMimeContent", true))),
             ("AttachmentIds", new[] { D(("__type", "AttachmentId:#Exchange"), ("Id", attachment.Id)) })), ct);
         var values = Results(json, "Attachments");
         if (values.Count != 1) throw new InvalidDataException("No se ha podido descargar un adjunto completo.");

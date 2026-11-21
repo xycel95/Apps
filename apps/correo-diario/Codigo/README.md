@@ -1,6 +1,6 @@
-# CorreoDiario 0.3.1 beta
+# CorreoDiario 0.4 beta
 
-Aplicación portátil de Windows para exportar correos del día a PDF y conservar
+Aplicación portátil de Windows para exportar correos de un intervalo a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
 Outlook clásico instalado. Consulta [LEEME.txt](LEEME.txt) para el uso y los
 límites de la beta.
@@ -8,7 +8,7 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 59 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
+- 65 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
 - La publicación comprueba el arranque nativo y la conexión a Edge real con un
   servicio HTTPS sintético que exige autorización y valida el contrato de búsqueda.
 - El flujo sintético incluye fecha/carpeta, paginación, lectura completa,
@@ -137,7 +137,7 @@ mensaje y otro correo fuera del día solicitado. FindItem pide DisplayTo,
 porque devuelve resúmenes; los destinatarios completos se leen con GetItem.
 
 La prueba Windows compila el mismo PdfRenderer.cs de la aplicación y recorre
-el flujo con WebView2 real (cuatro PDF y cuatro adjuntos, cero movimientos):
+el flujo con WebView2 real (cinco PDF y cinco adjuntos, cero movimientos):
 
 ```sh
 dotnet run --project tests/CorreoDiario.WindowsChecks -c Release
@@ -148,3 +148,23 @@ no certifica la compatibilidad de todos los servidores de Microsoft ni accede
 a correo real. La guía de FindItem de Microsoft describe sus resúmenes y las
 propiedades completas obtenidas mediante GetItem:
 https://learn.microsoft.com/exchange/client-developer/web-service-reference/finditem-operation
+
+## Intervalos y descarga de adjuntos en 0.4
+
+`MailDateRange` es común a OWA y Outlook clásico. Desde y Hasta son inclusivos;
+se convierte la medianoche inicial y la del día posterior a Hasta por separado
+a UTC para respetar cambios de hora. La comprobación local aplica el mismo
+intervalo. Se rechaza Hasta anterior a Desde. Hoy pone las dos fechas actuales;
+cambiar fechas limpia los resultados anteriores. La columna usa valores DateTime
+con formato de fecha y hora para ordenar correctamente entre meses.
+
+La petición GetAttachment de 0.3.1 enviaba AttachmentShape sin BaseShape.
+ResponseShape exige ese miembro; se incluye AllProperties, conservando
+IncludeMimeContent y el identificador opaco original. OwaAttachmentContract
+verifica la solicitud con DataContractJsonSerializer y reproduce el 400 anterior.
+El fixture HTTP exige ahora también este contrato, además del de búsqueda.
+El flujo Windows recorre dos días inclusivos, cinco PDF reales y cinco adjuntos;
+comprueba el último día y excluye el posterior. Se mantienen cero movimientos.
+
+Referencia de la operación y sus propiedades de adjuntos:
+https://learn.microsoft.com/exchange/client-developer/web-service-reference/getattachment-operation
