@@ -1,0 +1,70 @@
+CORREODIARIO 0.1 BETA — WINDOWS DE 64 BITS
+
+PRIMERA VERSIÓN DE PRUEBA
+El ejecutable está compilado. Las 23 pruebas de lógica de exportación,
+comprobación y movimiento han pasado con datos simulados. Falta comprobar
+la interfaz, la impresión y el inicio de sesión real en Windows con tus cuentas.
+La compatibilidad con el Outlook del trabajo no está confirmada.
+
+CÓMO ABRIRLO
+Descomprime el ZIP y ejecuta CorreoDiario.exe. Ese es el único archivo que
+necesitas mover a una carpeta compartida para abrir la aplicación.
+El programa lleva .NET incorporado. La ventana web y la impresión requieren
+el componente Microsoft Edge WebView2 Runtime del equipo. No instala una
+extensión en el navegador ni un complemento en Outlook.
+
+CÓMO CONECTAR
+• Personal · Outlook / Microsoft 365: abre la página oficial de Outlook en
+  una ventana de la aplicación. Inicia sesión y vuelve a CorreoDiario.
+• Trabajo · Outlook web: permite indicar la dirección de acceso cuando la tengas.
+• Outlook del equipo (clásico): utiliza las cuentas ya configuradas en el
+  Outlook clásico instalado. No requiere conocer el enlace del trabajo.
+  Esta conexión no controla el nuevo Outlook; para ese cliente utiliza la web.
+
+Pulsa «Cargar carpetas», marca las que quieras, elige la fecha (por defecto,
+hoy) y pulsa «Buscar correos». Puedes seleccionar Entrada, Enviados u otras
+carpetas accesibles. Después elige el destino y guarda.
+
+QUÉ GUARDA
+Un PDF por correo, con asunto, remitente, fecha, destinatarios, CC/CCO y cuerpo.
+Los adjuntos originales se guardan por separado. Los nombres comparten
+fecha, hora, tipo y dirección para poder relacionarlos:
+2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_CORREO.pdf
+2026-11-21_13.45_RECIBIDO_ana@ejemplo.es_ADJ01_Solicitud.pdf
+Si coinciden hora y remitente, añade un número para no sobrescribir archivos.
+Cada ejecución crea una carpeta nueva y un archivo Comprobacion.json con
+el resultado y los archivos comprobados.
+
+BORRADO OPCIONAL
+La casilla está desmarcada al abrir la aplicación y se desmarca después
+de cada operación. Solo si la marcas se moverán correos a Eliminados.
+Primero debe terminar la exportación de todos los correos seleccionados,
+abrir los PDF, comprobar su texto, verificar los archivos guardados y volver
+a comprobar que los correos originales no han cambiado. Si falla esta fase,
+no comienza el movimiento de ningún correo.
+La aplicación no vacía Eliminados ni elimina definitivamente.
+Mover a Eliminados puede seguir ocupando cuota del buzón.
+
+Si la conexión se interrumpe durante los movimientos, puede haber algunos
+ya completados y otro sin confirmar. El aviso y Comprobacion.json lo indican;
+comprueba el buzón antes de repetir la operación. No reintenta movimientos
+automáticamente.
+
+LÍMITES DE ESTA BETA
+La conexión web depende de que la versión y la configuración de Outlook
+permitan acceder a su servicio web. Algunos servidores o políticas del
+centro pueden impedirlo. No es compatibilidad universal con cualquier Outlook.
+Los PDF se componen a partir del HTML y las cabeceras del mensaje; no son
+una reproducción exacta del cuadro de impresión de Outlook. Conservan
+texto e imágenes adjuntas. Las imágenes externas no se descargan y aparecen
+indicadas; las reglas de estilo avanzadas pueden cambiar de aspecto.
+Si no puede recuperar un adjunto completo, un correo protegido o un archivo
+enlazado a la nube, detiene la operación y conserva los correos originales.
+La comparación del texto del PDF es estricta: si no se puede comprobar por
+completo, detiene la operación. Puede rechazar algunos formatos complejos.
+
+SESIONES
+Las sesiones web se guardan en el perfil de Windows de quien ejecuta la
+aplicación, no junto al EXE de la carpeta compartida. «Cerrar sesión» borra
+la sesión web de esta aplicación. En Outlook clásico, «Desconectar» deja
+de acceder al perfil y no cierra el Outlook que estabas usando.
