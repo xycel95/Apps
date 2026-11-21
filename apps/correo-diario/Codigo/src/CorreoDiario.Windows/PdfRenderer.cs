@@ -6,8 +6,9 @@ using Microsoft.Web.WebView2.WinForms;
 
 namespace CorreoDiario.Windows;
 
-internal sealed class PdfRenderer : Form, IPdfRenderer
+internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
 {
+    internal const string SimplifiedNotice = "Formato simplificado: se conserva el texto del correo. Las imágenes incluidas se muestran al final.";
     private readonly WebView2 browser = new() { Dock = DockStyle.Fill };
     private bool initialized;
     public PdfRenderer()
@@ -21,7 +22,10 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
         Controls.Add(browser);
     }
 
-    public async Task<byte[]> RenderAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct)
+    public async Task<byte[]> RenderAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct) =>
+        (await RenderVerifiedAsync(item, attachments, ct)).Bytes;
+
+    public async Task<PdfRenderOutput> RenderVerifiedAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         if (!initialized)
@@ -107,6 +111,110 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
             html += "<p class=notice>Las imágenes externas se han dejado indicadas en el texto. Las imágenes adjuntas están incluidas.</p>";
         html += "</body></html>";
         await NavigateAsync(html, ct);
+        await ReadyAsync(ct);
+        var visibleText = JsonSerializer.Deserialize<string>(await browser.CoreWebView2.ExecuteScriptAsync("document.body.innerText").WaitAsync(ct)) ?? "";
+        var formatted = await PrintAsync(ct);
+        try
+        {
+            return new(formatted, new("formatted", PdfVerifier.ValidateText(formatted, visibleText)));
+        }
+        catch (InvalidDataException ex) when (ex.Data[PdfVerifier.MismatchDataKey] is PdfTextCheck)
+        {
+            var first = (PdfTextCheck)ex.Data[PdfVerifier.MismatchDataKey]!;
+            try
+            {
+                ct.ThrowIfCancellationRequested();
+                // The reference is taken from the SAME local document. Never derive
+                // expected text from the PDF, and never accept the failed first PDF.
+                var snapshot = await browser.CoreWebView2.ExecuteScriptAsync("""
+                    (()=>{
+                      const original=document.body.innerText;
+                      const counter=(n,type)=>{
+                        if(/^(lower|upper)-(alpha|latin)$/.test(type)&&n>0){let s='';for(let x=n;x>0;x=Math.floor((x-1)/26))s=String.fromCharCode(97+(x-1)%26)+s;return type.startsWith('upper')?s.toUpperCase():s;}
+                        if(/^(lower|upper)-roman$/.test(type)&&n>0&&n<4000){let s='',x=n;for(const [v,c] of [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']])while(x>=v){s+=c;x-=v;}return type.startsWith('lower')?s.toLowerCase():s;}
+                        return type==='decimal-leading-zero'&&n>=0&&n<10?'0'+n:String(n);
+                      };
+                      // innerText omits CSS-generated list markers. Materialize the
+                      // numbers before flattening so list references are retained.
+                      for(const list of document.querySelectorAll('.message ol,.message ul')){
+                        const items=[...list.children].filter(n=>n.tagName==='LI'),ordered=list.tagName==='OL',step=list.reversed?-1:1;
+                        let n=list.hasAttribute('start')?list.start:(list.reversed?items.length:1);
+                        for(const li of items){
+                          if(li.hasAttribute('value'))n=li.value;
+                          const type=getComputedStyle(li).listStyleType;
+                          if(type!=='none'){
+                            const marker=document.createElement('span');marker.textContent=ordered?counter(n,type)+'. ':'• ';
+                            li.prepend(marker);li.style.setProperty('list-style-type','none','important');
+                          }
+                          n+=step;
+                        }
+                      }
+                      return {original,text:document.body.innerText,images:[...document.querySelectorAll('.message img')].map(i=>i.getAttribute('src')),links:[...document.querySelectorAll('.message a[href]')].map(a=>a.getAttribute('href'))};
+                    })()
+                    """).WaitAsync(ct);
+                using var captured = JsonDocument.Parse(snapshot);
+                if (captured.RootElement.GetProperty("original").GetString() != visibleText)
+                    throw new InvalidDataException("El contenido local ha cambiado al preparar el PDF. Se conserva el correo original.");
+                var reference = captured.RootElement.GetProperty("text").GetString() ?? "";
+                var images = captured.RootElement.GetProperty("images").EnumerateArray().Select(i => i.GetString() ?? "").ToArray();
+                var simple = """
+                    <!doctype html><html lang="es"><head><meta charset="utf-8">
+                    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+                    <style>@page{size:A4;margin:15mm}body{margin:0;max-width:180mm;font:11pt Arial,sans-serif;color:#111;line-height:1.4;font-variant-ligatures:none}
+                    pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}p{margin:0 0 16px}figure{margin:16px 0;break-inside:avoid}img{display:block;max-width:100%;max-height:230mm;width:auto;height:auto}figcaption{margin-bottom:8px}</style>
+                    </head><body>
+                    """;
+                simple += "<p>" + E(SimplifiedNotice) + "</p><pre>" + E(reference) + "</pre>";
+                var expected = SimplifiedNotice + "\n" + reference;
+                var links = captured.RootElement.GetProperty("links").EnumerateArray().Select(a => a.GetString() ?? "").Where(a => a.Length > 0).ToArray();
+                if (links.Length > 0)
+                {
+                    simple += "<p>Enlaces del correo</p>";
+                    expected += "\nEnlaces del correo";
+                    foreach (var link in links)
+                    {
+                        simple += "<p><a href=\"" + E(link) + "\">" + E(link) + "</a></p>";
+                        expected += "\n" + link;
+                    }
+                }
+                if (images.Length > 0)
+                {
+                    simple += "<p>Imágenes del correo</p>";
+                    expected += "\nImágenes del correo";
+                    for (var i = 0; i < images.Length; i++)
+                    {
+                        if (!images[i].StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+                            throw new InvalidDataException("Una imagen no puede incluirse en el PDF simplificado. Se conserva el correo.");
+                        var caption = "Imagen " + (i + 1);
+                        simple += "<figure><figcaption>" + caption + "</figcaption><img src=\"" + E(images[i]) + "\"></figure>";
+                        expected += "\n" + caption;
+                    }
+                }
+                simple += "</body></html>";
+                await NavigateAsync(simple, ct);
+                await ReadyAsync(ct);
+                var simplified = await PrintAsync(ct);
+                try
+                {
+                    var check = PdfVerifier.ValidateText(simplified, expected, exactSequence: true);
+                    return new(simplified, new("simplified", check, first));
+                }
+                catch (InvalidDataException second) when (second.Data[PdfVerifier.MismatchDataKey] is PdfTextCheck)
+                {
+                    second.Data[PdfVerifier.FailureDataKey] = new PdfRenderFailure(first, (PdfTextCheck)second.Data[PdfVerifier.MismatchDataKey]!);
+                    throw;
+                }
+            }
+            catch (Exception failure)
+            {
+                failure.Data[PdfVerifier.FailureDataKey] ??= new PdfRenderFailure(first, failure.Data[PdfVerifier.MismatchDataKey] as PdfTextCheck);
+                throw;
+            }
+        }
+    }
+
+    private async Task ReadyAsync(CancellationToken ct)
+    {
         // Measure the local print document under print media too, rather than
         // comparing a wide screen layout with the A4 output.
         await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Emulation.setEmulatedMedia", "{\"media\":\"print\"}").WaitAsync(ct);
@@ -117,7 +225,10 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
         })).WaitAsync(ct);
         using (var parsed = JsonDocument.Parse(ready))
             if (parsed.RootElement.TryGetProperty("exceptionDetails", out _)) throw new InvalidDataException("No se han podido incluir todas las imágenes adjuntas en el PDF.");
-        var visibleText = JsonSerializer.Deserialize<string>(await browser.CoreWebView2.ExecuteScriptAsync("document.body.innerText").WaitAsync(ct)) ?? "";
+    }
+
+    private async Task<byte[]> PrintAsync(CancellationToken ct)
+    {
         var temp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XyceL", "CorreoDiario", "Temporales");
         Directory.CreateDirectory(temp);
         var path = Path.Combine(temp, Guid.NewGuid().ToString("N") + ".pdf");
@@ -131,9 +242,7 @@ internal sealed class PdfRenderer : Form, IPdfRenderer
             settings.MarginTop = settings.MarginBottom = settings.MarginLeft = settings.MarginRight = 15 / 25.4;
             if (!await browser.CoreWebView2.PrintToPdfAsync(path, settings).WaitAsync(ct))
                 throw new InvalidDataException("No se ha podido imprimir el correo a PDF.");
-            var bytes = await File.ReadAllBytesAsync(path, ct);
-            PdfVerifier.Validate(bytes, visibleText);
-            return bytes;
+            return await File.ReadAllBytesAsync(path, ct);
         }
         finally { try { File.Delete(path); } catch (IOException) { } }
     }

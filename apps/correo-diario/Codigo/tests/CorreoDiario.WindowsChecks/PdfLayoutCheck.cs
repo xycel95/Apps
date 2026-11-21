@@ -69,7 +69,7 @@ internal static class PdfLayoutCheck
     private static MailInfo Mail(string subject, string html) => new("pdf-layout", "v1", "inbox", subject,
         "remitente@ejemplo.invalid", "destino@ejemplo.invalid", "", new DateTimeOffset(2026, 1, 21, 10, 0, 0, TimeSpan.Zero), false, html, []);
 
-    private static string Header(MailInfo mail)
+    internal static string Header(MailInfo mail)
     {
         var local = TimeZoneInfo.ConvertTime(mail.SentAt ?? mail.Timestamp, TimeZoneInfo.Local);
         var text = $"{mail.Subject} De: {mail.From} Enviado: {local:dd/MM/yyyy HH:mm:ss} Para: {mail.To} ";

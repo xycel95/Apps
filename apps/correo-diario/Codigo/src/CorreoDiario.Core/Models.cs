@@ -43,6 +43,16 @@ public interface IPdfRenderer
 {
     Task<byte[]> RenderAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct);
 }
+public interface IVerifiedPdfRenderer : IPdfRenderer
+{
+    Task<PdfRenderOutput> RenderVerifiedAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct);
+}
+// Counts only: no body text, missing words or session data in diagnostics.
+public sealed record PdfTextCheck(int Pages, int ExpectedWords, int ExtractedWords, int MissingWords,
+    int ExpectedCharacters, int ExtractedCharacters, int FirstDifference, bool CompleteWords, bool ExactSequence);
+public sealed record PdfRenderVerification(string Mode, PdfTextCheck Text, PdfTextCheck? FormattedFailure = null);
+public sealed record PdfRenderOutput(byte[] Bytes, PdfRenderVerification Verification);
+public sealed record PdfRenderFailure(PdfTextCheck? Formatted, PdfTextCheck? Simplified);
 public record ExportOptions(string Destination, bool MoveToDeleted = false);
 public record ExportProgress(string Text, int Completed, int Total);
 public record SavedFile(string Name, long Length, string Sha256);
@@ -53,10 +63,11 @@ public sealed record SavedAttachment(string Id, string FileName, long? ReportedS
 public record SavedMessage(string Id, string Revision, string Subject, IReadOnlyList<SavedFile> Files)
 {
     public List<SavedAttachment> Attachments { get; init; } = [];
+    public PdfRenderVerification? Pdf { get; init; }
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.3-beta";
+    public string Version { get; set; } = "0.4.4-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }
@@ -64,5 +75,7 @@ public sealed class ExportReceipt
     public List<string> MovedToDeleted { get; set; } = [];
     public string? MoveInProgress { get; set; }
     public string? Error { get; set; }
+    public int? FailedMessageNumber { get; set; }
+    public PdfRenderFailure? PdfFailure { get; set; }
 }
-public record ExportResult(string Directory, int Messages, int Attachments, int Moved, string ReceiptPath = "");
+public record ExportResult(string Directory, int Messages, int Attachments, int Moved, string ReceiptPath = "", int SimplifiedPdfs = 0);

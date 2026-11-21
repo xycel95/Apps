@@ -25,12 +25,14 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
         var existingNames = Directory.EnumerateFileSystemEntries(run).Select(Path.GetFileName).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
         var attachmentChecks = new Dictionary<(string Mail, string Attachment), SavedAttachment>();
         var attachmentCount = 0;
+        int? currentMessage = null;
         try
         {
             await SaveReceiptAsync(receiptPath, receipt);
             for (var i = 0; i < selection.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
+                currentMessage = i + 1;
                 progress?.Report(new($"Guardando {i + 1}/{selection.Count}: {selection[i].Subject}", i, selection.Count));
                 var mail = await source.ReadAsync(selection[i], ct);
                 if (mail.Id != selection[i].Id) throw new InvalidDataException("La respuesta no corresponde al correo solicitado.");
@@ -45,7 +47,10 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                         throw new InvalidDataException($"El tamaño del adjunto «{a.Name}» no coincide. Se conserva el correo.");
                     allAttachments.Add(a.Id, bytes);
                 }
-                var pdf = await renderer.RenderAsync(mail, allAttachments, ct);
+                PdfRenderOutput? rendered = null;
+                var pdf = renderer is IVerifiedPdfRenderer verifiedRenderer
+                    ? (rendered = await verifiedRenderer.RenderVerifiedAsync(mail, allAttachments, ct)).Bytes
+                    : await renderer.RenderAsync(mail, allAttachments, ct);
                 ValidatePdf(pdf);
                 var timestamp = TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local);
                 var address = mail.Sent ? mail.To : mail.From;
@@ -66,7 +71,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                     attachmentChecks.Add((mail.Id, info.Id), check);
                     attachmentCount++;
                 }
-                receipt.Messages.Add(new(mail.Id, mail.Revision, mail.Subject, files) { Attachments = savedAttachments });
+                receipt.Messages.Add(new(mail.Id, mail.Revision, mail.Subject, files) { Attachments = savedAttachments, Pdf = rendered?.Verification });
                 snapshots.Add(mail);
                 await SaveReceiptAsync(receiptPath, receipt);
             }
@@ -124,15 +129,21 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
             }
             receipt.Status = "COMPLETADO";
             await SaveReceiptAsync(receiptPath, receipt);
-            return new(run, snapshots.Count, attachmentCount, receipt.MovedToDeleted.Count, receiptPath);
+            return new(run, snapshots.Count, attachmentCount, receipt.MovedToDeleted.Count, receiptPath,
+                receipt.Messages.Count(m => m.Pdf?.Mode == "simplified"));
         }
         catch (Exception ex)
         {
             receipt.Status = ex is OperationCanceledException ? "CANCELADO" : "ERROR";
             receipt.Error = ex.Message;
+            receipt.PdfFailure = ex.Data[PdfVerifier.FailureDataKey] as PdfRenderFailure;
+            if (receipt.PdfFailure is null && ex.Data[PdfVerifier.MismatchDataKey] is PdfTextCheck check)
+                receipt.PdfFailure = new(check, null);
+            receipt.FailedMessageNumber = receipt.PdfFailure is null ? null : currentMessage;
             try { await SaveReceiptAsync(receiptPath, receipt); } catch (IOException) { }
             var pending = receipt.MoveInProgress is null ? "" : "\nEl último movimiento no ha quedado confirmado. Comprueba el buzón antes de repetirlo.";
-            throw new ExportException($"{ex.Message}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
+            var failedPdf = receipt.FailedMessageNumber is int number ? $"\nCorreo en comprobación: {number}/{selection.Count}. Diagnóstico numérico en PdfFailure del registro." : "";
+            throw new ExportException($"{ex.Message}{failedPdf}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
         }
         finally { foreach (var stream in locked) await stream.DisposeAsync(); }
     }

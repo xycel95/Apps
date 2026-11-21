@@ -1,5 +1,20 @@
 # Notas de parche
 
+## 0.4.4-beta.1 · 21/11/2026
+
+- La 0.4.3 seguía mostrando un rechazo en el caso real reportado. Esta versión
+  añade una segunda composición cuando el PDF con formato no supera el cotejo.
+- La alternativa usa texto sencillo e imágenes al final, y exige coincidencia
+  completa de todas las letras y cifras, en orden y cantidad. Conserva la
+  numeración de listas; el PDF indica que su formato se ha simplificado.
+- El registro recoge modo, páginas y recuentos del cotejo. Si fallan ambos
+  intentos, indica el número de correo y diagnóstico de cada intento, sin
+  guardar fragmentos del cuerpo en esos diagnósticos.
+- 88 pruebas y regresión Windows del rechazo que todavía podía producir 0.4.3:
+  varias páginas, listas numeradas, imagen y segunda lectura del adjunto.
+- Se mantienen destino directo, fechas y verificación global antes de mover.
+  El caso concreto del usuario sigue pendiente de comprobar con esta versión.
+
 ## 0.4.3-beta.1 · 21/11/2026
 
 - Corregido un falso rechazo del cotejo cuando el PDF parte palabras o

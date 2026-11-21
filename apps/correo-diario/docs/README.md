@@ -56,6 +56,14 @@ una palabra partida entre líneas o páginas puede coincidir si conserva todas
 las letras y cifras. Si falta contenido, la operación se detiene. La composición
 puede cambiar de aspecto para que el contenido quepa en la página.
 
+Si el primer formato no supera el cotejo, el programa vuelve a componer el
+correo con texto sencillo y las imágenes al final. Conserva la numeración
+de listas y comprueba toda la secuencia de letras y cifras. El PDF incluye un
+aviso de formato simplificado; la ventana final indica cuántas copias lo usan.
+Si tampoco coincide, se detiene con cero movimientos iniciados y añade al
+registro el número de correo y el apartado `PdfFailure` con recuentos de ambos
+intentos. Ese apartado no contiene el texto del mensaje.
+
 ## Borrado opcional
 
 La casilla está desmarcada por defecto. Solo al marcarla se moverán mensajes a

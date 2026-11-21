@@ -2,6 +2,40 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.4.4: segunda composición verificada y diagnóstico
+
+Nueva captura de 0.4.3: persiste el rechazo del texto, cero movimientos. No
+se dispone del correo real ni del PDF que falla. No afirmar su causa exacta
+ni dar el caso por resuelto por pasar pruebas sintéticas.
+
+IVerifiedPdfRenderer devuelve bytes y verificación. PdfRenderer intenta primero
+el formato habitual. Solo ante discrepancia de texto genera una segunda
+composición a partir del MISMO documento local: texto codificado como literal
+y las imágenes incluidas al final, sin reutilizar el PDF rechazado. Materializa
+los números de las listas antes de capturar el texto para no perderlos al
+pasar a texto sencillo. Indica el formato simplificado en el PDF y en el aviso
+de finalización. No usa el PDF para construir el texto esperado.
+
+La segunda composición exige igualdad de TODA la secuencia normalizada de
+letras, marcas combinadas y cifras. No se acepta por porcentaje ni por una
+bolsa de caracteres. Si vuelve a fallar, no comienza ningún movimiento.
+Los adjuntos siguen sujetos a la segunda lectura y SHA-256 y todos los archivos
+quedan directamente en el destino con nombres sin sobrescritura.
+
+PdfVerifier conserva InvalidDataException y adjunta PdfTextCheck en Data ante
+discrepancias. Son recuentos y posición de primera diferencia; no copia palabras
+ni fragmentos del cuerpo. ExportReceipt incluye PdfFailure y FailedMessageNumber
+si falla, y SavedMessage.Pdf si se completa. El registro habitual sigue incluyendo
+los identificadores/asuntos de las copias: no subir un registro real completo
+al repositorio público. PdfFailure por sí solo contiene únicamente números/flags.
+
+88 pruebas. PdfReflowCheck usa el renderizador real y ExportEngine: reproduce
+un rechazo restante de 0.4.3 (palabra partida junto con marcadores de lista),
+compone y coteja 60 registros en varias páginas, listas romanas/alfabéticas,
+imagen CID, fichero adjunto dos veces, registro y cero movimientos. También
+rechaza una cifra cambiada. Consultar VALIDACION-WINDOWS.json para resultado
+y commit de publicación. Validaciones previas en docs/historico/0.4.3.
+
 ## Corrección 0.4.3: cotejo del PDF
 
 La captura de 0.4.2 muestra un rechazo del texto del PDF, con cero movimientos.

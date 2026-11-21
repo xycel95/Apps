@@ -35,7 +35,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4.3 beta";
+        Text = "CorreoDiario · 0.4.4 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -202,6 +202,7 @@ internal sealed class MainForm : Form
             }), ct);
             lastDirectory = result.Directory;
             status.Text = $"Guardados y verificados: {result.Messages} correos y {result.Attachments} adjuntos. Movidos a Eliminados: {result.Moved}.";
+            if (result.SimplifiedPdfs > 0) status.Text += $" PDF con formato simplificado y texto cotejado: {result.SimplifiedPdfs}.";
             if (result.Moved > 0) messages.Rows.Clear();
             delete.Checked = false;
             openResult.Enabled = true;

@@ -1,20 +1,20 @@
-# CorreoDiario 0.4.3 beta
+# CorreoDiario 0.4.4 beta
 
-Corrige el falso aviso de texto incompleto cuando una palabra o dirección se
-parte entre líneas o páginas del PDF. La aceptación de esos saltos exige que
-todas las letras y cifras coincidan en orden y cantidad; se mantiene la
-comprobación de palabras completas y se siguen rechazando omisiones.
+Añade una segunda composición cuando el PDF con formato no supera el cotejo.
+Usa texto sencillo, conserva la numeración de listas y reúne las imágenes al
+final. Esa copia solo se acepta si toda la secuencia de letras y cifras coincide
+en orden y cantidad. El PDF indica el formato y el aviso final cuenta las
+copias simplificadas. No se reutiliza como válida la primera copia rechazada.
 
-Adapta tablas al ancho de página y retira alturas/recortes que pueden ocultar
-texto al imprimir. Recoge el texto con el formato de impresión activado.
-Mantiene todos los archivos juntos en el destino, Desde/Hasta y el borrado
-opcional desmarcado, sin movimientos antes de verificar toda la selección.
+Si fallan ambos intentos, se detiene y registra el número de correo y recuentos
+de ambos cotejos en PdfFailure, sin copiar palabras ni fragmentos del cuerpo
+en ese diagnóstico. Mantiene destino directo, Desde/Hasta, segunda lectura de
+adjuntos y SHA-256, y borrado desmarcado sin movimientos antes de verificar todo.
 
-Validación: 83 pruebas de lógica y regresión de Windows con WebView2 real,
-palabras y direcciones largas, tabla ancha de 90 filas, varias páginas,
-Unicode e imágenes CID. La regresión reproduce el falso rechazo del cotejo
-anterior. Flujo con Edge y OWA sintético: cinco PDF, cinco adjuntos con
-segunda lectura y SHA-256, cero movimientos. No se han probado los correos
-concretos de la captura ni una cuenta real del usuario.
+Validación: 88 pruebas y flujo Windows con WebView2 real. Incluye un rechazo
+que podía persistir en 0.4.3, composición alternativa completa de varias páginas,
+listas romanas/alfabéticas, imagen y adjunto leído dos veces, recibo y cero
+movimientos. El caso concreto del usuario sigue pendiente de comprobación;
+las pruebas de publicación utilizan correos sintéticos.
 
 EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.

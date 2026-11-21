@@ -7,7 +7,14 @@ namespace CorreoDiario.Core;
 
 public static class PdfVerifier
 {
-    public static void Validate(byte[] bytes, string? expectedVisibleText = null)
+    public const string MismatchDataKey = "CorreoDiario.PdfTextMismatch";
+    public const string FailureDataKey = "CorreoDiario.PdfRenderFailure";
+
+    public static void Validate(byte[] bytes, string? expectedVisibleText = null) => Inspect(bytes, expectedVisibleText, false);
+    public static PdfTextCheck ValidateText(byte[] bytes, string expectedVisibleText, bool exactSequence = false) =>
+        Inspect(bytes, expectedVisibleText, exactSequence)!;
+
+    private static PdfTextCheck? Inspect(byte[] bytes, string? expectedVisibleText, bool exactSequence)
     {
         try
         {
@@ -26,15 +33,28 @@ public static class PdfVerifier
                 var actualWords = Words(extracted);
                 var actual = actualWords.GroupBy(s => s, StringComparer.Ordinal)
                     .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
-                var completeWords = expectedWords.GroupBy(s => s, StringComparer.Ordinal)
-                    .All(g => actual.TryGetValue(g.Key, out var count) && count >= g.Count());
+                var missingWords = expectedWords.GroupBy(s => s, StringComparer.Ordinal)
+                    .Sum(g => Math.Max(0, g.Count() - actual.GetValueOrDefault(g.Key)));
+                var expectedSequence = string.Concat(expectedWords);
+                var actualSequence = string.Concat(actualWords);
+                var difference = 0;
+                while (difference < Math.Min(expectedSequence.Length, actualSequence.Length) && expectedSequence[difference] == actualSequence[difference]) difference++;
+                var same = expectedSequence == actualSequence;
+                var check = new PdfTextCheck(pdf.NumberOfPages, expectedWords.Length, actualWords.Length, missingWords,
+                    expectedSequence.Length, actualSequence.Length, same ? -1 : difference, missingWords == 0, same);
                 // PDF extraction inserts spaces/newlines inside words at line and
                 // page boundaries. Accept that case only when EVERY letter/digit
                 // agrees in order and multiplicity across the whole document.
                 // No percentage threshold, character bag or missing-word tolerance.
-                if (!completeWords && string.Concat(actualWords) != string.Concat(expectedWords))
-                    throw new InvalidDataException("El texto del PDF no coincide por completo con el correo mostrado. Se conserva el correo original.");
+                if (exactSequence ? !same : missingWords != 0 && !same)
+                {
+                    var error = new InvalidDataException($"El texto del PDF no coincide por completo con el correo mostrado. Se conserva el correo original. Letras y cifras: esperadas {check.ExpectedCharacters}, leídas {check.ExtractedCharacters}.");
+                    error.Data[MismatchDataKey] = check;
+                    throw error;
+                }
+                return check;
             }
+            return null;
         }
         catch (InvalidDataException) { throw; }
         catch (Exception ex) { throw new InvalidDataException("No se ha podido abrir y comprobar el PDF generado.", ex); }

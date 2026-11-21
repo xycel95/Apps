@@ -14,6 +14,7 @@ internal static class Program
             {
                 using var renderer = new PdfRenderer();
                 await PdfLayoutCheck.RunAsync(renderer);
+                await PdfReflowCheck.RunAsync(renderer);
                 await BrowserAuthCheck.RunAsync(renderer);
                 Console.WriteLine("PASS Flujo Windows con WebView2 real: búsqueda, lectura, PDF cotejados, adjuntos originales y cero movimientos con datos sintéticos.");
                 result = 0;

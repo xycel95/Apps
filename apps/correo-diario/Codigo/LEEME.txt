@@ -1,4 +1,4 @@
-CORREODIARIO 0.4.3 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.4 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -54,3 +54,10 @@ las letras y cifras coinciden en orden y cantidad. Se mantienen las comprobacion
 de palabras completas. Las tablas se adaptan al ancho de página y se retiran
 alturas fijas/recortes que impedirían imprimir su contenido. Si sigue faltando
 texto, la exportación se detiene y no comienza ningún movimiento.
+
+Si el primer PDF no supera el cotejo, se compone una segunda copia con texto
+sencillo e imágenes al final, conservando la numeración de listas. Se exige
+que coincida toda la secuencia de letras y cifras en orden y cantidad. El PDF
+y el resultado indican ese formato. Si también falla, el registro contiene
+el número de correo y PdfFailure: recuentos de ambos intentos, sin fragmentos
+del cuerpo. Ningún movimiento comienza antes de verificar toda la selección.
