@@ -12,12 +12,13 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
+using System.Runtime.Serialization;
 
 internal static class BrowserAuthCheck
 {
     // CI only: isolated Edge profile and synthetic data. No real mailbox, login,
     // TLS bypass, profile copying or user certificate is involved.
-    public static async Task RunAsync()
+    public static async Task RunAsync(IPdfRenderer? renderer = null)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Esta prueba requiere Windows y Edge.");
         if (Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != "true") throw new InvalidOperationException("Esta prueba se ejecuta únicamente en el Windows efímero de CI.");
@@ -51,6 +52,7 @@ internal static class BrowserAuthCheck
         Process? browser = null;
         WebApplication? app = null;
         var rejected = 0; var accepted = 0;
+        var mailbox = new OwaMailboxFixture();
         try
         {
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [] });
@@ -64,6 +66,14 @@ internal static class BrowserAuthCheck
                 window.fixtureRefresh=async()=>{
                   const envelope={Header:{RequestServerVersion:'Exchange2016'},Body:{FolderIds:[{Id:'inbox'}]}};
                   const response=await fetch('/owa/0/service.svc?action=GetFolder&native=1',{method:'POST',headers:{
+                    'Content-Type':'application/json','Authorization':'Bearer fixture-session','X-OWA-CANARY':'fixture-canary',
+                    'X-OWA-SessionId':'fixture-session-id','X-AnchorMailbox':'fixture@example.invalid',
+                    'X-OWA-UrlPostData':encodeURIComponent(JSON.stringify(envelope))},body:JSON.stringify(envelope)});
+                  return response.status;
+                };
+                window.fixtureLegacySearch=async()=>{
+                  const envelope={Header:{RequestServerVersion:'Exchange2016'},Body:{Restriction:{__type:'And:#Exchange',Items:[]}}};
+                  const response=await fetch('/owa/0/service.svc?action=FindItem',{method:'POST',headers:{
                     'Content-Type':'application/json','Authorization':'Bearer fixture-session','X-OWA-CANARY':'fixture-canary',
                     'X-OWA-SessionId':'fixture-session-id','X-AnchorMailbox':'fixture@example.invalid',
                     'X-OWA-UrlPostData':encodeURIComponent(JSON.stringify(envelope))},body:JSON.stringify(envelope)});
@@ -86,13 +96,9 @@ internal static class BrowserAuthCheck
                 { context.Response.StatusCode = 400; return; }
                 Interlocked.Increment(ref accepted);
                 object response;
-                if (context.Request.Query["action"] == "FindFolder")
-                    response = new { Body = new { RootFolder = new { IncludesLastItemInRange = true, Folders = Array.Empty<object>() } } };
-                else
-                {
-                    var id = body.RootElement.GetProperty("Body").GetProperty("FolderIds")[0].GetProperty("Id").GetString();
-                    response = new { Body = new { Folders = new[] { new { FolderId = new { Id = "fixture-" + id }, DisplayName = id } } } };
-                }
+                try { response = mailbox.Handle(context.Request.Query["action"].ToString(), body.RootElement.GetProperty("Body")); }
+                catch (Exception ex) when (ex is SerializationException or InvalidDataException)
+                { context.Response.StatusCode = 400; return; }
                 context.Response.ContentType = "application/json";
                 // OWA uses PascalCase, unlike ASP.NET's web JSON defaults.
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response), ct);
@@ -137,9 +143,22 @@ internal static class BrowserAuthCheck
             var status = await session.EvaluateAsync("fixtureRefresh()", ct);
             if (status.GetInt32() != 200 || await session.GetAuthorizationAsync(true, ct) is null) throw new Exception("No se observó la autorización de la pestaña.");
             Console.WriteLine("Fixture: autorización observada en la solicitud correcta.");
-            var folders = await new OwaSource(new OwaPageTransport(session)).FoldersAsync(ct);
-            if (folders.Count != 2 || folders[0].Id != "fixture-inbox" || folders[1].Id != "fixture-sentitems" || rejected != 1 || accepted < 4)
+            var source = new OwaSource(new OwaPageTransport(session));
+            var folders = await source.FoldersAsync(ct);
+            if (folders.Count != 3 || folders[0].Id != "fixture-inbox" || folders[1].Id != "fixture-sentitems" || rejected != 1 || accepted < 4)
                 throw new Exception("La lectura autenticada no conserva las carpetas completas.");
+            if ((await session.EvaluateAsync("fixtureLegacySearch()", ct)).GetInt32() != 400)
+                throw new Exception("La prueba no reproduce el 400 del filtro antiguo.");
+            Console.WriteLine("Fixture: 400 del filtro antiguo reproducido por el contrato de búsqueda.");
+            var messages = await source.ListAsync(folders, new(2026, 11, 20), TimeZoneInfo.FindSystemTimeZoneById("Europe/Madrid"), ct);
+            if (messages.Count != 4 || messages.Count(m => m.Sent) != 1 || messages.Any(m => m.Id == "fixture-other-day") || mailbox.Searches != 4)
+                throw new Exception("La búsqueda no respeta fecha, carpetas o paginación.");
+            var output = Path.Combine(directory, "export-results"); Directory.CreateDirectory(output);
+            var exported = await new ExportEngine(source, renderer ?? new OwaMailboxFixture.Renderer()).RunAsync(messages, new(output, false), null, ct);
+            if (exported.Messages != 4 || exported.Attachments != 4 || exported.Moved != 0 || mailbox.Moves != 0 || mailbox.FullReads != 8 || mailbox.AttachmentReads != 4 ||
+                Directory.GetFiles(exported.Directory, "*_CORREO.pdf").Length != 4 || Directory.GetFiles(exported.Directory, "*_ADJ01_*").Length != 4)
+                throw new Exception("La exportación sintética no se completó o intentó mover correos.");
+            Console.WriteLine("Fixture: búsqueda de Entrada, Enviados y carpeta adicional; cuatro correos y cuatro adjuntos verificados, cero movimientos.");
         }
         finally
         {

@@ -34,7 +34,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.3 beta";
+        Text = "CorreoDiario · 0.3.1 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -156,8 +156,8 @@ internal sealed class MainForm : Form
         {
             var selected = folders.CheckedItems.Cast<FolderLabel>().Select(x => x.Folder).ToList();
             if (selected.Count == 0) throw new InvalidOperationException("Marca al menos una carpeta.");
-            var result = await source!.ListAsync(selected, DateOnly.FromDateTime(date.Value), TimeZoneInfo.Local, ct);
             messages.Rows.Clear();
+            var result = await source!.ListAsync(selected, DateOnly.FromDateTime(date.Value), TimeZoneInfo.Local, ct);
             foreach (var mail in result)
             {
                 var row = messages.Rows[messages.Rows.Add(true, TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local).ToString("HH:mm"), mail.Sent ? "ENVIADO" : "RECIBIDO", mail.Sent ? mail.To : mail.From, mail.Subject)];

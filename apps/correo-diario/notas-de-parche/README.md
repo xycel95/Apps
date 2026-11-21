@@ -1,5 +1,16 @@
 # Notas de parche
 
+## 0.3.1-beta.1 · 21/11/2026
+
+- Corregido el formato del filtro por fecha que provocaba un 400 al buscar.
+- FindItem pide el resumen de destinatarios; GetItem obtiene los datos completos.
+- La búsqueda distingue fecha de envío y recepción y respeta el día local.
+- Al empezar una búsqueda se limpia la selección anterior, incluso si falla.
+- Los errores HTTP identifican la operación que ha fallado.
+- 59 pruebas y flujo en Windows con Edge, servicio OWA sintético, búsqueda
+  paginada, cuatro PDF reales de WebView2 y cuatro adjuntos. Cero movimientos
+  con el borrado desmarcado. La exportación con la cuenta real sigue pendiente.
+
 ## 0.3.0-beta.1 · 21/11/2026
 
 - Corregida la causa de autorización detectada tras el error 401: se reutilizan

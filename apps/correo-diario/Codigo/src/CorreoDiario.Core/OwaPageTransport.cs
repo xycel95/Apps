@@ -8,6 +8,8 @@ public sealed class OwaPageTransport(IOutlookPage page) : IOutlookTransport
     {
         if (action is not ("GetFolder" or "FindFolder" or "FindItem" or "GetItem" or "GetAttachment" or "MoveItem"))
             throw new InvalidOperationException("Operación no permitida.");
+        var operationLabel = action switch { "GetFolder" => "la lectura de carpetas", "FindFolder" => "la lista de carpetas", "FindItem" => "la búsqueda de correos",
+            "GetItem" => "la lectura del correo", "GetAttachment" => "la descarga del adjunto", _ => "el movimiento a Eliminados" };
         var source = page as IOutlookAuthorizationSource;
         var authorization = source is null ? null : await source.GetAuthorizationAsync(false, ct);
         for (var attempt = 0; attempt < 2; attempt++)
@@ -18,7 +20,7 @@ public sealed class OwaPageTransport(IOutlookPage page) : IOutlookTransport
                 ["Header"] = new Dictionary<string, object> { ["__type"] = "JsonRequestHeaders:#Exchange", ["RequestServerVersion"] = authorization?.ServerVersion ?? "Exchange2016" },
                 ["Body"] = body
             };
-            var input = JsonSerializer.Serialize(new { action, envelope, serviceUrl = authorization?.Endpoint.AbsoluteUri,
+            var input = JsonSerializer.Serialize(new { action, operationLabel, envelope, serviceUrl = authorization?.Endpoint.AbsoluteUri,
                 sessionHeaders = authorization?.CopyRequestHeaders() ?? new Dictionary<string, string>(), urlPostData = authorization?.UrlPostData ?? false });
             var script = "(async()=>{const cfg=" + input + ";" + """
                 if(location.protocol!=='https:')return {ok:false,error:'La conexión debe utilizar HTTPS.'};
@@ -34,7 +36,7 @@ public sealed class OwaPageTransport(IOutlookPage page) : IOutlookTransport
                 for(const endpoint of endpoints){
                   const response=await fetch(endpoint+'?action='+encodeURIComponent(cfg.action)+'&app=Mail',{method:'POST',credentials:cfg.serviceUrl?'include':'same-origin',redirect:'error',headers,body:JSON.stringify(cfg.envelope),signal:AbortSignal.timeout(60000)});
                   if(!response.ok){
-                    if(cfg.action==='MoveItem'||cfg.serviceUrl||candidates.includes(selected)||![404,405].includes(response.status))return {ok:false,status:response.status,error:'Outlook ha rechazado la operación ('+response.status+').'};
+                    if(cfg.action==='MoveItem'||cfg.serviceUrl||candidates.includes(selected)||![404,405].includes(response.status))return {ok:false,status:response.status,error:'Outlook ha rechazado '+cfg.operationLabel+' ('+cfg.action+', '+response.status+').'};
                     continue;
                   }
                   let value;try{value=await response.json();}catch{return {ok:false,error:'La pestaña no muestra un buzón de Outlook disponible. Abre tu correo en el navegador y vuelve a seleccionarlo.'};}

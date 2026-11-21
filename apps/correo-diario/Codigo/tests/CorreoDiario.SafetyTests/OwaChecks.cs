@@ -13,7 +13,7 @@ internal static class OwaChecks
             {
                 if (action != "FindItem") return FolderResponse(action, request);
                 var restriction = request.GetProperty("Restriction");
-                var comparisons = restriction.GetProperty("Items");
+                var comparisons = restriction.GetProperty("Item").GetProperty("Items");
                 var from = comparisons[0].GetProperty("FieldURIOrConstant").GetProperty("Item").GetProperty("Value").GetString();
                 var until = comparisons[1].GetProperty("FieldURIOrConstant").GetProperty("Item").GetProperty("Value").GetString();
                 Require(DateTimeOffset.Parse(until!) - DateTimeOffset.Parse(from!) == TimeSpan.FromHours(23), "Día de 23 horas en Madrid");

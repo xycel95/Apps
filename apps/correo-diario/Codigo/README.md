@@ -1,4 +1,4 @@
-# CorreoDiario 0.3 beta
+# CorreoDiario 0.3.1 beta
 
 Aplicación portátil de Windows para exportar correos del día a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
@@ -8,11 +8,13 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 50 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
+- 59 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
 - La publicación comprueba el arranque nativo y la conexión a Edge real con un
-  servicio HTTPS sintético que exige autorización.
+  servicio HTTPS sintético que exige autorización y valida el contrato de búsqueda.
+- El flujo sintético incluye fecha/carpeta, paginación, lectura completa,
+  generación de PDF mediante el renderizador WebView2 real y adjuntos separados.
 - Pendientes: cuentas reales de Outlook.com/Microsoft 365, correo laboral,
-  impresión WebView2 y automatización del Outlook clásico.
+  exportación en las cuentas del usuario y automatización del Outlook clásico.
 - La comprobación de renderizado Chromium incluida no pudo ejecutarse en este
   entorno por restricciones del proceso del navegador; no se contabiliza como
   una prueba superada. Las comprobaciones del lector PDF sí se ejecutaron.
@@ -119,3 +121,30 @@ cuentas del usuario. El programa distribuido nunca crea ese perfil.
 
 Una lectura rechazada por 401/440 puede esperar una autorización renovada y
 repetirse una sola vez. MoveItem nunca se reintenta, ni siquiera tras un 401.
+
+## Contrato de búsqueda y regresión del 400
+
+`Restriction` contiene `Item`; la expresión `And` se coloca dentro de ese
+miembro. El nombre JSON del valor constante es `Constant:#Exchange`, aunque el
+tipo CLR del servidor se denomine ConstantValueType. En 0.3 se omitía la
+envoltura y se enviaba `ConstantValue:#Exchange`.
+
+`OwaSearchContract` es un lector de contrato independiente, basado en
+DataContractJsonSerializer. Rechaza los dos formatos antiguos. El servicio
+sintético exige ese contrato y reproduce 400 antes de comprobar la búsqueda
+corregida en Entrada, Enviados y una carpeta adicional, con páginas de un
+mensaje y otro correo fuera del día solicitado. FindItem pide DisplayTo,
+porque devuelve resúmenes; los destinatarios completos se leen con GetItem.
+
+La prueba Windows compila el mismo PdfRenderer.cs de la aplicación y recorre
+el flujo con WebView2 real (cuatro PDF y cuatro adjuntos, cero movimientos):
+
+```sh
+dotnet run --project tests/CorreoDiario.WindowsChecks -c Release
+```
+
+Se ejecuta únicamente en el Windows efímero de CI. El servicio OWA es sintético;
+no certifica la compatibilidad de todos los servidores de Microsoft ni accede
+a correo real. La guía de FindItem de Microsoft describe sus resúmenes y las
+propiedades completas obtenidas mediante GetItem:
+https://learn.microsoft.com/exchange/client-developer/web-service-reference/finditem-operation

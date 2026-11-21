@@ -2,6 +2,27 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.3.1: error 400 al buscar correos
+
+La captura del usuario confirma que 0.3 conecta y lista las carpetas reales.
+La búsqueda por fecha fallaba con 400: Restriction debe envolver la expresión
+And en Item; el discriminador JSON de las constantes es Constant:#Exchange,
+no ConstantValue:#Exchange. No cambiar de nuevo el mecanismo de autenticación.
+FindItem devuelve resúmenes; se solicita DisplayTo y GetItem conserva el acceso
+a los destinatarios completos durante la exportación.
+
+59 comprobaciones, incluyendo contrato de búsqueda leído con el serializador
+DataContractJsonSerializer independiente, formatos antiguos rechazados, días
+locales de 23/24/25 horas, Enviados y carpetas adicionales. El servicio HTTPS
+sintético reproduce 400, exige el contrato y fuerza paginación. WindowsChecks
+compila el PdfRenderer.cs real y verifica cuatro PDF de WebView2 y cuatro
+adjuntos; borrado desmarcado, cero movimientos. Diferenciar este flujo del
+servidor y la cuenta real, cuya exportación sigue pendiente. No subir la captura,
+nombres de carpetas reales ni otros datos personales al repositorio público.
+La lista anterior se limpia antes de una búsqueda para evitar reutilizar una
+selección si falla la nueva consulta. Los errores HTTP indican la operación.
+Conservar informes anteriores en docs/historico/0.3.
+
 ## Corrección 0.3: error 401 reportado por el usuario
 
 La versión 0.2 detectó la pestaña real, pero Outlook rechazó la lectura con 401.

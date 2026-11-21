@@ -20,7 +20,7 @@ if (args.Length == 1 && args[0] == "--verify-browser-bridge")
 if (args.Length == 1 && args[0] == "--verify-outlook-auth")
 {
     await BrowserAuthCheck.RunAsync();
-    Console.WriteLine("PASS Edge real y servicio HTTPS sintético: 401 sin autorización, contexto observado y lectura de carpetas autenticada.");
+    Console.WriteLine("PASS Edge real y servicio HTTPS sintético: 401/400 reproducidos, contexto observado, búsqueda paginada y exportación sintética verificadas.");
     return 0;
 }
 
@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {

@@ -78,15 +78,17 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
             var field = folder.Sent ? "item:DateTimeSent" : "item:DateTimeReceived";
             object Comparison(string name, string value) => D(("__type", name + ":#Exchange"),
                 ("Item", D(("__type", "PropertyUri:#Exchange"), ("FieldURI", field))),
-                ("FieldURIOrConstant", D(("Item", D(("__type", "ConstantValue:#Exchange"), ("Value", value))))));
-            var restriction = D(("__type", "And:#Exchange"),
-                ("Items", new[] { Comparison("IsGreaterThanOrEqualTo", start), Comparison("IsLessThan", end) }));
+                ("FieldURIOrConstant", D(("Item", D(("__type", "Constant:#Exchange"), ("Value", value))))));
+            // Restriction is a wrapper with a required Item. Its expression is
+            // polymorphic; the wire name of ConstantValueType is "Constant".
+            var restriction = D(("Item", D(("__type", "And:#Exchange"),
+                ("Items", new[] { Comparison("IsGreaterThanOrEqualTo", start), Comparison("IsLessThan", end) }))));
             var offset = 0;
             for (var page = 0; page < 10000; page++)
             {
                 ct.ThrowIfCancellationRequested();
                 var json = await session.ActionAsync("FindItem", D(("__type", "FindItemRequest:#Exchange"),
-                    ("ItemShape", Shape("ItemResponseShape", "Default", "item:DateTimeReceived", "item:DateTimeSent", "message:From", "message:ToRecipients")),
+                    ("ItemShape", Shape("ItemResponseShape", "Default", "item:DateTimeReceived", "item:DateTimeSent", "message:From", "item:DisplayTo")),
                     ("Traversal", "Shallow"), ("ViewFilter", "All"), ("Paging", Paging(offset)),
                     ("Restriction", restriction), ("ParentFolderIds", new[] { FolderId(folder.Id) })), ct);
                 var root = Root(json);
@@ -177,7 +179,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
                 a.TryGetProperty("IsInline", out var inline) && inline.ValueKind == JsonValueKind.True, Text(a, "ContentId")));
         }
         return new(id, Text(Child(item, "ItemId"), "ChangeKey"), Text(Child(item, "ParentFolderId"), "Id", folder.Id),
-            Text(item, "Subject", "Sin asunto"), Address(Child(item, "From")), Recipients(item, "ToRecipients"), Recipients(item, "CcRecipients"),
+            Text(item, "Subject", "Sin asunto"), Address(Child(item, "From")), RecipientSummary(item, "ToRecipients", "DisplayTo"), RecipientSummary(item, "CcRecipients", "DisplayCc"),
             date, folder.Sent, Text(Child(item, "Body"), "Value"), attachments,
             DateTimeOffset.TryParse(Text(item, "DateTimeSent"), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var sentAt) ? sentAt : null,
             Recipients(item, "BccRecipients"));
@@ -185,6 +187,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
 
     private static string Address(JsonElement e) => Text(Child(e, "Mailbox"), "EmailAddress", Text(e, "EmailAddress", Text(Child(e, "Mailbox"), "Name", Text(e, "Name"))));
     private static string Recipients(JsonElement e, string key) => string.Join("; ", Array(e, key).Select(Address));
+    private static string RecipientSummary(JsonElement e, string recipients, string display) => Recipients(e, recipients) is { Length: > 0 } values ? values : Text(e, display);
     private static JsonElement Child(JsonElement e, string key) => e.ValueKind == JsonValueKind.Object && e.TryGetProperty(key, out var child) ? child : default;
     private static string Text(JsonElement e, string key, string fallback = "") => e.ValueKind == JsonValueKind.Object && e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? fallback : fallback;
     private static List<JsonElement> Array(JsonElement e, string key) => e.ValueKind == JsonValueKind.Object && e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray().Select(x => x.Clone()).ToList() : [];

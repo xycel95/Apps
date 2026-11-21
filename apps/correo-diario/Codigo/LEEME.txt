@@ -1,4 +1,4 @@
-CORREODIARIO 0.3 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.3.1 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -31,7 +31,7 @@ El EXE incluye .NET. Necesita Edge WebView2 Runtime para la composición local
 de los PDF; no se usa para iniciar sesión. El modo Outlook clásico sigue
 requiriendo un perfil ya configurado en ese cliente.
 
-Es una beta: la lógica y el transporte pueden probarse con datos simulados,
-y con Edge real frente a un servicio HTTPS sintético; falta comprobar las
-cuentas reales del usuario y la impresión. Los PDF pueden variar de aspecto y no descargan imágenes externas.
+Es una beta: se han comprobado búsqueda por fecha/carpeta, paginación,
+PDF de WebView2 y adjuntos con Edge y un servicio HTTPS sintético. Falta
+comprobar la exportación con las cuentas reales del usuario. Los PDF pueden variar de aspecto y no descargan imágenes externas.
 Los adjuntos o textos que no puedan verificarse detienen la operación.
