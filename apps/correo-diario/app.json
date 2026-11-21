@@ -93,7 +93,9 @@
     "pdf_code_point_diagnostics_verified": true,
     "emoji_presentation_pdf_verified": true,
     "emoji_presentation_negative_controls_verified": true,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
