@@ -226,7 +226,7 @@ internal sealed class OutlookClassicSource : IMailSource, IDisposable
                         if (type == 5 && !name.EndsWith(".msg", StringComparison.OrdinalIgnoreCase)) name += ".msg";
                         string cid = Property(a, "http://schemas.microsoft.com/mapi/proptag/0x3712001F", "http://schemas.microsoft.com/mapi/proptag/0x3712001E");
                         string mime = Property(a, "http://schemas.microsoft.com/mapi/proptag/0x370E001F", "http://schemas.microsoft.com/mapi/proptag/0x370E001E");
-                        attachments.Add(new(i.ToString(CultureInfo.InvariantCulture), name, type == 5 ? null : Convert.ToInt64(a.Size), mime, cid.Length > 0, cid));
+                        attachments.Add(new(i.ToString(CultureInfo.InvariantCulture), name, type == 5 ? null : Convert.ToInt64(a.Size), mime, cid.Length > 0, cid, AttachmentSizeMeaning.OutlookStoreBytes));
                     }
                     finally { Release(a); }
                 }

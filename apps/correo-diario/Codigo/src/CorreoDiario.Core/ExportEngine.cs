@@ -23,6 +23,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
         var snapshots = new List<MailInfo>();
         var locked = new List<FileStream>();
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var attachmentChecks = new Dictionary<(string Mail, string Attachment), SavedAttachment>();
         var attachmentCount = 0;
         try
         {
@@ -40,7 +41,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 {
                     ct.ThrowIfCancellationRequested();
                     var bytes = await source.AttachmentAsync(mail, a, ct);
-                    if (a.Size is long expected && bytes.LongLength != expected)
+                    if (a.SizeMeaning == AttachmentSizeMeaning.ContentBytes && a.Size is long expected && bytes.LongLength != expected)
                         throw new InvalidDataException($"El tamaño del adjunto «{a.Name}» no coincide. Se conserva el correo.");
                     allAttachments.Add(a.Id, bytes);
                 }
@@ -53,15 +54,20 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 for (var suffix = 2; !names.Add(candidate); suffix++) candidate = prefix + "_" + suffix.ToString("00");
                 prefix = candidate;
                 var files = new List<SavedFile>();
+                var savedAttachments = new List<SavedAttachment>();
                 files.Add(await SaveVerifiedAsync(run, prefix + "_CORREO.pdf", pdf, ct));
                 for (var a = 0; a < mail.Attachments.Count; a++)
                 {
                     var info = mail.Attachments[a];
                     var name = prefix + $"_ADJ{a + 1:00}_" + SafeName(info.Name, 95);
-                    files.Add(await SaveVerifiedAsync(run, name, allAttachments[info.Id], ct));
+                    var file = await SaveVerifiedAsync(run, name, allAttachments[info.Id], ct);
+                    files.Add(file);
+                    var check = new SavedAttachment(info.Id, file.Name, info.Size, info.SizeMeaning, file.Length, file.Sha256);
+                    savedAttachments.Add(check);
+                    attachmentChecks.Add((mail.Id, info.Id), check);
                     attachmentCount++;
                 }
-                receipt.Messages.Add(new(mail.Id, mail.Revision, mail.Subject, files));
+                receipt.Messages.Add(new(mail.Id, mail.Revision, mail.Subject, files) { Attachments = savedAttachments });
                 snapshots.Add(mail);
                 await SaveReceiptAsync(run, receipt);
             }
@@ -71,12 +77,23 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
             receipt.Status = "VERIFICANDO";
             await SaveReceiptAsync(run, receipt);
             progress?.Report(new("Comprobando todos los PDF y adjuntos…", selection.Count, selection.Count));
+            var verifiedMessages = 0;
             foreach (var mail in snapshots)
             {
                 ct.ThrowIfCancellationRequested();
+                progress?.Report(new($"Verificando {++verifiedMessages}/{snapshots.Count}: revisando el correo y volviendo a leer sus adjuntos…", selection.Count, selection.Count));
                 var current = await source.ReadAsync(mail, ct);
                 if (Fingerprint(current) != Fingerprint(mail))
                     throw new InvalidDataException("Un correo ha cambiado durante la exportación. No comienza el borrado.");
+                foreach (var attachment in current.Attachments)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var check = attachmentChecks[(mail.Id, attachment.Id)];
+                    var bytes = await source.AttachmentAsync(current, attachment, ct);
+                    if (bytes.LongLength != check.ContentLength || Hash(bytes) != check.Sha256)
+                        throw new InvalidDataException($"El contenido del adjunto «{attachment.Name}» no coincide en la segunda lectura. Se conserva el correo.");
+                    check.SourceReadbackVerified = true;
+                }
             }
             foreach (var file in receipt.Messages.SelectMany(m => m.Files))
             {

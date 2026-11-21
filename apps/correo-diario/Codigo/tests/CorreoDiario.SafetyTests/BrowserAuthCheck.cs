@@ -167,10 +167,16 @@ internal static class BrowserAuthCheck
                 throw new Exception("La búsqueda no respeta fecha, carpetas o paginación.");
             var output = Path.Combine(directory, "export-results"); Directory.CreateDirectory(output);
             var exported = await new ExportEngine(source, renderer ?? new OwaMailboxFixture.Renderer()).RunAsync(messages, new(output, false), null, ct);
-            if (exported.Messages != 5 || exported.Attachments != 5 || exported.Moved != 0 || mailbox.Moves != 0 || mailbox.FullReads != 10 || mailbox.AttachmentReads != 5 ||
+            if (exported.Messages != 5 || exported.Attachments != 5 || exported.Moved != 0 || mailbox.Moves != 0 || mailbox.FullReads != 10 || mailbox.AttachmentReads != 10 ||
                 Directory.GetFiles(exported.Directory, "*_CORREO.pdf").Length != 5 || Directory.GetFiles(exported.Directory, "*_ADJ01_*").Length != 5)
                 throw new Exception("La exportación sintética no se completó o intentó mover correos.");
+            using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(exported.Directory, "Comprobacion.json"), ct));
+            var proofs = receipt.RootElement.GetProperty("Messages").EnumerateArray().SelectMany(m => m.GetProperty("Attachments").EnumerateArray()).ToList();
+            if (proofs.Count != 5 || proofs.Any(p => p.GetProperty("ReportedSize").GetInt64() != 344 || p.GetProperty("ContentLength").GetInt64() != 8 ||
+                p.GetProperty("ReportedSizeMeaning").GetString() != "OutlookStoreBytes" || !p.GetProperty("SourceReadbackVerified").GetBoolean()))
+                throw new Exception("No se ha documentado la comprobación del contenido separada del tamaño de almacén.");
             Console.WriteLine("Fixture: intervalo de dos días en Entrada, Enviados y carpeta adicional; cinco correos y cinco adjuntos verificados, cero movimientos.");
+            Console.WriteLine("Fixture: tamaño de almacén 344, contenido 8 bytes; segunda lectura y SHA-256 verificados en cinco adjuntos.");
         }
         finally
         {

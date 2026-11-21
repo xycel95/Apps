@@ -20,7 +20,10 @@ public sealed record MailDateRange
         return date >= From && date <= Through;
     }
 }
-public record AttachmentInfo(string Id, string Name, long? Size, string MimeType, bool Inline, string ContentId);
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+public enum AttachmentSizeMeaning { ContentBytes, OutlookStoreBytes }
+public record AttachmentInfo(string Id, string Name, long? Size, string MimeType, bool Inline, string ContentId,
+    AttachmentSizeMeaning SizeMeaning = AttachmentSizeMeaning.ContentBytes);
 public record MailInfo(string Id, string Revision, string FolderId, string Subject, string From, string To, string Cc,
     DateTimeOffset Timestamp, bool Sent, string Html, IReadOnlyList<AttachmentInfo> Attachments, DateTimeOffset? SentAt = null, string Bcc = "");
 public interface IOutlookTransport
@@ -43,10 +46,17 @@ public interface IPdfRenderer
 public record ExportOptions(string Destination, bool MoveToDeleted = false);
 public record ExportProgress(string Text, int Completed, int Total);
 public record SavedFile(string Name, long Length, string Sha256);
-public record SavedMessage(string Id, string Revision, string Subject, IReadOnlyList<SavedFile> Files);
+public sealed record SavedAttachment(string Id, string FileName, long? ReportedSize, AttachmentSizeMeaning ReportedSizeMeaning, long ContentLength, string Sha256)
+{
+    public bool SourceReadbackVerified { get; set; }
+}
+public record SavedMessage(string Id, string Revision, string Subject, IReadOnlyList<SavedFile> Files)
+{
+    public List<SavedAttachment> Attachments { get; init; } = [];
+}
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.0-beta";
+    public string Version { get; set; } = "0.4.1-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }

@@ -51,12 +51,12 @@ internal static class OwaChecks
             } } }) };
             await Fails(() => new OwaSource(transport).AttachmentAsync(Snapshot(), new("correcto", "a.pdf", 8, "application/pdf", false, ""), default));
         });
-        yield return ("Outlook: conserva un adjunto original de cero bytes", async () =>
+        yield return ("Outlook: conserva cero bytes explícitos aunque haya tamaño de almacén", async () =>
         {
             var transport = new FixtureTransport { Responder = (_, _) => JsonSerializer.SerializeToElement(new { Body = new { Attachments = new[] {
                 new { AttachmentId = new { Id = "a" }, Content = "" }
             } } }) };
-            var result = await new OwaSource(transport).AttachmentAsync(Snapshot(), new("a", "vacio.txt", 0, "text/plain", false, ""), default);
+            var result = await new OwaSource(transport).AttachmentAsync(Snapshot(), new("a", "vacio.txt", 344, "text/plain", false, "", AttachmentSizeMeaning.OutlookStoreBytes), default);
             Require(result.Length == 0, "Archivo vacío legítimo");
         });
         yield return ("Outlook: movimiento a Eliminados con versión y sin borrado definitivo", async () =>

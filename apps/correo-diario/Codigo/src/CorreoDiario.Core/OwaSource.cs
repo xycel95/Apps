@@ -139,9 +139,14 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
         var value = values[0];
         if (Text(Child(value, "AttachmentId"), "Id") is string id && id.Length > 0 && id != attachment.Id)
             throw new InvalidDataException("Outlook ha devuelto un adjunto distinto del solicitado.");
-        var content = Text(value, "Content");
-        if (content.Length == 0 && value.TryGetProperty("Item", out var nested)) content = Text(Child(nested, "MimeContent"), "Value");
-        if (content.Length == 0 && attachment.Size != 0)
+        string? content = value.TryGetProperty("Content", out var encoded) && encoded.ValueKind == JsonValueKind.String ? encoded.GetString() : null;
+        if (content is null && value.TryGetProperty("Item", out var nested))
+        {
+            var mime = Child(nested, "MimeContent");
+            if (mime.ValueKind == JsonValueKind.Object && mime.TryGetProperty("Value", out var mimeValue) && mimeValue.ValueKind == JsonValueKind.String)
+                content = mimeValue.GetString();
+        }
+        if (content is null)
             throw new InvalidDataException($"El adjunto «{attachment.Name}» es un enlace, un elemento protegido o no contiene un archivo descargable. No se borra el correo.");
         return Convert.FromBase64String(content);
     }
@@ -175,7 +180,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
             var name = Text(a, "Name", "adjunto");
             if (type.Contains("ItemAttachment", StringComparison.Ordinal)) { name += ".eml"; size = null; }
             attachments.Add(new(aid, name, size, Text(a, "ContentType", "application/octet-stream"),
-                a.TryGetProperty("IsInline", out var inline) && inline.ValueKind == JsonValueKind.True, Text(a, "ContentId")));
+                a.TryGetProperty("IsInline", out var inline) && inline.ValueKind == JsonValueKind.True, Text(a, "ContentId"), AttachmentSizeMeaning.OutlookStoreBytes));
         }
         return new(id, Text(Child(item, "ItemId"), "ChangeKey"), Text(Child(item, "ParentFolderId"), "Id", folder.Id),
             Text(item, "Subject", "Sin asunto"), Address(Child(item, "From")), RecipientSummary(item, "ToRecipients", "DisplayTo"), RecipientSummary(item, "CcRecipients", "DisplayCc"),

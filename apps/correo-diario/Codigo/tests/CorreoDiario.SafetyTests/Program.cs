@@ -36,7 +36,7 @@ var tests = new (string Name, Func<Task> Test)[]
     ("Casilla marcada: termina todo antes de mover", async () =>
     {
         using var env = new TestRun();
-        env.Source.OnMove = () => Check(env.Source.Reads == 4 && env.Source.Downloads == 2 && env.Renderer.Renders == 2, "Borrado prematuro");
+        env.Source.OnMove = () => Check(env.Source.Reads == 4 && env.Source.Downloads == 4 && env.Renderer.Renders == 2, "Borrado prematuro");
         var result = await env.Run(true);
         Check(result.Moved == 2 && env.Source.Moved.Count == 2, "Movimientos confirmados");
     }),
@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {
@@ -184,6 +184,7 @@ sealed class FakeSource : IMailSource
     public int Reads, Downloads, MoveCalls;
     public string? FailAttachment;
     public bool BadSize, ChangeAfterExport, WrongId, FailSecondMove;
+    public bool ChangeAttachmentAfterExport, TruncateAttachmentAfterExport, EmptyAttachments;
     public Action? OnVerify, OnMove;
     public Task<IReadOnlyList<MailFolder>> FoldersAsync(CancellationToken ct) => Task.FromResult<IReadOnlyList<MailFolder>>([new("inbox", "Entrada")]);
     public Task<IReadOnlyList<MailInfo>> ListAsync(IReadOnlyList<MailFolder> folders, MailDateRange dates, TimeZoneInfo zone, CancellationToken ct) => Task.FromResult<IReadOnlyList<MailInfo>>(Items);
@@ -200,6 +201,12 @@ sealed class FakeSource : IMailSource
         ct.ThrowIfCancellationRequested();
         Downloads++;
         if (a.Id == FailAttachment) throw new IOException("Fallo simulado de descarga");
+        if (EmptyAttachments) return Task.FromResult(Array.Empty<byte>());
+        if (Downloads > Items.Sum(m => m.Attachments.Count))
+        {
+            if (ChangeAttachmentAfterExport) return Task.FromResult(Encoding.UTF8.GetBytes("Original"));
+            if (TruncateAttachmentAfterExport) return Task.FromResult(Encoding.UTF8.GetBytes("orig"));
+        }
         return Task.FromResult(Encoding.UTF8.GetBytes(BadSize ? "incompleto" : "original"));
     }
     public Task MoveToDeletedAsync(MailInfo item, CancellationToken ct)

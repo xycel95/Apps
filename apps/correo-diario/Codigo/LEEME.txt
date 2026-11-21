@@ -1,4 +1,4 @@
-CORREODIARIO 0.4 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.1 BETA — WINDOWS DE 64 BITS
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 No inicia sesión en una ventana del programa ni requiere una extensión.
@@ -37,3 +37,9 @@ Es una beta: se han comprobado búsqueda por intervalo/carpeta, paginación,
 PDF de WebView2 y adjuntos con Edge y un servicio HTTPS sintético. Falta
 comprobar la exportación con las cuentas reales del usuario. Los PDF pueden variar de aspecto y no descargan imágenes externas.
 Los adjuntos o textos que no puedan verificarse detienen la operación.
+
+Los tamaños de Outlook pueden incluir propiedades del objeto adjunto. Se
+registran aparte del tamaño real del fichero. Cada adjunto se lee dos veces
+y se comparan longitud y SHA-256, además de comprobar la escritura en disco.
+Si esas comprobaciones fallan no comienza ningún movimiento a Eliminados.
+El recibo Comprobacion.json conserva los tamaños y el resultado de la revisión.

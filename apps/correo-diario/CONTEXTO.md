@@ -2,6 +2,29 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.4.1: tamaño de almacén frente a contenido
+
+La captura de 0.4 muestra que GetAttachment ya responde; se detiene porque
+el motor comparaba AttachmentInfo.Size con los bytes descargados. Microsoft
+documenta PidTagAttachSize como contenido más propiedades del objeto. No
+introducir tolerancias de tamaño ni tratar esa cifra como longitud exacta.
+OWA y clásico etiquetan Size como OutlookStoreBytes; ContentBytes conserva
+la igualdad estricta para fuentes que realmente proporcionen longitud de fichero.
+
+El motor conserva cada copia, repite lectura del origen para todos los adjuntos
+y exige longitud y SHA-256 iguales antes de movimientos. También conserva
+la revisión de snapshots y de todos los bytes en disco. No reintenta movimientos.
+SavedAttachment registra tamaños informado/real, semántica, SHA y resultado de
+la segunda lectura. Content ausente falla; Content vacío explícito puede
+representar un fichero de cero bytes aunque su objeto tenga propiedades.
+
+71 comprobaciones. El fixture reproduce tamaño de almacén 344 frente a 8 bytes
+de contenido y exige diez lecturas para cinco adjuntos, cinco PDF reales y cero
+movimientos. Pruebas de cambios de misma longitud, truncado, contenido vacío
+y falta de Content. Las cuentas reales y el perfil clásico siguen pendientes.
+Se conserva Desde/Hasta de 0.4 y sus comprobaciones. Informes de 0.4 archivados.
+No subir las capturas ni datos personales o de correos al repositorio público.
+
 ## Versión 0.4: adjuntos e intervalos
 
 El usuario confirma por captura que 0.3.1 busca correos reales. Falla GetAttachment

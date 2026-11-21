@@ -1,5 +1,18 @@
 # Notas de parche
 
+## 0.4.1-beta.1 · 21/11/2026
+
+- Corregida la comparación del tamaño del objeto de Outlook con el tamaño del
+  archivo: pueden diferir por las propiedades del adjunto.
+- Segunda lectura de cada adjunto y comparación de longitud y SHA-256 antes
+  de verificar la exportación y permitir cualquier movimiento.
+- El recibo registra tamaño informado, bytes reales y resultado de verificación.
+- Distingue un fichero vacío de una respuesta sin contenido.
+- Se conservan el intervalo Desde/Hasta y el borrado opcional desmarcado.
+- 71 pruebas y flujo Windows con cinco PDF y cinco adjuntos, tamaños de almacén
+  distintos del contenido, diez lecturas y cero movimientos. Servicio OWA
+  sintético; pendiente confirmar la exportación con las cuentas reales.
+
 ## 0.4.0-beta.1 · 21/11/2026
 
 - Corregida la petición GetAttachment: incluye BaseShape obligatorio para

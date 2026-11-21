@@ -53,6 +53,10 @@ sus adjuntos y evitan sobrescrituras. `Comprobacion.json` registra el resultado.
 La casilla está desmarcada por defecto. Solo al marcarla se moverán mensajes a
 **Eliminados**, tras completar la exportación de todos los seleccionados,
 abrir y cotejar los PDF, verificar los archivos y volver a comprobar el origen.
+Cada adjunto se lee dos veces y se comparan su longitud y SHA-256. El tamaño
+del objeto en Outlook puede incluir propiedades y se registra aparte de los
+bytes reales del archivo; no se usa como una longitud exacta.
+`Comprobacion.json` conserva ambos tamaños y la verificación de la segunda lectura.
 Si falla esa fase no comienza el movimiento de ningún correo.
 
 No se vacía Eliminados. Esa carpeta puede seguir ocupando cuota del buzón.

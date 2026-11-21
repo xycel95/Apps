@@ -74,7 +74,7 @@ internal sealed class OwaMailboxFixture
                 ("ToRecipients", new[] { D(("EmailAddress", "destino@example.invalid")) }),
                 ("Body", D(("Value", "<p>Contenido completo</p>"))), ("HasAttachments", true),
                 ("Attachments", new[] { D(("__type", "FileAttachment:#Exchange"), ("AttachmentId", D(("Id", "attachment-" + id))),
-                    ("Name", "adjunto.txt"), ("Size", 8), ("ContentType", "text/plain"), ("IsInline", false)) }));
+                    ("Name", "adjunto.txt"), ("Size", 344), ("ContentType", "text/plain"), ("IsInline", false)) }));
         }
     }
     public sealed class Renderer : IPdfRenderer

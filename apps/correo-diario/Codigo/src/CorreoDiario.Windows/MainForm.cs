@@ -35,7 +35,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4 beta";
+        Text = "CorreoDiario · 0.4.1 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;

@@ -1,18 +1,20 @@
-# CorreoDiario 0.4 beta
+# CorreoDiario 0.4.1 beta
 
-Corrige la petición de descarga de adjuntos que omitía BaseShape, obligatorio
-en AttachmentShape y causante del 400 del formato anterior.
+Corrige el aviso de tamaño de adjunto: Outlook puede informar el tamaño del
+objeto con sus propiedades, que no equivale al tamaño del archivo descargado.
 
-Añade Desde y Hasta: ambos días completos incluidos. Para un solo día, pon
-la misma fecha en los dos campos. Hoy pone ambos en el día actual. Funciona
-con la conexión web y con Outlook clásico. La lista muestra fecha y hora,
-ordena cronológicamente y se limpia cuando cambias las fechas.
+La copia se comprueba con una segunda lectura de cada adjunto y comparación
+de longitud y SHA-256, además de la revisión del correo y de los bytes en disco.
+Si falla, no comienza el movimiento de ningún correo. El recibo distingue el
+tamaño informado por Outlook y el tamaño real guardado.
 
-Validación: 65 pruebas; lector independiente de contratos de búsqueda y adjuntos;
-Edge real y servicio HTTPS sintético, intervalo de dos días, cinco PDF del
-renderizador WebView2 real y cinco adjuntos originales. Borrado desmarcado,
-cero movimientos. Pendiente confirmar la exportación con las cuentas reales.
+Conserva Desde/Hasta, ambos días incluidos, y borrado opcional desmarcado.
+No reintenta movimientos ni vacía Eliminados.
 
-Windows x64, .NET incluido; necesita WebView2 Runtime para los PDF. Conserva
-la sesión del navegador abierto. El borrado sigue opcional y desmarcado; solo
-mueve a Eliminados tras verificar todo, sin reintentos de movimientos.
+Validación: 71 pruebas, Edge real y servicio HTTPS sintético con tamaño de
+almacén 344 frente a contenido de 8 bytes; cinco PDF de WebView2, cinco
+adjuntos, diez lecturas y cero movimientos. Pendiente la exportación con la
+cuenta real y el perfil de Outlook clásico del usuario.
+
+EXE portátil Windows x64; .NET incluido; necesita WebView2 Runtime para PDF.
+Consulta SHA256SUMS.txt para verificar la descarga.

@@ -1,4 +1,4 @@
-# CorreoDiario 0.4 beta
+# CorreoDiario 0.4.1 beta
 
 Aplicación portátil de Windows para exportar correos de un intervalo a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
@@ -8,7 +8,7 @@ límites de la beta.
 ## Estado
 
 - Compilación para Windows x64, autocontenida y en un ejecutable.
-- 65 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
+- 71 comprobaciones de lógica y conexión con fuentes simuladas; consultar el informe de la publicación para Windows.
 - La publicación comprueba el arranque nativo y la conexión a Edge real con un
   servicio HTTPS sintético que exige autorización y valida el contrato de búsqueda.
 - El flujo sintético incluye fecha/carpeta, paginación, lectura completa,
@@ -168,3 +168,31 @@ comprueba el último día y excluye el posterior. Se mantienen cero movimientos.
 
 Referencia de la operación y sus propiedades de adjuntos:
 https://learn.microsoft.com/exchange/client-developer/web-service-reference/getattachment-operation
+
+## Tamaño de almacén y comprobación de contenido en 0.4.1
+
+La propiedad MAPI PidTagAttachSize suma contenido y propiedades del objeto.
+Puede ser mayor que la longitud del archivo. OWA y Outlook clásico identifican
+su tamaño como OutlookStoreBytes; se conserva en el recibo, sin tolerancias
+arbitrarias ni igualdad con los bytes del fichero. Las fuentes que declaren
+ContentBytes mantienen la comprobación estricta de longitud.
+
+Después de guardar todos los seleccionados, el motor revisa sus metadatos y
+vuelve a descargar cada adjunto. Compara longitud y SHA-256 con el archivo
+guardado y vuelve a verificar todos los bytes en disco. Cualquier diferencia o
+fallo impide empezar movimientos. La segunda lectura es una verificación de
+una descarga confirmada; no reintenta movimientos ni descarga fallida.
+
+SavedAttachment registra ReportedSize, ReportedSizeMeaning, ContentLength,
+Sha256 y SourceReadbackVerified. El hash compara las dos lecturas y la copia
+local: no es un checksum independiente suministrado por Microsoft ni certifica
+un origen que devuelva dos veces el mismo contenido incompleto. El protocolo
+exige Content explícito; un campo ausente no representa un archivo vacío.
+
+El fixture usa tamaño de almacén 344 y contenido de 8 bytes. Se incluyen
+casos de tamaño 0 informativo, cero bytes explícitos y cambios/truncamientos en
+la segunda lectura. El flujo Windows comprueba cinco adjuntos, diez lecturas,
+cinco PDF y cero movimientos, conservando el intervalo de dos días.
+
+Referencia primaria de la semántica de tamaño:
+https://learn.microsoft.com/office/client-developer/outlook/mapi/pidtagattachsize-canonical-property
