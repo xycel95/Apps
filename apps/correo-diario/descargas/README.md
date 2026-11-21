@@ -1,12 +1,12 @@
 # Descargar
 
-**CorreoDiario 0.3.1 beta · Windows de 64 bits.**
+**CorreoDiario 0.4 beta · Windows de 64 bits.**
 
-- [Descargar el ejecutable](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.3.1-beta.1/CorreoDiario_0.3.1_beta.exe)
-- [Descargar el ZIP con el ejecutable, guía y licencias](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.3.1-beta.1/CorreoDiario_0.3.1_beta.zip)
-- [Descargar el código fuente](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.3.1-beta.1/CorreoDiario_0.3.1_beta_fuentes.zip)
-- [Comprobar SHA-256](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.3.1-beta.1/SHA256SUMS.txt)
-- [Ver la publicación](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.3.1-beta.1)
+- [Descargar el ejecutable](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.0-beta.1/CorreoDiario_0.4_beta.exe)
+- [Descargar el ZIP con el ejecutable, guía y licencias](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.0-beta.1/CorreoDiario_0.4_beta.zip)
+- [Descargar el código fuente](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.0-beta.1/CorreoDiario_0.4_beta_fuentes.zip)
+- [Comprobar SHA-256](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.4.0-beta.1/SHA256SUMS.txt)
+- [Ver la publicación](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.0-beta.1)
 
 Si eliges el ZIP, descomprímelo y abre `CorreoDiario.exe`. Puedes mover ese
 EXE a una carpeta compartida. Requiere Microsoft Edge WebView2 Runtime en
@@ -14,16 +14,17 @@ el equipo; .NET está incluido y no se instala una extensión en el navegador.
 
 Esta versión usa la pestaña de Outlook que ya tienes abierta en Edge o Chrome.
 Pulsa **Cómo conectar** para ver la opción del navegador que debes activar y
-acepta su aviso de conexión. Después selecciona tu pestaña. No hay un formulario
+acepta su aviso de conexión. Después selecciona tu pestaña. Elige **Desde** y **Hasta**: ambos días se incluyen.
+Para un solo día, pon la misma fecha en los dos campos. No hay un formulario
 de inicio de sesión dentro de CorreoDiario ni se instala una extensión.
 Si Outlook pide renovar la conexión, pulsa **Actualizar** en su pestaña y vuelve
 a **Usar esta pestaña**. Las cabeceras de sesión se mantienen solo en memoria.
 El modo clásico sigue disponible para perfiles configurados en Outlook clásico.
 
-**Validación:** 59 pruebas automáticas, transporte WebSocket local, arranque
+**Validación:** 65 pruebas automáticas, transporte WebSocket local, arranque
 del EXE y flujo con Edge real frente a un servicio HTTPS sintético que exige
-autorización y valida el contrato de búsqueda. Incluye búsquedas por fecha y
-carpeta, paginación, PDF reales de WebView2 y adjuntos. Queda pendiente la
+autorización y valida el contrato de búsqueda. Incluye búsquedas por intervalo de fechas y
+carpeta, paginación, contrato de adjuntos y PDF reales de WebView2. Queda pendiente la
 exportación con las cuentas reales del usuario. [Informe](../docs/VALIDACION-WINDOWS.json).
 
 El borrado es opcional y mueve a Eliminados después de verificar toda la
