@@ -1,4 +1,4 @@
-name: Publicar CorreoDiario 0.3 con navegador abierto
+name: Publicar CorreoDiario 0.3 con navegador abierto y prueba HTTPS
 on:
   push:
     branches: [correo-diario]

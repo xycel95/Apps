@@ -39,7 +39,10 @@ internal static class BrowserAuthCheck
         var names = new SubjectAlternativeNameBuilder(); names.AddDnsName("localhost"); names.AddIpAddress(IPAddress.Loopback);
         request.CertificateExtensions.Add(names.Build());
         using var signed = request.Create(root, DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddHours(2), RandomNumberGenerator.GetBytes(16));
-        using var certificate = signed.CopyWithPrivateKey(key);
+        using var transientCertificate = signed.CopyWithPrivateKey(key);
+        // SChannel's server credential needs a Windows key-container handle.
+        // DefaultKeySet imports it temporarily and removes it on disposal.
+        using var certificate = X509CertificateLoader.LoadPkcs12(transientCertificate.Export(X509ContentType.Pfx), "", X509KeyStorageFlags.DefaultKeySet);
         // CurrentUser Root may show an interactive Windows trust prompt. The
         // ephemeral CI machine runs elevated; its machine store has no prompt.
         using var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine);
@@ -95,6 +98,10 @@ internal static class BrowserAuthCheck
             await app.StartAsync(ct);
             Console.WriteLine("Fixture: servicio HTTPS preparado.");
             var address = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            var landing = await http.GetStringAsync(address + "/mail", ct);
+            if (!landing.Contains("Outlook")) throw new Exception("El servidor HTTPS de prueba no devuelve la página esperada.");
+            Console.WriteLine("Fixture: certificado y respuesta HTTPS comprobados sin omitir la validación TLS.");
             var edge = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft", "Edge", "Application", "msedge.exe");
             if (!File.Exists(edge)) edge = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft", "Edge", "Application", "msedge.exe");
             var start = new ProcessStartInfo(edge) { UseShellExecute = false, CreateNoWindow = true };
@@ -107,9 +114,16 @@ internal static class BrowserAuthCheck
             await protocol.ConnectAsync(BrowserEndpoint.Parse(await File.ReadAllTextAsync(descriptor, ct)), ct);
             Console.WriteLine("Fixture: conexión CDP establecida.");
             BrowserTab? tab = null;
+            var navigationDeadline = DateTimeOffset.UtcNow.AddSeconds(15);
             while (tab is null)
             {
                 tab = (await BrowserTabSession.FindAsync(protocol, ct)).SingleOrDefault(t => t.Url.StartsWith(address + "/mail", StringComparison.Ordinal));
+                if (tab is null && DateTimeOffset.UtcNow > navigationDeadline)
+                {
+                    var targets = await protocol.RequestAsync("Target.getTargets", new { }, null, ct);
+                    var titles = targets.GetProperty("targetInfos").EnumerateArray().Select(t => t.GetProperty("title").GetString());
+                    throw new Exception("Edge no muestra la página HTTPS sintética. Títulos de la instancia de prueba: " + string.Join("; ", titles));
+                }
                 if (tab is null) await Task.Delay(100, ct);
             }
             using var session = await BrowserTabSession.AttachAsync(protocol, tab, ct);
