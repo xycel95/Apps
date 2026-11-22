@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE = Path(os.environ.get('GITHUB_WORKSPACE', Path.cwd()))
 OUT = WORKSPACE / '.correo-release'
 OUT.mkdir(exist_ok=True)
-TAG = 'correo-diario-v0.4.6-beta.1'
-PREFIX = 'CorreoDiario_0.4.6_beta'
+TAG = 'correo-diario-v0.4.7-beta.1'
+PREFIX = 'CorreoDiario_0.4.7_beta'
 BASE = 'https://github.com/xycel95/Apps/releases/download/' + TAG + '/'
 RELEASE = 'https://github.com/xycel95/Apps/releases/tag/' + TAG
 CODE = ROOT / 'Codigo'
@@ -28,14 +28,14 @@ shutil.copyfile(EXE, OUT / (PREFIX + '.exe'))
 
 log = (OUT / 'PRUEBAS.txt').read_text(encoding='utf-8-sig')
 matches = re.findall(r'(\d+)/(\d+) comprobaciones superadas\.', log)
-assert matches and matches[-1][0] == matches[-1][1] == '100'
+assert matches and matches[-1][0] == matches[-1][1] == '119'
 report_path = OUT / 'VALIDACION-WINDOWS.json'
 report = json.loads(report_path.read_text(encoding='utf-8-sig'))
 assert report['native_startup_verified'] and not report['deletion_checkbox_default_checked']
 assert report['existing_browser_ui_verified'] and report['embedded_login_ui_absent'] and report['date_range_controls_verified']
 wire = (OUT / 'BROWSER-BRIDGE.txt').read_text(encoding='utf-8-sig')
 assert 'PASS Conexión local' in wire
-report['core_tests_passed'] = 100
+report['core_tests_passed'] = 119
 report['browser_wire_test_verified'] = True
 auth = (OUT / 'OUTLOOK-AUTH.txt').read_text(encoding='utf-8-sig')
 assert 'PASS Edge real y servicio HTTPS sintético' in auth
@@ -58,7 +58,7 @@ report['attachment_source_readback_verified'] = True
 assert 'directamente en la carpeta elegida, sin subcarpetas' in native_pdf
 report['flat_output_directory_verified'] = True
 report['existing_output_preserved_verified'] = True
-report['limitation'] = 'Botón y portapapeles Unicode comprobados en Windows con datos sintéticos. El diagnóstico real identifica FE0F omitido: se excluyen solo FE0E/FE0F del cotejo, preservando letras, cifras y acentos. Pendiente confirmar la ejecución completa con la cuenta real. Composición alternativa con cotejo íntegro de la secuencia, numeración, imágenes y registro comprobada con datos sintéticos. Cotejo de palabras partidas y tablas con formato fijo comprobados con PDF de WebView2 y datos sintéticos. Arranque Windows y flujo con Edge, servicio OWA sintético, intervalos de fechas inclusivos, contrato de adjuntos, búsquedas paginadas, PDF reales de WebView2, tamaños de almacén separados de contenido y segunda lectura de adjuntos comprobados. Pendientes la exportación con la cuenta real de Outlook y el perfil clásico del usuario.'
+report['limitation'] = 'Pruebas Windows con correos sintéticos: asociación de imágenes CID y metadatos de descarga, PDF, continuación de lotes incompletos y bloqueo global del borrado. Pendiente confirmar el correo real reportado y el perfil de Outlook clásico.'
 assert 'PASS PDF Windows: falso rechazo anterior reproducido' in native_pdf
 assert '90 filas y texto final presentes en varias páginas' in native_pdf
 assert 'PASS PDF Windows: tildes' in native_pdf
@@ -79,6 +79,12 @@ report['pdf_code_point_diagnostics_verified'] = True
 assert 'PASS PDF emoji Windows: FE0E/FE0F reconocidos' in native_pdf
 report['emoji_presentation_pdf_verified'] = True
 report['emoji_presentation_negative_controls_verified'] = True
+assert 'PASS Imágenes CID Windows: identificador completo de descarga' in native_pdf
+assert 'PASS Lote incompleto Windows: dos correos copiados y verificados' in native_pdf
+report['inline_images_pdf_verified'] = True
+report['attachment_metadata_readback_verified'] = True
+report['incomplete_batch_continuation_verified'] = True
+report['incomplete_batch_deletion_blocked'] = True
 report['prerelease'] = True
 report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
@@ -104,7 +110,7 @@ def info(name):
 
 manifest_path = ROOT / 'app.json'
 manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-manifest['version'] = '0.4.6-beta.1'
+manifest['version'] = '0.4.7-beta.1'
 manifest['release_date'] = '2026-11-22'
 manifest['summary'] = 'Exporta correos y adjuntos desde la pestaña de Outlook ya abierta en Edge o Chrome, con borrado opcional tras verificar.'
 manifest['authentication'] = {'flow': 'existing-browser-session', 'embedded_login': False, 'browser_extension_required': False, 'browser_user_permission_required': True, 'default_browser_profile': True, 'observed_request_authorization': True, 'session_credentials_persisted': False}
@@ -124,7 +130,7 @@ shutil.copyfile(OUT / 'SHA256SUMS.txt', ROOT / 'descargas' / 'SHA256SUMS.txt')
 shutil.copyfile(report_path, ROOT / 'docs' / report_path.name)
 (ROOT / 'descargas' / 'README.md').write_text('''# Descargar
 
-**CorreoDiario 0.4.6 beta · Windows de 64 bits.**
+**CorreoDiario 0.4.7 beta · Windows de 64 bits.**
 
 - [Descargar el ejecutable](%s)
 - [Descargar el ZIP con el ejecutable, guía y licencias](%s)
@@ -145,9 +151,9 @@ Si Outlook pide renovar la conexión, pulsa **Actualizar** en su pestaña y vuel
 a **Usar esta pestaña**. Las cabeceras de sesión se mantienen solo en memoria.
 Si el PDF con formato no supera el cotejo, se crea una segunda composición\nde texto sencillo con las imágenes al final. Se exige coincidencia completa\nde letras y cifras en orden y cantidad; se indica el modo en el PDF y el registro. Los PDF y adjuntos se guardan directamente en la carpeta elegida. Si un nombre
 coincide, se añade un número y se conservan los archivos anteriores.
-Corrige el falso rechazo del texto por las marcas de presentación de emoji\nFE0E/FE0F, sin relajar la comprobación de letras, cifras y acentos.\nEn los avisos puedes pulsar **Copiar error** y pegar el informe en el chat.\n**Copiar último error** lo recupera mientras la aplicación siga abierta, aunque\ncierres el aviso o borres el archivo de registro.\nEl modo clásico sigue disponible para perfiles configurados en Outlook clásico.
+Corrige el falso rechazo del texto por las marcas de presentación de emoji\nFE0E/FE0F, sin relajar la comprobación de letras, cifras y acentos.\nSi una imagen incrustada no puede recuperarse, el correo queda pendiente y se\ncopian los demás. Se comprueban las copias guardadas y el borrado de todo el lote\npermanece bloqueado mientras haya pendientes. El aviso y el registro lo indican.\nEn los avisos puedes pulsar **Copiar error** y pegar el informe en el chat.\n**Copiar último error** lo recupera mientras la aplicación siga abierta, aunque\ncierres el aviso o borres el archivo de registro.\nEl modo clásico sigue disponible para perfiles configurados en Outlook clásico.
 
-**Validación:** 100 pruebas automáticas, transporte WebSocket local, arranque
+**Validación:** 119 pruebas automáticas, transporte WebSocket local, arranque
 del EXE y flujo con Edge real frente a un servicio HTTPS sintético que exige
 autorización y valida el contrato de búsqueda. Incluye búsquedas por intervalo de fechas y
 carpeta, paginación, contrato de adjuntos, segunda lectura del contenido y PDF

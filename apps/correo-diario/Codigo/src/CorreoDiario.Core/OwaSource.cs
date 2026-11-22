@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 namespace CorreoDiario.Core;
 
-public sealed class OwaSource(IOutlookTransport session) : IMailSource
+public sealed class OwaSource(IOutlookTransport session) : IAttachmentDownloadSource
 {
     private readonly Dictionary<string, MailFolder> foldersById = new(StringComparer.Ordinal);
     private static Dictionary<string, object> D(params (string Key, object Value)[] fields) => fields.ToDictionary(x => x.Key, x => x.Value);
@@ -129,7 +129,10 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
         return mail;
     }
 
-    public async Task<byte[]> AttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct)
+    public async Task<byte[]> AttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct) =>
+        (await DownloadAttachmentAsync(mail, attachment, ct)).Bytes;
+
+    public async Task<AttachmentDownload> DownloadAttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct)
     {
         var json = await session.ActionAsync("GetAttachment", D(("__type", "GetAttachmentRequest:#Exchange"),
             ("AttachmentShape", D(("BaseShape", "AllProperties"), ("IncludeMimeContent", true))),
@@ -148,7 +151,7 @@ public sealed class OwaSource(IOutlookTransport session) : IMailSource
         }
         if (content is null)
             throw new InvalidDataException($"El adjunto «{attachment.Name}» es un enlace, un elemento protegido o no contiene un archivo descargable. No se borra el correo.");
-        return Convert.FromBase64String(content);
+        return new(Convert.FromBase64String(content), Text(value, "ContentId"), Text(value, "ContentType"));
     }
 
     public async Task MoveToDeletedAsync(MailInfo item, CancellationToken ct)

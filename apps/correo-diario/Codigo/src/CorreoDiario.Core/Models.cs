@@ -43,6 +43,14 @@ public interface IPdfRenderer
 {
     Task<byte[]> RenderAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct);
 }
+public sealed record AttachmentDownload(byte[] Bytes, string ContentId = "", string ContentType = "");
+public interface IAttachmentDownloadSource : IMailSource
+{
+    Task<AttachmentDownload> DownloadAttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct);
+}
+public sealed record InlineImageIssue(int ReferenceNumber, string Reason, int ReferenceLength, int NormalizedLength, int Candidates);
+public sealed record InlineImageFailure(int References, int Attachments, int AttachmentsWithContentId, IReadOnlyList<InlineImageIssue> Issues);
+public sealed record PendingMessage(int Number, string Id, string Subject, string Error, InlineImageFailure ImageFailure);
 public interface IVerifiedPdfRenderer : IPdfRenderer
 {
     Task<PdfRenderOutput> RenderVerifiedAsync(MailInfo item, IReadOnlyDictionary<string, byte[]> attachments, CancellationToken ct);
@@ -60,7 +68,8 @@ public sealed record PdfTextCheck(int Pages, int ExpectedWords, int ExtractedWor
     public int ExtractedPresentationSelectorsIgnored { get; init; }
 }
 public sealed record ExportErrorContext(int SelectedMessages, int SavedMessages, int SavedAttachments,
-    int ConfirmedMoves, int? FailedMessageNumber, string Phase, bool DeletionRequested);
+    int ConfirmedMoves, int? FailedMessageNumber, string Phase, bool DeletionRequested,
+    int PendingMessages = 0, IReadOnlyList<int>? PendingMessageNumbers = null);
 public sealed record PdfRenderVerification(string Mode, PdfTextCheck Text, PdfTextCheck? FormattedFailure = null);
 public sealed record PdfRenderOutput(byte[] Bytes, PdfRenderVerification Verification);
 public sealed record PdfRenderFailure(PdfTextCheck? Formatted, PdfTextCheck? Simplified);
@@ -78,7 +87,7 @@ public record SavedMessage(string Id, string Revision, string Subject, IReadOnly
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.6-beta";
+    public string Version { get; set; } = "0.4.7-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }
@@ -88,5 +97,8 @@ public sealed class ExportReceipt
     public string? Error { get; set; }
     public int? FailedMessageNumber { get; set; }
     public PdfRenderFailure? PdfFailure { get; set; }
+    public InlineImageFailure? ImageFailure { get; set; }
+    public List<PendingMessage> PendingMessages { get; set; } = [];
+    public bool SavedCopiesVerified { get; set; }
 }
 public record ExportResult(string Directory, int Messages, int Attachments, int Moved, string ReceiptPath = "", int SimplifiedPdfs = 0);

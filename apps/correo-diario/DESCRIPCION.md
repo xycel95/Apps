@@ -1,11 +1,17 @@
 # Descripción del programa
 
+Las imágenes incrustadas se relacionan por sus identificadores, incluidos los
+datos completos de la descarga. Si una imagen falta o no puede decodificarse,
+el correo queda pendiente y se copian los demás. Las copias guardadas se revisan,
+pero ningún correo del lote se mueve a Eliminados mientras haya pendientes.
+El aviso, el registro y **Copiar error** indican qué ha quedado sin completar.
+
 Los avisos incluyen **Copiar error**. También puedes usar **Copiar último error**
 en la ventana principal mientras el programa siga abierto, aunque cierres el
 aviso o borres el registro. El informe contiene versión, mensaje y diagnóstico
 de la exportación, sin copiar el cuerpo del correo.
 
-CorreoDiario 0.4.6 beta trabaja con la sesión de Outlook que ya tienes abierta
+CorreoDiario 0.4.7 beta trabaja con la sesión de Outlook que ya tienes abierta
 **en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
 una, seleccionar carpetas y un intervalo de fechas, y exportar los mensajes a PDF con sus
 adjuntos originales separados. Conserva el modo alternativo de Outlook clásico. Los campos **Desde** y **Hasta**

@@ -37,7 +37,7 @@ internal sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4.6 beta";
+        Text = "CorreoDiario · 0.4.7 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -260,6 +260,8 @@ internal sealed class MainForm : Form
     {
         lastErrorReport = ErrorDialog.CreateReport(error);
         status.Text = "La operación se ha detenido. Puedes copiar el error desde el aviso o con «Copiar último error».";
+        if (error.Data[ErrorReport.ExportContextDataKey] is ExportErrorContext { PendingMessages: > 0 } partial)
+            status.Text = $"Guardados: {partial.SavedMessages}/{partial.SelectedMessages}. Pendientes: {partial.PendingMessages}. Puedes copiar el error.";
         copyLastError.Enabled = operation is null;
         ErrorDialog.ShowReport(this, lastErrorReport);
     }

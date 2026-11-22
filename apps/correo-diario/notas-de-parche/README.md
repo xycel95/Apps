@@ -1,5 +1,21 @@
 # Notas de parche
 
+## 0.4.7-beta.1 · 22/11/2026
+
+- Aprovecha ContentId/ContentType devueltos por GetAttachment cuando faltan
+  en el resumen del correo; conserva el snapshot original y vuelve a comprobar
+  esos datos en la segunda lectura junto con longitud y SHA-256.
+- Resolución de referencias CID con escapes, espacios y corchetes; decodifica
+  una sola vez y conserva el signo más. No adivina una imagen por su nombre.
+- Detecta identificadores ambiguos e imágenes cuyos bytes no se pueden decodificar.
+- Si una imagen sigue sin poder recuperarse, marca ese correo pendiente y
+  continúa con los demás. Verifica las copias guardadas y bloquea el borrado
+  de todo el lote mientras quede algún pendiente.
+- Copiar error incluye número de correo, pendientes y diagnóstico ImageFailure
+  con recuentos/motivos, sin copiar referencias CID ni contenido del mensaje.
+- 119 pruebas y flujo Windows con imágenes reales, dos copias verificadas,
+  dos pendientes distintos y cero movimientos con la casilla marcada.
+
 ## 0.4.6-beta.1 · 22/11/2026
 
 - Corregido el falso rechazo identificado con Copiar error: U+FE0F de

@@ -60,6 +60,14 @@ No se crean subcarpetas por intento. Si ya hay archivos con esos nombres,
 el programa añade un número al grupo de correo y adjuntos y conserva lo anterior.
 Cada ejecución guarda su propio registro `Comprobacion_….json` en ese destino.
 
+Si no puede recuperar una imagen incrustada, ese correo queda **pendiente** y
+continúa con los siguientes. Comprueba las copias guardadas y termina mostrando
+un resultado incompleto, con los números pendientes. **No comienza el borrado
+de ningún correo del lote**, aunque la casilla estuviera marcada. Copiar error
+incluye `ImageFailure` y la lista de números pendientes; el registro local
+contiene también sus asuntos e identificadores. No sustituye imágenes por otras
+de nombre parecido ni presenta un correo incompleto como copia válida.
+
 Al crear el PDF se adaptan las tablas al ancho de página y se retiran alturas
 fijas y recortes del formato original. Se comprueba el texto impreso completo;
 una palabra partida entre líneas o páginas puede coincidir si conserva todas

@@ -27,12 +27,15 @@ const { chromium } = require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES + '/
       inline: { logo: png }
     };
     const cleaned = await page.evaluate(sanitize(input));
-    assert.equal(cleaned.missing, 0);
+    assert.deepEqual(cleaned.references, ['cid:logo']);
     assert.equal(cleaned.external, 1);
     assert(!/<script|<style|<iframe|onclick=|position:/i.test(cleaned.html));
-    assert(cleaned.html.includes(png));
+    assert(cleaned.html.includes('data-cddi-inline-image="0"'));
+    // The .NET resolver is checked by Core/Windows tests. This developer
+    // harness supplies only its known fixture image to test the sanitizer.
+    cleaned.html = cleaned.html.replace('data-cddi-inline-image="0"', 'src="' + png + '"');
     const missing = await page.evaluate(sanitize({ html: '<img src="cid:inexistente">', inline: {} }));
-    assert.equal(missing.missing, 1);
+    assert.deepEqual(missing.references, ['cid:inexistente']);
     const paragraphs = Array.from({ length: 90 }, (_, i) => '<p>Registro ' + i + ': Solicitud recibida y documentación adjunta. Revisión completa del permiso.</p>').join('');
     const html = template + '<h1>Prueba de exportación</h1>' +
       '<table class="header"><tr><th>De:</th><td>ana@ejemplo.es</td></tr><tr><th>Para:</th><td>rafa@ejemplo.es</td></tr></table>' +

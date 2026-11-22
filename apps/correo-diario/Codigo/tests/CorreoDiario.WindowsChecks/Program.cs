@@ -17,6 +17,7 @@ internal static class Program
                 await EmojiPdfCheck.RunAsync(renderer);
                 await PdfLayoutCheck.RunAsync(renderer);
                 await PdfReflowCheck.RunAsync(renderer);
+                await InlineImagePdfCheck.RunAsync(renderer);
                 await BrowserAuthCheck.RunAsync(renderer);
                 Console.WriteLine("PASS Flujo Windows con WebView2 real: búsqueda, lectura, PDF cotejados, adjuntos originales y cero movimientos con datos sintéticos.");
                 result = 0;

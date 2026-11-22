@@ -20,13 +20,14 @@ public static class ErrorReport
         text.AppendLine(error.Message);
         var context = Find<ExportErrorContext>(error, ExportContextDataKey);
         var failure = Find<PdfRenderFailure>(error, PdfVerifier.FailureDataKey);
+        var images = Find<InlineImageFailure>(error, InlineImages.FailureDataKey);
         if (failure is null && Find<PdfTextCheck>(error, PdfVerifier.MismatchDataKey) is { } check) failure = new(check, null);
-        if (context is not null || failure is not null)
+        if (context is not null || failure is not null || images is not null)
         {
             text.AppendLine();
             text.AppendLine("Diagnóstico:");
             // This is plain text for the dialog/clipboard, never HTML or script.
-            text.AppendLine(JsonSerializer.Serialize(new { Export = context, PdfFailure = failure }, new JsonSerializerOptions
+            text.AppendLine(JsonSerializer.Serialize(new { Export = context, PdfFailure = failure, ImageFailure = images }, new JsonSerializerOptions
                 { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
         }
         // Never dump Exception.Data, stack traces, request headers or arbitrary

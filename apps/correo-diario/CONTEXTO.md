@@ -2,6 +2,49 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Corrección 0.4.7: identidad de imágenes y lote incompleto
+
+El informe real de 0.4.6 supera el fallo FE0F y se detiene posteriormente por
+imagen CID sin correspondencia. No se conoce el CID ni el correo; no afirmar
+que necesariamente existe una imagen recuperable. No inventarla ni omitirla
+silenciosamente para permitir el borrado. No subir el informe real al repo.
+
+IAttachmentDownloadSource devuelve bytes y ContentId/ContentType de la descarga.
+OwaSource conserva esos campos de GetAttachment, antes descartados. ExportEngine
+completa únicamente los datos para renderizar, sin mutar snapshots. Verifica
+también que los metadatos de descarga sean estables en la segunda lectura.
+Un CID declarado contradictorio es error de integridad y no se ignora.
+Referencia primaria: https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/getattachment
+
+InlineImages centraliza la resolución: percent-decode del URL una sola vez,
+después retirar espacios/corchetes. No decodificar ContentId como si fuera URL,
+no convertir '+' en espacio ni adivinar por nombre. Coincidencia exacta primero;
+se conserva compatibilidad con mayúsculas si no hay coincidencia exacta. Varios
+candidatos requieren MIME/bytes idénticos; si no, quedan ambiguos. El saneador
+entrega referencias a .NET y solo después inserta data URI de bytes descargados.
+Referencia: https://www.rfc-editor.org/rfc/rfc2392
+
+Solo los errores de imagen tipados con InlineImages.FailureDataKey permiten
+continuar al siguiente correo. No se escriben PDF/adjuntos incompletos como
+copias válidas. PendingMessages recoge los pendientes en el registro local.
+Se revisan origen, adjuntos y disco de TODAS las copias guardadas; SavedCopiesVerified
+solo se activa al superar esa fase. Si hay pendientes, se lanza ExportException
+ANTES de cualquier movimiento. Errores de red, disco, texto o identidad siguen
+siendo fatales. No cambiar este bloqueo global por un borrado de las copias buenas.
+
+ImageFailure en el informe copiable contiene índices, longitudes, cantidades
+y motivos, nunca el CID, URL, cuerpo o bytes. El registro local de pendientes
+sí contiene identidad/asunto como el registro de copias; no publicarlo entero.
+FailedMessageNumber también se informa para fallos generales de EXPORTANDO.
+
+119 pruebas: normalización CID, metadatos completos, ambigüedades, bytes iguales
+con identidad cambiada, lotes parciales con/sin borrado y cambios de origen.
+InlineImagePdfCheck usa el motor real: imágenes de descargas con CID ausente en
+el resumen, referencias codificadas, un CID inexistente y una imagen dañada;
+dos PDF con imagen y adjuntos releídos, dos pendientes, cero movimientos.
+La cuenta real y la imagen concreta siguen pendientes de comprobación.
+Validaciones previas en docs/historico/0.4.6.
+
 ## Corrección 0.4.6: presentación emoji FE0F confirmada por diagnóstico
 
 El usuario entrega un diagnóstico de 0.4.5: ambos cotejos tienen DifferenceKind

@@ -38,20 +38,14 @@ internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
             await NavigateAsync("<!doctype html><html><body>CorreoDiario</body></html>", ct);
             initialized = true;
         }
-        var inline = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var a in item.Attachments.Where(a => a.ContentId.Length > 0))
-        {
-            if (!attachments.TryGetValue(a.Id, out var bytes)) throw new InvalidDataException("Falta un adjunto necesario para componer el PDF.");
-            var mime = a.MimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase) ? a.MimeType : "application/octet-stream";
-            inline[a.ContentId.Trim('<', '>')] = "data:" + mime + ";base64," + Convert.ToBase64String(bytes);
-        }
-        var input = JsonSerializer.Serialize(new { html = item.Html, inline });
+        var input = JsonSerializer.Serialize(new { html = item.Html });
         // Parse the original HTML in an inert document. No email-provided script runs.
         var script = "(()=>{const input=" + input + ";" + """
             const doc=new DOMParser().parseFromString(input.html,'text/html');
             for(const n of doc.querySelectorAll('script,style,iframe,frame,frameset,object,embed,form,input,button,textarea,select,meta,link,base,svg,math'))n.remove();
-            let external=0,missing=0;
+            let external=0;const references=[];
             for(const node of doc.querySelectorAll('*')){
+              node.removeAttribute('data-cddi-inline-image');
               for(const a of [...node.attributes]){
                 if(/^on/i.test(a.name)||['srcset','background','formaction','action','autofocus','contenteditable','srcdoc'].includes(a.name.toLowerCase()))node.removeAttribute(a.name);
               }
@@ -65,25 +59,35 @@ internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
               }
               if(node.tagName==='IMG'){
                 const src=node.getAttribute('src')||'';
-                if(/^cid:/i.test(src)){
-                  let id=src.slice(4).replace(/^<|>$/g,'');try{id=decodeURIComponent(id);}catch{}
-                  const key=Object.keys(input.inline).find(k=>k.toLowerCase()===id.toLowerCase());
-                  if(key)node.setAttribute('src',input.inline[key]);else{missing++;node.remove();}
+                if(/^cid:/i.test(src.trim())){
+                  node.setAttribute('data-cddi-inline-image',String(references.length));references.push(src);node.removeAttribute('src');
                 }else if(!/^data:image\/(png|jpe?g|gif|webp|bmp);base64,/i.test(src)){
                   const text=doc.createElement('span');text.textContent='[Imagen externa'+(node.alt?': '+node.alt:'')+']';node.replaceWith(text);external++;
                 }
               }
             }
-            return {html:doc.body.innerHTML,external,missing};
+            return {html:doc.body.innerHTML,external,references};
             })()
             """;
         var raw = await browser.CoreWebView2.ExecuteScriptAsync(script).WaitAsync(ct);
         using var cleaned = JsonDocument.Parse(raw);
-        if (cleaned.RootElement.GetProperty("missing").GetInt32() != 0)
-            throw new InvalidDataException("Falta una imagen adjunta que forma parte del correo. No se considera completa la exportación.");
+        var references = cleaned.RootElement.GetProperty("references").EnumerateArray().Select(r => r.GetString() ?? "").ToArray();
+        var inline = InlineImages.Resolve(references, item.Attachments, attachments).ToDictionary(r => r.Index.ToString(),
+            r => "data:" + r.MimeType + ";base64," + Convert.ToBase64String(r.Bytes));
         string E(string s) => WebUtility.HtmlEncode(s);
         var local = TimeZoneInfo.ConvertTime(item.SentAt ?? item.Timestamp, TimeZoneInfo.Local);
         var body = cleaned.RootElement.GetProperty("html").GetString();
+        if (inline.Count > 0)
+        {
+            var binding = "(()=>{const input=" + JsonSerializer.Serialize(new { html = body, inline }) + ";" + """
+                const doc=new DOMParser().parseFromString(input.html,'text/html');
+                for(const image of doc.querySelectorAll('img[data-cddi-inline-image]')){
+                  const key=image.getAttribute('data-cddi-inline-image');image.setAttribute('src',input.inline[key]);image.removeAttribute('data-cddi-inline-image');
+                }
+                return doc.body.innerHTML;})()
+                """;
+            body = JsonSerializer.Deserialize<string>(await browser.CoreWebView2.ExecuteScriptAsync(binding).WaitAsync(ct)) ?? "";
+        }
         var html = """
             <!doctype html><html lang="es"><head><meta charset="utf-8">
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; form-action 'none'">
@@ -111,7 +115,7 @@ internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
             html += "<p class=notice>Las imágenes externas se han dejado indicadas en el texto. Las imágenes adjuntas están incluidas.</p>";
         html += "</body></html>";
         await NavigateAsync(html, ct);
-        await ReadyAsync(ct);
+        await ReadyAsync(ct, item);
         var visibleText = JsonSerializer.Deserialize<string>(await browser.CoreWebView2.ExecuteScriptAsync("document.body.innerText").WaitAsync(ct)) ?? "";
         var formatted = await PrintAsync(ct);
         try
@@ -192,7 +196,7 @@ internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
                 }
                 simple += "</body></html>";
                 await NavigateAsync(simple, ct);
-                await ReadyAsync(ct);
+                await ReadyAsync(ct, item);
                 var simplified = await PrintAsync(ct);
                 try
                 {
@@ -213,18 +217,29 @@ internal sealed class PdfRenderer : Form, IVerifiedPdfRenderer
         }
     }
 
-    private async Task ReadyAsync(CancellationToken ct)
+    private async Task ReadyAsync(CancellationToken ct, MailInfo item)
     {
         // Measure the local print document under print media too, rather than
         // comparing a wide screen layout with the A4 output.
         await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Emulation.setEmulatedMedia", "{\"media\":\"print\"}").WaitAsync(ct);
         var ready = await browser.CoreWebView2.CallDevToolsProtocolMethodAsync("Runtime.evaluate", JsonSerializer.Serialize(new
         {
-            expression = "(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode().catch(()=>{throw new Error('Imagen incompleta')})));return true})()",
+            expression = "(async()=>{await document.fonts.ready;const images=[...document.images];const failed=(await Promise.all(images.map((i,n)=>i.decode().then(()=>-1,()=>n)))).filter(n=>n>=0);return {total:images.length,failed}})()",
             awaitPromise = true, returnByValue = true
         })).WaitAsync(ct);
         using (var parsed = JsonDocument.Parse(ready))
-            if (parsed.RootElement.TryGetProperty("exceptionDetails", out _)) throw new InvalidDataException("No se han podido incluir todas las imágenes adjuntas en el PDF.");
+        {
+            if (parsed.RootElement.TryGetProperty("exceptionDetails", out _)) throw new InvalidDataException("No se ha podido preparar el contenido local del PDF.");
+            var value = parsed.RootElement.GetProperty("result").GetProperty("value");
+            var failed = value.GetProperty("failed").EnumerateArray().Select(i => i.GetInt32()).ToArray();
+            if (failed.Length > 0)
+            {
+                var error = new InvalidDataException("No se han podido decodificar todas las imágenes del correo. El correo queda pendiente.");
+                error.Data[InlineImages.FailureDataKey] = new InlineImageFailure(value.GetProperty("total").GetInt32(), item.Attachments.Count, item.Attachments.Count(a => InlineImages.ContentId(a.ContentId).Length > 0),
+                    failed.Select(i => new InlineImageIssue(i + 1, "image-decode-failed", 0, 0, 0)).ToArray());
+                throw error;
+            }
+        }
     }
 
     private async Task<byte[]> PrintAsync(CancellationToken ct)

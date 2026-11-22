@@ -24,6 +24,7 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
         var locked = new List<FileStream>();
         var existingNames = Directory.EnumerateFileSystemEntries(run).Select(Path.GetFileName).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
         var attachmentChecks = new Dictionary<(string Mail, string Attachment), SavedAttachment>();
+        var attachmentMetadata = new Dictionary<(string Mail, string Attachment), string>();
         var attachmentCount = 0;
         int? currentMessage = null;
         try
@@ -39,18 +40,34 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 if (mail.Attachments.Select(a => a.Id).Distinct(StringComparer.Ordinal).Count() != mail.Attachments.Count)
                     throw new InvalidDataException("La lista de adjuntos contiene identificadores repetidos.");
                 var allAttachments = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+                var renderingAttachments = new List<AttachmentInfo>();
                 foreach (var a in mail.Attachments)
                 {
                     ct.ThrowIfCancellationRequested();
-                    var bytes = await source.AttachmentAsync(mail, a, ct);
+                    var download = await DownloadAsync(mail, a, ct);
+                    var bytes = download.Bytes;
                     if (a.SizeMeaning == AttachmentSizeMeaning.ContentBytes && a.Size is long expected && bytes.LongLength != expected)
                         throw new InvalidDataException($"El tamaño del adjunto «{a.Name}» no coincide. Se conserva el correo.");
                     allAttachments.Add(a.Id, bytes);
+                    renderingAttachments.Add(InlineImages.ForRendering(a, download));
+                    attachmentMetadata[(mail.Id, a.Id)] = InlineImages.MetadataIdentity(download);
                 }
                 PdfRenderOutput? rendered = null;
-                var pdf = renderer is IVerifiedPdfRenderer verifiedRenderer
-                    ? (rendered = await verifiedRenderer.RenderVerifiedAsync(mail, allAttachments, ct)).Bytes
-                    : await renderer.RenderAsync(mail, allAttachments, ct);
+                byte[] pdf;
+                try
+                {
+                    var renderingMail = mail with { Attachments = renderingAttachments };
+                    pdf = renderer is IVerifiedPdfRenderer verifiedRenderer
+                        ? (rendered = await verifiedRenderer.RenderVerifiedAsync(renderingMail, allAttachments, ct)).Bytes
+                        : await renderer.RenderAsync(renderingMail, allAttachments, ct);
+                }
+                catch (InvalidDataException ex) when (ex.Data[InlineImages.FailureDataKey] is InlineImageFailure)
+                {
+                    receipt.PendingMessages.Add(new(i + 1, mail.Id, mail.Subject, ex.Message, (InlineImageFailure)ex.Data[InlineImages.FailureDataKey]!));
+                    await SaveReceiptAsync(receiptPath, receipt);
+                    progress?.Report(new($"Correo {i + 1} pendiente por imagen incrustada. Continuando con los demás…", i + 1, selection.Count));
+                    continue;
+                }
                 ValidatePdf(pdf);
                 var timestamp = TimeZoneInfo.ConvertTime(mail.Timestamp, TimeZoneInfo.Local);
                 var address = mail.Sent ? mail.To : mail.From;
@@ -93,9 +110,12 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 {
                     ct.ThrowIfCancellationRequested();
                     var check = attachmentChecks[(mail.Id, attachment.Id)];
-                    var bytes = await source.AttachmentAsync(current, attachment, ct);
+                    var download = await DownloadAsync(current, attachment, ct);
+                    var bytes = download.Bytes;
                     if (bytes.LongLength != check.ContentLength || Hash(bytes) != check.Sha256)
                         throw new InvalidDataException($"El contenido del adjunto «{attachment.Name}» no coincide en la segunda lectura. Se conserva el correo.");
+                    if (InlineImages.MetadataIdentity(download) != attachmentMetadata[(mail.Id, attachment.Id)])
+                        throw new InvalidDataException("Los datos de identidad del adjunto han cambiado en la segunda lectura. No comienza el borrado.");
                     check.SourceReadbackVerified = true;
                 }
             }
@@ -107,6 +127,15 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 locked.Add(stream);
                 if (stream.Length != file.Length || Convert.ToHexString(await SHA256.HashDataAsync(stream, ct)) != file.Sha256)
                     throw new InvalidDataException($"El archivo «{file.Name}» no supera la comprobación. No comienza el borrado.");
+            }
+            receipt.SavedCopiesVerified = true;
+            if (receipt.PendingMessages.Count > 0)
+            {
+                var first = receipt.PendingMessages[0];
+                currentMessage = first.Number;
+                var incomplete = new InvalidDataException($"Quedan {receipt.PendingMessages.Count} correos pendientes por imágenes incrustadas. Guardados y verificados: {snapshots.Count}/{selection.Count}. No se inicia el borrado.");
+                incomplete.Data[InlineImages.FailureDataKey] = first.ImageFailure;
+                throw incomplete;
             }
             receipt.Status = "VERIFICADO";
             await SaveReceiptAsync(receiptPath, receipt);
@@ -138,20 +167,27 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
             receipt.Status = ex is OperationCanceledException ? "CANCELADO" : "ERROR";
             receipt.Error = ex.Message;
             receipt.PdfFailure = ex.Data[PdfVerifier.FailureDataKey] as PdfRenderFailure;
+            receipt.ImageFailure = ex.Data[InlineImages.FailureDataKey] as InlineImageFailure;
             if (receipt.PdfFailure is null && ex.Data[PdfVerifier.MismatchDataKey] is PdfTextCheck check)
                 receipt.PdfFailure = new(check, null);
-            receipt.FailedMessageNumber = receipt.PdfFailure is null ? null : currentMessage;
+            receipt.FailedMessageNumber = failedPhase == "EXPORTANDO" || receipt.PdfFailure is not null || receipt.ImageFailure is not null ? currentMessage : null;
             try { await SaveReceiptAsync(receiptPath, receipt); } catch (IOException) { }
             var pending = receipt.MoveInProgress is null ? "" : "\nEl último movimiento no ha quedado confirmado. Comprueba el buzón antes de repetirlo.";
-            var failedPdf = receipt.FailedMessageNumber is int number ? $"\nCorreo en comprobación: {number}/{selection.Count}. Diagnóstico numérico en PdfFailure del registro." : "";
+            var failedPdf = receipt.FailedMessageNumber is int number ? $"\nCorreo en comprobación: {number}/{selection.Count}." : "";
             var error = new ExportException($"{ex.Message}{failedPdf}\n\nArchivos guardados: {run}\nRegistro: {Path.GetFileName(receiptPath)}\nMovimientos confirmados a Eliminados: {receipt.MovedToDeleted.Count}.{pending}", run, receipt.MovedToDeleted.Count, ex, receiptPath);
             error.Data[ErrorReport.ExportContextDataKey] = new ExportErrorContext(selection.Count, receipt.Messages.Count, attachmentCount,
-                receipt.MovedToDeleted.Count, receipt.FailedMessageNumber, failedPhase, receipt.DeletionRequested);
+                receipt.MovedToDeleted.Count, receipt.FailedMessageNumber, failedPhase, receipt.DeletionRequested,
+                receipt.PendingMessages.Count, receipt.PendingMessages.Select(p => p.Number).ToArray());
             if (receipt.PdfFailure is not null) error.Data[PdfVerifier.FailureDataKey] = receipt.PdfFailure;
+            if (receipt.ImageFailure is not null) error.Data[InlineImages.FailureDataKey] = receipt.ImageFailure;
             throw error;
         }
         finally { foreach (var stream in locked) await stream.DisposeAsync(); }
     }
+
+    private async Task<AttachmentDownload> DownloadAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct) =>
+        source is IAttachmentDownloadSource complete ? await complete.DownloadAttachmentAsync(mail, attachment, ct)
+            : new(await source.AttachmentAsync(mail, attachment, ct));
 
     public static string Fingerprint(MailInfo item) => Hash(JsonSerializer.SerializeToUtf8Bytes(new
     {
