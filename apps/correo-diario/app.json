@@ -101,7 +101,9 @@
     "pending_selection_verified": true,
     "explicit_image_identifier_copy_verified": true,
     "ordinary_error_identifiers_excluded_verified": true,
-    "prerelease": true
+    "prerelease": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,
