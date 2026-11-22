@@ -48,7 +48,17 @@ public static class InlineImages
         }
         if (issues.Count > 0)
         {
-            var failure = new InlineImageFailure(references.Count, attachments.Count, attachments.Count(a => ContentId(a.ContentId).Length > 0), issues);
+            var failure = new InlineImageFailure(references.Count, attachments.Count, attachments.Count(a => ContentId(a.ContentId).Length > 0), issues)
+            {
+                IdentifierDetails = new(issues.Select(issue =>
+                {
+                    var raw = references[issue.ReferenceNumber - 1];
+                    string? normalized;
+                    try { normalized = ReferenceId(raw); }
+                    catch (Exception ex) when (ex is InvalidDataException or UriFormatException) { normalized = null; }
+                    return new ImageReferenceIdentity(issue.ReferenceNumber, raw, normalized);
+                }).ToArray(), attachments.Select((a, n) => new AttachmentImageIdentity(n + 1, a.ContentId, ContentId(a.ContentId))).ToArray())
+            };
             var error = new InvalidDataException($"No se han podido relacionar {issues.Count} imágenes incrustadas con sus adjuntos. El correo queda pendiente.");
             error.Data[FailureDataKey] = failure;
             throw error;

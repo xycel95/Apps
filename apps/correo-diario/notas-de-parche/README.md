@@ -1,5 +1,20 @@
 # Notas de parche
 
+## 0.4.8-beta.1 · 22/11/2026
+
+- **Marcar pendientes** importa un registro desde 0.4.7 para reintentar solo
+  esos mensajes. Exige copias verificadas, cero movimientos y coincidencia
+  de todos sus IDs con la lista actual antes de cambiar las casillas.
+- Tras un lote parcial verificado, solo quedan marcados los pendientes.
+  El borrado queda desmarcado. No inicia otro intento automáticamente.
+- **Ver error** reabre el aviso. **Copiar identificadores** es una acción separada
+  para referencias CID fallidas y Content-ID de adjuntos, con aviso de posibles
+  direcciones internas. Sin cuerpo, asuntos, nombres de archivo ni sesión.
+  Copiar error y el registro siguen excluyéndolos; permanecen solo en memoria.
+- 131 pruebas de lógica y comprobaciones Windows de selección, portapapeles
+  y PDF reales. El motivo concreto de los CID pendientes requiere esa evidencia:
+  esta versión no modifica la asociación ni omite imágenes.
+
 ## 0.4.7-beta.1 · 22/11/2026
 
 - Aprovecha ContentId/ContentType devueltos por GetAttachment cuando faltan

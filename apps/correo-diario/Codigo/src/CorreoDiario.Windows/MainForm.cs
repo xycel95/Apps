@@ -25,6 +25,8 @@ internal sealed class MainForm : Form
     private readonly Button cancel = new ThemedButton() { Text = "Cancelar", AutoSize = true, Enabled = false };
     private readonly Button openResult = new ThemedButton() { Text = "Abrir resultado", AutoSize = true, Enabled = false };
     private readonly Button copyLastError = new ThemedButton() { Text = "Copiar último error", AutoSize = true, Enabled = false };
+    private readonly Button viewError = new ThemedButton() { Text = "Ver error", AutoSize = true, Enabled = false };
+    private readonly Button markPending = new ThemedButton() { Text = "Marcar pendientes", AutoSize = true, Enabled = false };
     private readonly Label status = new() { Text = "Abre tu correo en el navegador y pulsa «Buscar pestañas».", AutoSize = false, Dock = DockStyle.Fill };
     private readonly ProgressBar progress = new() { Dock = DockStyle.Fill, Height = 8 };
     private BrowserSocket? browser;
@@ -34,10 +36,11 @@ internal sealed class MainForm : Form
     private CancellationTokenSource? operation;
     private string? lastDirectory;
     private string? lastErrorReport;
+    private string? lastImageIdentifiers;
 
     public MainForm()
     {
-        Text = "CorreoDiario · 0.4.7 beta";
+        Text = "CorreoDiario · 0.4.8 beta";
         Size = new(1280, 900);
         MinimumSize = new(1050, 760);
         StartPosition = FormStartPosition.CenterScreen;
@@ -98,7 +101,7 @@ internal sealed class MainForm : Form
         deletionRow.Controls.Add(delete);
         layout.Controls.Add(deletionRow, 0, 5);
         var actions = new FlowLayoutPanel { Dock = DockStyle.Fill };
-        actions.Controls.AddRange([export, cancel, openResult, copyLastError]);
+        actions.Controls.AddRange([export, cancel, openResult, copyLastError, viewError, markPending]);
         layout.Controls.Add(actions, 0, 6);
         var footer = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
         footer.RowStyles.Add(new(SizeType.Percent, 100)); footer.RowStyles.Add(new(SizeType.Absolute, 8));
@@ -214,8 +217,27 @@ internal sealed class MainForm : Form
         copyLastError.Click += (_, _) =>
         {
             if (lastErrorReport is null) return;
-            if (!ErrorDialog.TryCopy(lastErrorReport, out var feedback)) ErrorDialog.ShowReport(this, lastErrorReport);
+            if (!ErrorDialog.TryCopy(lastErrorReport, out var feedback)) ErrorDialog.ShowReport(this, lastErrorReport, lastImageIdentifiers);
             status.Text = feedback;
+        };
+        viewError.Click += (_, _) => { if (lastErrorReport is not null) ErrorDialog.ShowReport(this, lastErrorReport, lastImageIdentifiers); };
+        markPending.Click += async (_, _) =>
+        {
+            if (operation is not null) return;
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Elige el registro Comprobacion del lote incompleto",
+                Filter = "Registros de comprobación (Comprobacion_*.json)|Comprobacion_*.json|Archivos JSON (*.json)|*.json",
+                CheckFileExists = true, Multiselect = false
+            };
+            if (destination.Text.Length > 0 && Directory.Exists(destination.Text)) dialog.InitialDirectory = destination.Text;
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            await SafeAsync(async ct =>
+            {
+                var pending = PendingSelection.FromReceipt(await File.ReadAllTextAsync(dialog.FileName, ct));
+                SelectPending(pending);
+                status.Text = $"Marcados {pending.Count} pendientes del registro. Pulsa «Guardar correos y adjuntos» para reintentar solo esos correos.";
+            });
         };
         openResult.Click += (_, _) => { if (lastDirectory is not null) Process.Start(new ProcessStartInfo(lastDirectory) { UseShellExecute = true }); };
         FormClosing += (_, e) =>
@@ -259,11 +281,30 @@ internal sealed class MainForm : Form
     internal void ShowError(Exception error)
     {
         lastErrorReport = ErrorDialog.CreateReport(error);
+        lastImageIdentifiers = ErrorDialog.CreateImageIdentifiers(error);
         status.Text = "La operación se ha detenido. Puedes copiar el error desde el aviso o con «Copiar último error».";
         if (error.Data[ErrorReport.ExportContextDataKey] is ExportErrorContext { PendingMessages: > 0 } partial)
             status.Text = $"Guardados: {partial.SavedMessages}/{partial.SelectedMessages}. Pendientes: {partial.PendingMessages}. Puedes copiar el error.";
+        if (error.Data[ErrorReport.PendingSelectionDataKey] is IReadOnlyList<string> pending)
+        {
+            try
+            {
+                SelectPending(pending);
+                status.Text += $" Quedan marcados solo los {pending.Count} pendientes.";
+            }
+            catch (InvalidDataException) { /* Keep the selection if this is not the original loaded list. */ }
+        }
         copyLastError.Enabled = operation is null;
-        ErrorDialog.ShowReport(this, lastErrorReport);
+        viewError.Enabled = operation is null;
+        ErrorDialog.ShowReport(this, lastErrorReport, lastImageIdentifiers);
+    }
+    internal void SelectPending(IReadOnlyList<string> pending)
+    {
+        messages.EndEdit();
+        var loaded = messages.Rows.Cast<DataGridViewRow>().Select(r => (MailInfo)r.Tag!).ToList();
+        var ids = PendingSelection.Match(loaded, pending);
+        delete.Checked = false;
+        foreach (DataGridViewRow row in messages.Rows) row.Cells[0].Value = ids.Contains(((MailInfo)row.Tag!).Id);
     }
     private void RefreshButtons()
     {
@@ -277,6 +318,8 @@ internal sealed class MainForm : Form
         export.Enabled = !busy && source is not null && messages.Rows.Count > 0 && destination.Text.Length > 0;
         cancel.Enabled = busy;
         copyLastError.Enabled = !busy && lastErrorReport is not null;
+        viewError.Enabled = !busy && lastErrorReport is not null;
+        markPending.Enabled = !busy && source is not null && messages.Rows.Count > 0;
     }
     private void PaintControls(Control parent)
     {

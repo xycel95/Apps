@@ -7,6 +7,17 @@ namespace CorreoDiario.Core;
 public static class ErrorReport
 {
     public const string ExportContextDataKey = "CorreoDiario.ExportErrorContext";
+    public const string PendingSelectionDataKey = "CorreoDiario.PendingSelectionIds";
+
+    // Explicit, separate action: CID values can include internal addresses.
+    public static string? BuildImageIdentifiers(Exception error, string version)
+    {
+        var details = Find<InlineImageFailure>(error, InlineImages.FailureDataKey)?.IdentifierDetails;
+        if (details is null) return null;
+        var context = Find<ExportErrorContext>(error, ExportContextDataKey);
+        return "CorreoDiario · " + version + "\nIdentificadores de imágenes (pueden contener direcciones internas)\n" +
+            JsonSerializer.Serialize(new { context?.FailedMessageNumber, ImageIdentifiers = details }, new JsonSerializerOptions { WriteIndented = true });
+    }
 
     public static string Build(Exception error, string version, string platform)
     {

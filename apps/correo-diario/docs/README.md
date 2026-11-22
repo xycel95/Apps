@@ -10,6 +10,29 @@ Si ya has cerrado el aviso, pulsa **Copiar último error** en la ventana
 principal. Está disponible hasta que cierres CorreoDiario y funciona aunque
 hayas borrado el archivo de registro. No se envía nada automáticamente.
 
+## Reintentar solo los pendientes y diagnosticar imágenes
+
+1. Conecta la misma cuenta y busca con las mismas carpetas y fechas del lote.
+2. Pulsa **Marcar pendientes** y elige su `Comprobacion_….json` (desde 0.4.7).
+   Exige copias verificadas, pendientes y cero movimientos iniciados o confirmados.
+3. Si todos los IDs están en la lista, marca solo esos mensajes y desmarca el
+   borrado. Si falta alguno, no cambia las casillas: completa la búsqueda.
+4. Revisa la selección y pulsa **Guardar correos y adjuntos** para reintentarlos.
+
+Tras un nuevo lote parcial con copias verificadas, solo quedan marcados los
+pendientes. Si la verificación de las copias falla, conserva la selección completa.
+No inicia automáticamente una exportación ni mueve las copias buenas de otro lote.
+
+**Ver error** reabre el último aviso. Ante un fallo de asociación CID, aparece
+**Copiar identificadores**: copia por separado las referencias fallidas, sus
+valores normalizados y los Content-ID de los adjuntos, numerados. Pueden incluir
+direcciones internas; revisa el texto antes de compartirlo. No incluye cuerpo,
+asunto, nombres de archivo ni credenciales. Esos valores permanecen solo en
+memoria y no se añaden a Copiar error ni al registro. Si reinicias el programa,
+reintenta los pendientes para obtenerlos; no están en los registros antiguos.
+Esta versión no cambia cómo se relacionan las imágenes: obtiene la evidencia
+que falta para diagnosticar cada caso.
+
 ## Conectar tu pestaña de Outlook
 
 1. Abre tu correo en tu **Edge o Chrome habitual**, con tu sesión ya iniciada.

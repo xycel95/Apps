@@ -13,6 +13,7 @@ internal static class Program
             try
             {
                 CopyErrorCheck.Run(host);
+                PendingSelectionCheck.Run(host);
                 using var renderer = new PdfRenderer();
                 await EmojiPdfCheck.RunAsync(renderer);
                 await PdfLayoutCheck.RunAsync(renderer);

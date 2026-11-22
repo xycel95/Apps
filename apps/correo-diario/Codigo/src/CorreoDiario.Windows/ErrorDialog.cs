@@ -5,7 +5,7 @@ namespace CorreoDiario.Windows;
 
 internal sealed class ErrorDialog : Form
 {
-    public ErrorDialog(string report)
+    public ErrorDialog(string report, string? imageIdentifiers = null)
     {
         Text = "CorreoDiario · Error";
         Size = new(780, 540);
@@ -17,11 +17,12 @@ internal sealed class ErrorDialog : Form
         BackColor = Color.FromArgb(17, 24, 39);
         ForeColor = Color.FromArgb(235, 241, 250);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(18), ColumnCount = 1, RowCount = 4 };
-        layout.RowStyles.Add(new(SizeType.Absolute, 36));
+        layout.RowStyles.Add(new(SizeType.Absolute, imageIdentifiers is null ? 36 : 62));
         layout.RowStyles.Add(new(SizeType.Percent, 100));
         layout.RowStyles.Add(new(SizeType.Absolute, 32));
         layout.RowStyles.Add(new(SizeType.Absolute, 44));
-        layout.Controls.Add(new Label { Text = "Puedes copiar este aviso para revisarlo.", Dock = DockStyle.Fill }, 0, 0);
+        layout.Controls.Add(new Label { Text = imageIdentifiers is null ? "Puedes copiar este aviso para revisarlo." :
+            "Puedes copiar el error. «Copiar identificadores» incluye referencias CID y Content-ID de imágenes; pueden contener direcciones internas.", Dock = DockStyle.Fill }, 0, 0);
         var details = new TextBox
         {
             Text = report, Multiline = true, ReadOnly = true, Dock = DockStyle.Fill,
@@ -36,10 +37,23 @@ internal sealed class ErrorDialog : Form
         var copy = Button("Copiar error"); copy.BackColor = Color.FromArgb(24, 112, 210);
         copy.Click += (_, _) =>
         {
+            details.Text = report;
             if (!TryCopy(report, out var result)) { details.Focus(); details.SelectAll(); }
             feedback.Text = result;
         };
         buttons.Controls.AddRange([close, copy]);
+        if (imageIdentifiers is not null)
+        {
+            var copyIdentifiers = Button("Copiar identificadores");
+            copyIdentifiers.Click += (_, _) =>
+            {
+                details.Text = imageIdentifiers;
+                var copied = TryCopy(imageIdentifiers, out var result);
+                if (!copied) { details.Focus(); details.SelectAll(); }
+                feedback.Text = copied ? "Identificadores copiados. Revisa su contenido antes de compartirlos." : result;
+            };
+            buttons.Controls.Add(copyIdentifiers);
+        }
         layout.Controls.Add(buttons, 0, 3);
         Controls.Add(layout);
         AcceptButton = close; CancelButton = close;
@@ -55,9 +69,12 @@ internal sealed class ErrorDialog : Form
         (typeof(ErrorDialog).Assembly.GetName().Version?.ToString(3) ?? "desconocida") + " beta",
         Environment.OSVersion.VersionString + "; .NET " + Environment.Version);
 
-    internal static void ShowReport(IWin32Window? owner, string report)
+    internal static string? CreateImageIdentifiers(Exception error) => ErrorReport.BuildImageIdentifiers(error,
+        (typeof(ErrorDialog).Assembly.GetName().Version?.ToString(3) ?? "desconocida") + " beta");
+
+    internal static void ShowReport(IWin32Window? owner, string report, string? imageIdentifiers = null)
     {
-        using var dialog = new ErrorDialog(report);
+        using var dialog = new ErrorDialog(report, imageIdentifiers);
         if (owner is null) { dialog.StartPosition = FormStartPosition.CenterScreen; dialog.ShowDialog(); }
         else dialog.ShowDialog(owner);
     }

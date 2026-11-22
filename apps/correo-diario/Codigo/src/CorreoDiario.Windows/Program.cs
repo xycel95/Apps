@@ -10,7 +10,7 @@ internal static class Program
         Application.ThreadException += (_, e) =>
         {
             if (Application.OpenForms.OfType<MainForm>().FirstOrDefault() is { } main) main.ShowError(e.Exception);
-            else ErrorDialog.ShowReport(null, ErrorDialog.CreateReport(e.Exception));
+            else ErrorDialog.ShowReport(null, ErrorDialog.CreateReport(e.Exception), ErrorDialog.CreateImageIdentifiers(e.Exception));
         };
         Application.Run(new MainForm());
     }

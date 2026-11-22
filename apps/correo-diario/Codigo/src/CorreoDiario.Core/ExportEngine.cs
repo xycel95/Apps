@@ -180,6 +180,8 @@ public sealed class ExportEngine(IMailSource source, IPdfRenderer renderer)
                 receipt.PendingMessages.Count, receipt.PendingMessages.Select(p => p.Number).ToArray());
             if (receipt.PdfFailure is not null) error.Data[PdfVerifier.FailureDataKey] = receipt.PdfFailure;
             if (receipt.ImageFailure is not null) error.Data[InlineImages.FailureDataKey] = receipt.ImageFailure;
+            if (receipt.SavedCopiesVerified && receipt.PendingMessages.Count > 0)
+                error.Data[ErrorReport.PendingSelectionDataKey] = receipt.PendingMessages.Select(p => p.Id).ToArray();
             throw error;
         }
         finally { foreach (var stream in locked) await stream.DisposeAsync(); }

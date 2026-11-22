@@ -150,7 +150,7 @@ var tests = new (string Name, Func<Task> Test)[]
         Check(ExportEngine.SafeName(new string('x', 200) + ".pdf", 95).EndsWith(".pdf"), "Extensión conservada");
         return Task.CompletedTask;
     })
-}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).Concat(FlatExportChecks.All()).Concat(PdfTextChecks.All()).Concat(PdfDiagnosticChecks.All()).Concat(ErrorReportChecks.All()).Concat(EmojiPresentationChecks.All()).Concat(InlineImageChecks.All()).ToArray();
+}.Concat(OwaChecks.All()).Concat(BrowserChecks.All()).Concat(AuthorizationChecks.All()).Concat(SearchChecks.All()).Concat(AttachmentChecks.All()).Concat(AttachmentConsistencyChecks.All()).Concat(FlatExportChecks.All()).Concat(PdfTextChecks.All()).Concat(PdfDiagnosticChecks.All()).Concat(ErrorReportChecks.All()).Concat(EmojiPresentationChecks.All()).Concat(InlineImageChecks.All()).Concat(PendingSelectionChecks.All()).ToArray();
 var failures = 0;
 foreach (var test in tests)
 {

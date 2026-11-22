@@ -34,6 +34,9 @@ internal static class InlineImagePdfCheck
                 var report = ErrorReport.Build(ex, "prueba", "Windows");
                 if (!report.Contains("ImageFailure") || !report.Contains("PendingMessageNumbers") || report.Contains("logo@ejemplo.invalid"))
                     throw new Exception("El informe debe identificar los pendientes sin copiar sus referencias privadas.");
+                if (ex.Data[ErrorReport.PendingSelectionDataKey] is not string[] pending || !pending.SequenceEqual(new[] { "2", "4" }) ||
+                    !PendingSelection.FromReceipt(r.GetRawText()).SequenceEqual(pending) || ErrorReport.BuildImageIdentifiers(ex, "prueba") is null ||
+                    r.GetRawText().Contains("IdentifierDetails")) throw new Exception("Debe ofrecer el reintento de los pendientes verificados y conservar los identificadores fuera del registro.");
                 Console.WriteLine("PASS Imágenes CID Windows: identificador completo de descarga, corchetes codificados y signo más resueltos en PDF con imágenes reales.");
                 Console.WriteLine("PASS Lote incompleto Windows: dos correos copiados y verificados, dos pendientes distintos, adjuntos releídos y cero movimientos con borrado marcado.");
                 return;

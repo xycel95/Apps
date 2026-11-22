@@ -2,6 +2,36 @@
 
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
+## Diagnóstico 0.4.8: evidencia CID y reintento de pendientes
+
+El diagnóstico real confirma content-id-not-found pese a adjuntos con CID.
+Las longitudes no revelan los valores ni permiten corregirlos con certeza.
+NO cambiar el comparador CID con normalizaciones especulativas o nombres.
+Esta versión recoge evidencia; el caso real queda pendiente de recibir la
+copia explícita. No subir esa copia ni el informe real al repositorio.
+
+InlineImageFailure.IdentifierDetails conserva en memoria referencias fallidas
+con originales/normalizados e índices y Content-ID de adjuntos. JsonIgnore
+impide incluirlos en informes habituales o registros. BuildImageIdentifiers
+es una acción explícita separada. El diálogo advierte de direcciones internas.
+Sin cuerpo, asunto, nombres de archivo, IDs de adjuntos o datos de sesión.
+Ver error reabre el aviso durante la sesión. Copiar último error no cambia.
+
+PendingSelection.FromReceipt admite registros 0.4.7: SavedCopiesVerified,
+IDs pendientes únicos y cero movimientos confirmados/en curso. Match exige
+TODOS los IDs en la búsqueda antes de cambiar casillas. SelectPending desmarca
+el borrado. La importación no inicia exportaciones ni movimientos. El motor
+solo ofrece IDs de reintento al finalizar con copias globalmente verificadas;
+un fallo de verificación conserva la selección completa. El siguiente intento
+es otro lote sujeto a la misma verificación; no borra copias de lotes anteriores.
+
+131 pruebas, con negativos de registros incoherentes, coincidencia parcial,
+caracteres invisibles y privacidad de los informes comunes. WindowsChecks enlaza
+MainForm real para comprobar casillas y controles al tamaño mínimo, y prueba
+ambos botones de copia con el portapapeles aislado de CI. Conserva el flujo real
+PDF/adjuntos con imágenes pendientes y cero movimientos. Datos sintéticos.
+Validaciones anteriores en docs/historico/0.4.7.
+
 ## Corrección 0.4.7: identidad de imágenes y lote incompleto
 
 El informe real de 0.4.6 supera el fallo FE0F y se detiene posteriormente por

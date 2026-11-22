@@ -49,7 +49,16 @@ public interface IAttachmentDownloadSource : IMailSource
     Task<AttachmentDownload> DownloadAttachmentAsync(MailInfo mail, AttachmentInfo attachment, CancellationToken ct);
 }
 public sealed record InlineImageIssue(int ReferenceNumber, string Reason, int ReferenceLength, int NormalizedLength, int Candidates);
-public sealed record InlineImageFailure(int References, int Attachments, int AttachmentsWithContentId, IReadOnlyList<InlineImageIssue> Issues);
+public sealed record ImageReferenceIdentity(int Number, string Reference, string? NormalizedContentId);
+public sealed record AttachmentImageIdentity(int Number, string ContentId, string NormalizedContentId);
+public sealed record ImageIdentifierDetails(IReadOnlyList<ImageReferenceIdentity> References, IReadOnlyList<AttachmentImageIdentity> Attachments);
+public sealed record InlineImageFailure(int References, int Attachments, int AttachmentsWithContentId, IReadOnlyList<InlineImageIssue> Issues)
+{
+    // Raw identifiers are available only to the dedicated clipboard action.
+    // Keep the ordinary error report/receipt free of these additional values.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public ImageIdentifierDetails? IdentifierDetails { get; init; }
+}
 public sealed record PendingMessage(int Number, string Id, string Subject, string Error, InlineImageFailure ImageFailure);
 public interface IVerifiedPdfRenderer : IPdfRenderer
 {
@@ -87,7 +96,7 @@ public record SavedMessage(string Id, string Revision, string Subject, IReadOnly
 }
 public sealed class ExportReceipt
 {
-    public string Version { get; set; } = "0.4.7-beta";
+    public string Version { get; set; } = "0.4.8-beta";
     public DateTimeOffset StartedAt { get; set; } = DateTimeOffset.Now;
     public string Status { get; set; } = "EXPORTANDO";
     public bool DeletionRequested { get; set; }

@@ -1,4 +1,19 @@
-CORREODIARIO 0.4.7 BETA — WINDOWS DE 64 BITS
+CORREODIARIO 0.4.8 BETA — WINDOWS DE 64 BITS
+
+Reintentar solo los pendientes: conecta la misma cuenta y busca con las mismas
+carpetas y fechas. Pulsa «Marcar pendientes» y elige el Comprobacion_….json del
+lote anterior (compatible con 0.4.7). Exige copias verificadas, ausencia de
+movimientos y que todos los IDs estén en la lista. No exporta ni borra por sí solo.
+Tras un lote incompleto con copias verificadas, solo quedan marcados los
+pendientes para el siguiente intento. El borrado queda desmarcado.
+
+«Ver error» reabre el último aviso. Ante un fallo de asociación CID, la acción
+separada «Copiar identificadores» copia las referencias fallidas y los Content-ID
+de los adjuntos. Pueden contener direcciones internas: revisa el texto antes
+de compartirlo. No incluye cuerpo, nombres de archivo ni datos de sesión.
+«Copiar error» y el registro siguen excluyendo esos valores, que permanecen
+solo durante la sesión. Esta versión recoge evidencia de las imágenes
+pendientes; no cambia las reglas de asociación ni declara resuelto el CID.
 
 Mejora la relación de imágenes CID y conserva los identificadores completos
 de la descarga. Si una imagen falta o está dañada, el correo queda pendiente

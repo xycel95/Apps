@@ -51,6 +51,10 @@ try {
   if ($state -ne 0) { throw 'La casilla de borrado no está desmarcada al arrancar.' }
   $copyError = [CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Copiar último error')
   if ($copyError -eq [IntPtr]::Zero -or [CorreoDiarioWindowCheck]::IsWindowEnabled($copyError)) { throw 'Falta Copiar último error o está activo sin haber un error.' }
+  foreach ($caption in @('Ver error', 'Marcar pendientes')) {
+    $control = [CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, $caption)
+    if ($control -eq [IntPtr]::Zero -or [CorreoDiarioWindowCheck]::IsWindowEnabled($control)) { throw "Falta $caption o está activo antes de disponer de datos." }
+  }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Buscar pestañas') -eq [IntPtr]::Zero) { throw 'Falta el selector de navegador.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Usar esta pestaña') -eq [IntPtr]::Zero) { throw 'Falta la conexión a la pestaña seleccionada.' }
   if ([CorreoDiarioWindowCheck]::FindText($process.MainWindowHandle, 'Cómo conectar') -eq [IntPtr]::Zero) { throw 'Falta la guía de conexión.' }
@@ -63,6 +67,7 @@ try {
     deletion_checkbox_found = $true
     deletion_checkbox_default_checked = $false
     copy_last_error_control_verified = $true
+    pending_and_error_controls_verified = $true
     existing_browser_ui_verified = $true
     embedded_login_ui_absent = $true
     date_range_controls_verified = $true

@@ -87,6 +87,8 @@ internal static class InlineImageChecks
                     using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(ex.ReceiptPath)); var r = receipt.RootElement;
                     Require(env.Source.Moved.Count == 0 && r.GetProperty("Messages").GetArrayLength() == 1 && r.GetProperty("PendingMessages").GetArrayLength() == 1);
                     Require(r.GetProperty("FailedMessageNumber").GetInt32() == 1 && r.GetProperty("SavedCopiesVerified").GetBoolean() && env.Source.Reads == 3 && env.Source.Downloads == 3);
+                    Require(ex.Data[ErrorReport.PendingSelectionDataKey] is string[] ids && ids.SequenceEqual(new[] { "m1" }) &&
+                        PendingSelection.FromReceipt(r.GetRawText()).SequenceEqual(ids) && ErrorReport.BuildImageIdentifiers(ex, "prueba") is not null);
                     Require(Directory.GetFiles(env.Directory, "*_CORREO.pdf").Length == 1 && ErrorReport.Build(ex, "prueba", "prueba").Contains("ImageFailure")); return;
                 }
                 throw new Exception("El lote debe terminar con resultado incompleto explícito.");
@@ -99,7 +101,7 @@ internal static class InlineImageChecks
             catch (ExportException ex)
             {
                 using var receipt = JsonDocument.Parse(await File.ReadAllTextAsync(ex.ReceiptPath));
-                Require(env.Source.Moved.Count == 0 && !receipt.RootElement.GetProperty("SavedCopiesVerified").GetBoolean()); return;
+                Require(env.Source.Moved.Count == 0 && !receipt.RootElement.GetProperty("SavedCopiesVerified").GetBoolean() && ex.Data[ErrorReport.PendingSelectionDataKey] is null); return;
             }
             throw new Exception("Debe comprobar las copias guardadas aunque haya un correo pendiente.");
         });

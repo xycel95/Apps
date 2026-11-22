@@ -1,5 +1,20 @@
 # Descripción del programa
 
+Reintentar solo los pendientes: conecta la misma cuenta y busca con las mismas
+carpetas y fechas. Pulsa **Marcar pendientes** y elige el Comprobacion_….json del
+lote anterior (compatible con 0.4.7). Exige copias verificadas, ausencia de
+movimientos y que todos los IDs estén en la lista. No exporta ni borra por sí solo.
+Tras un lote incompleto con copias verificadas, solo quedan marcados los
+pendientes para el siguiente intento. El borrado queda desmarcado.
+
+**Ver error** reabre el último aviso. Ante un fallo de asociación CID, la acción
+separada **Copiar identificadores** copia las referencias fallidas y los Content-ID
+de los adjuntos. Pueden contener direcciones internas: revisa el texto antes
+de compartirlo. No incluye cuerpo, nombres de archivo ni datos de sesión.
+**Copiar error** y el registro siguen excluyendo esos valores, que permanecen
+solo durante la sesión. Esta versión recoge evidencia de las imágenes
+pendientes; no cambia las reglas de asociación ni declara resuelto el CID.
+
 Las imágenes incrustadas se relacionan por sus identificadores, incluidos los
 datos completos de la descarga. Si una imagen falta o no puede decodificarse,
 el correo queda pendiente y se copian los demás. Las copias guardadas se revisan,
@@ -11,7 +26,7 @@ en la ventana principal mientras el programa siga abierto, aunque cierres el
 aviso o borres el registro. El informe contiene versión, mensaje y diagnóstico
 de la exportación, sin copiar el cuerpo del correo.
 
-CorreoDiario 0.4.7 beta trabaja con la sesión de Outlook que ya tienes abierta
+CorreoDiario 0.4.8 beta trabaja con la sesión de Outlook que ya tienes abierta
 **en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
 una, seleccionar carpetas y un intervalo de fechas, y exportar los mensajes a PDF con sus
 adjuntos originales separados. Conserva el modo alternativo de Outlook clásico. Los campos **Desde** y **Hasta**

@@ -11,6 +11,9 @@
     <Compile Include="../../src/CorreoDiario.Windows/PdfRenderer.cs" Link="PdfRenderer.cs" />
     <Compile Include="../../src/CorreoDiario.Windows/ErrorDialog.cs" Link="ErrorDialog.cs" />
     <Compile Include="../../src/CorreoDiario.Windows/ThemedControls.cs" Link="ThemedControls.cs" />
+    <Compile Include="../../src/CorreoDiario.Windows/MainForm.cs" Link="MainForm.cs" />
+    <Compile Include="../../src/CorreoDiario.Windows/BrowserHelp.cs" Link="BrowserHelp.cs" />
+    <Compile Include="../../src/CorreoDiario.Windows/OutlookClassicSource.cs" Link="OutlookClassicSource.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/BrowserAuthCheck.cs" Link="BrowserAuthCheck.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaMailboxFixture.cs" Link="OwaMailboxFixture.cs" />
     <Compile Include="../CorreoDiario.SafetyTests/OwaSearchContract.cs" Link="OwaSearchContract.cs" />
