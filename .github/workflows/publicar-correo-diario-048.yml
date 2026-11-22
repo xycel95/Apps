@@ -39,7 +39,7 @@ jobs:
           Set-Location apps/correo-diario/Codigo
           dotnet run --project tests/CorreoDiario.SafetyTests/CorreoDiario.SafetyTests.csproj -c Release -- --verify-outlook-auth 2>&1 | Tee-Object "$env:GITHUB_WORKSPACE/.correo-release/OUTLOOK-AUTH.txt"
           if ($LASTEXITCODE -ne 0) { throw 'Ha fallado la regresión autenticada con Edge.' }
-      - name: Comprobar imágenes CID, lotes incompletos y PDF de WebView2 real
+      - name: Comprobar interfaz, selección de pendientes, imágenes CID y PDF de WebView2 real
         timeout-minutes: 5
         shell: pwsh
         run: |

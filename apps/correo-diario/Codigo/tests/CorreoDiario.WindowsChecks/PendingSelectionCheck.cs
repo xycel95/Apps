@@ -29,7 +29,7 @@ internal static class PendingSelectionCheck
         {
             var button = controls.OfType<Button>().Single(b => b.Text == name);
             if (button.Enabled || button.Bottom > button.Parent!.ClientSize.Height || button.Right > button.Parent.ClientSize.Width)
-                throw new Exception("El control debe estar visible y desactivado antes de conectar o generar un error: " + name);
+                throw new Exception($"El control debe estar visible y desactivado antes de conectar o generar un error: {name}, activo={button.Enabled}, rect={button.Bounds}, espacio={button.Parent.ClientSize}.");
         }
         Console.WriteLine("PASS Pendientes Windows: solo los IDs pendientes marcados, borrado desmarcado, coincidencia completa previa y controles visibles al tamaño mínimo.");
         window.Close();

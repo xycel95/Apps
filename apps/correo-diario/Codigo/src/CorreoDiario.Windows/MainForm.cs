@@ -50,7 +50,7 @@ internal sealed class MainForm : Form
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(26, 20, 26, 18), ColumnCount = 1, RowCount = 8 };
         foreach (var height in new[] { 82F, 124F, 48F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
         layout.RowStyles.Add(new(SizeType.Percent, 100));
-        foreach (var height in new[] { 46F, 47F, 45F, 52F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
+        foreach (var height in new[] { 46F, 47F, 58F, 52F }) layout.RowStyles.Add(new(SizeType.Absolute, height));
         var title = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
         title.RowStyles.Add(new(SizeType.Absolute, 48)); title.RowStyles.Add(new(SizeType.Absolute, 24));
         title.Controls.Add(new Label { Text = "CorreoDiario", Font = new("Segoe UI Semibold", 25), AutoSize = false, Dock = DockStyle.Fill, Margin = Padding.Empty });
