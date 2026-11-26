@@ -38,4 +38,6 @@ La ventana principal también permite añadir mensajes EML o MSG existentes y re
 
 ### Comprobaciones de la versión
 
-La suite utiliza correo de ejemplo y un servicio de Microsoft 365 simulado. El acceso a una cuenta corporativa real requiere la configuración de su organización.
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 59 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.
+
+[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)

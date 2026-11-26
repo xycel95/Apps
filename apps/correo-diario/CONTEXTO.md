@@ -2,6 +2,8 @@
 
 ## 0.7.0 para Edge
 
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 59 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.
+
 Entrada principal en Windows/FolderWindow.cs. Windows/MicrosoftMailbox.cs usa MSAL con navegador del sistema y un registro de escritorio de la organización. Solo se persisten identificadores de configuración y preferencias por cuenta. Core/GraphMailbox.cs pagina el buzón mediante operaciones GET de Microsoft Graph, coteja identidades y versiones e intenta recuperar por ID los archivos que falten en la representación MIME. Core/FolderArchive.cs escribe en destino mediante directorios de preparación y recibos con hashes. El diagnóstico compartido incluye fases y códigos. Se conserva la entrada anterior por archivos completos. Las pruebas de esta rama usan datos sintéticos. La autorización y la exportación con un buzón corporativo concreto requieren su entorno.
 
 ## 0.6.0 para Edge
