@@ -2,6 +2,8 @@
 
 ## 0.6.0 para Edge
 
+En Windows se ejecutaron 43 comprobaciones de EML y MSG y 46 de escritorio. La prueba de Windows cubrió la detección de Edge sin conexión, la entrega de dos correos virtuales, PDF y adjuntos, y la conservación del foco y del cursor al exportar. Queda pendiente la prueba con un buzón real de Outlook.
+
 La edición estable utiliza el código de exportación de la 0.6.0 beta 2. La versión de producto en Windows y la versión que se copia en el diagnóstico son 0.6.0.
 
 ## 0.6.0 beta 2 para Edge
