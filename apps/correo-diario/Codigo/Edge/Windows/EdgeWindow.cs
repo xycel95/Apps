@@ -20,7 +20,7 @@ public sealed record BrowserRow(
     public override string ToString() => Label;
 }
 
-public sealed class EdgeWindow
+public sealed partial class EdgeWindow
 {
     public IntPtr Hwnd { get; }
     public string Site { get; }
@@ -102,16 +102,19 @@ public sealed class EdgeWindow
 
     static string TabKey(AE root)
     {
-        foreach (var e in By(root, Ctrl.TabItem))
-            if (
-                e.TryGetCurrentPattern(SelectionItemPattern.Pattern, out var p)
-                && ((SelectionItemPattern)p).Current.IsSelected
-            )
+        try
+        {
+            foreach (var e in By(root, Ctrl.TabItem))
             {
-                // Outlook also has tabs inside the document. Only use the Edge tab strip.
-                if (!Ancestors(e, 12).Any(a => a.Current.ControlType == Ctrl.Document))
-                    return Rid(e);
+                try
+                {
+                    if (IsBrowserControl(e, root, out _) && e.TryGetCurrentPattern(SelectionItemPattern.Pattern, out var p)
+                        && ((SelectionItemPattern)p).Current.IsSelected) return Rid(e);
+                }
+                catch (Exception error) when (ProviderFailure(error)) { }
             }
+        }
+        catch (Exception error) when (ProviderFailure(error)) { }
         return "";
     }
 
@@ -119,76 +122,6 @@ public sealed class EdgeWindow
     {
         for (var p = Parent(e); p != null && max-- > 0; p = Parent(p))
             yield return p;
-    }
-
-    static string? Address(AE root)
-    {
-        foreach (var e in By(root, Ctrl.Edit, Ctrl.ComboBox))
-        {
-            var name = Name(e);
-            var id = e.Current.AutomationId ?? "";
-            if (
-                !(
-                    id.Equals("addressEditBox", StringComparison.OrdinalIgnoreCase)
-                    || Regex.IsMatch(
-                        name,
-                        @"^(?:Barra de direcciones|Address and search bar|Search or enter web address|Search the web or type a URL)",
-                        RegexOptions.IgnoreCase
-                    )
-                )
-            )
-                continue;
-            if (Ancestors(e, 20).Any(a => a.Current.ControlType == Ctrl.Document))
-                continue;
-            if (e.TryGetCurrentPattern(ValuePattern.Pattern, out var p))
-                return ((ValuePattern)p).Current.Value;
-        }
-        return null;
-    }
-
-    static readonly HashSet<string> Hosts = new(
-        [
-            "outlook.office.com",
-            "outlook.office365.com",
-            "outlook.cloud.microsoft",
-            "outlook.live.com",
-            "correo.salud.madrid.org",
-        ],
-        StringComparer.OrdinalIgnoreCase
-    );
-
-    static string? GetSite(AE window)
-    {
-        var s = Address(window)?.Trim();
-        if (string.IsNullOrEmpty(s))
-            return null;
-        if (!s.Contains("://"))
-            s = "https://" + s;
-        return
-            Uri.TryCreate(s, UriKind.Absolute, out var u)
-            && u.Scheme == "https"
-            && Hosts.Contains(u.IdnHost)
-            && u.IsDefaultPort
-            ? u.IdnHost
-            : null;
-    }
-
-    static string Account(AE root)
-    {
-        var s = Address(root) ?? "";
-        if (!s.Contains("://"))
-            s = "https://" + s;
-        if (!Uri.TryCreate(s, UriKind.Absolute, out var u))
-            return "";
-        var match = Regex.Match(
-            u.AbsolutePath,
-            @"^/(?:mail|owa)/([^/]+)(?:/|$)",
-            RegexOptions.IgnoreCase
-        );
-        if (!match.Success)
-            return "";
-        var part = Uri.UnescapeDataString(match.Groups[1].Value);
-        return part.Contains('@') || int.TryParse(part, out _) ? part : "";
     }
 
     public string ViewLabel()
@@ -208,39 +141,6 @@ public sealed class EdgeWindow
         return "Vista seleccionada en Outlook";
     }
 
-    public static List<EdgeWindow> List()
-    {
-        var result = new List<EdgeWindow>();
-        foreach (
-            AE w in AE.RootElement.FindAll(
-                TreeScope.Children,
-                new PropertyCondition(AE.ControlTypeProperty, Ctrl.Window)
-            )
-        )
-        {
-            try
-            {
-                using var proc = Process.GetProcessById(w.Current.ProcessId);
-                if (!proc.ProcessName.Equals("msedge", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                string? site = GetSite(w);
-                if (site == null)
-                    continue;
-                result.Add(
-                    new((IntPtr)w.Current.NativeWindowHandle, site, Name(w), TabKey(w), Account(w))
-                );
-            }
-            catch (Exception ex)
-                when (ex
-                        is ElementNotAvailableException
-                            or InvalidOperationException
-                            or ArgumentException
-                            or System.Runtime.InteropServices.COMException
-                ) { }
-        }
-        return result;
-    }
-
     public AE Root => AE.FromHandle(Hwnd);
 
     public void Verify(bool foreground = false)
@@ -250,9 +150,10 @@ public sealed class EdgeWindow
                 "La ventana de Edge ha perdido el foco. La captura se ha detenido."
             );
         var root = Root;
+        var location = Location(root, new WindowProbe());
         if (
-            GetSite(root) != Site
-            || accountPath.Length > 0 && Account(root) != accountPath
+            location == null || location.IdnHost != Site
+            || accountPath.Length > 0 && Account(location) != accountPath
             || tabKey.Length > 0 && TabKey(root) != tabKey
         )
             throw new OperationCanceledException(

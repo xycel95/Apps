@@ -59,7 +59,8 @@ public static class Archive
         MailPrinter printer,
         IEnumerable<string> initialNotes,
         IProgress<string>? progress,
-        CancellationToken ct
+        CancellationToken ct,
+        Action<string, Exception>? reportError = null
     )
     {
         var threads = Threads.Find(items);
@@ -177,6 +178,7 @@ public static class Archive
                     }
                     catch (Exception e)
                     {
+                        reportError?.Invoke("Guardar mensaje, PDF y adjuntos", e);
                         notes.Add("Exportación parcial: " + e.Message);
                     }
                     if (m.Id.Length == 0)
@@ -250,6 +252,7 @@ public static class Archive
                     }
                     catch (Exception e)
                     {
+                        reportError?.Invoke("Combinar PDF del hilo", e);
                         log.Add(first.Subject + " · PDF del hilo pendiente: " + e.Message);
                     }
                     finally

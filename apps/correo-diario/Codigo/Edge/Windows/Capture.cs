@@ -11,12 +11,11 @@ internal sealed class Capture(
     string downloads,
     string cache,
     IProgress<string> progress,
-    CancellationToken token
+    CancellationToken token,
+    Action<string, Exception>? reportError = null
 )
 {
     public List<string> Notes { get; } = [];
-
-    sealed class OriginalUnavailable(string message) : Exception(message);
 
     static readonly Regex Direct = new(
         @"^(?:Descargar|Download|Guardar como (?:archivo )?\.?EML|Descargar (?:como |en (?:formato )?)?\.?EML|Save as \.?EML|Download as \.?EML|Download message|Descargar (?:el )?mensaje|Guardar como \.?MSG|Save as \.?MSG)(?=$|\s*\()",
@@ -116,6 +115,7 @@ internal sealed class Capture(
                 .ToList();
             if (found.Count > 1)
                 throw new OriginalUnavailable(
+                    "descargas simultáneas",
                     "Ha aparecido más de un EML/MSG en Descargas a la vez. No se asignaron a esta fila."
                 );
             if (found.Count == 0)
@@ -157,17 +157,20 @@ internal sealed class Capture(
                 && !zones.Split('|').Contains(tab.Site, StringComparer.OrdinalIgnoreCase)
             )
                 throw new OriginalUnavailable(
+                    "dominio de descarga distinto",
                     "El dominio de la descarga no coincide con la pestaña de Outlook."
                 );
             var item = MailReader.Inspect(copy, origin);
             if (!MatchSubject(label, item))
                 throw new OriginalUnavailable(
+                    "descarga distinta a la fila",
                     "El asunto de la descarga no coincide con la fila solicitada. Importa el original manualmente para revisarlo."
                 );
             tab.Verify();
             return item;
         }
         throw new OriginalUnavailable(
+            "tiempo de descarga agotado",
             "Outlook no entregó un EML/MSG en la carpeta de descargas indicada. Si Edge pregunta dónde guardarlo, selecciona esa carpeta."
         );
     }
@@ -312,10 +315,12 @@ internal sealed class Capture(
         }
         catch (Exception ex) when (result.Count > 0 && ex is not OperationCanceledException)
         {
+            reportError?.Invoke("Leer tarjetas del hilo", ex);
             Notes.Add("Algunas tarjetas no se pudieron recuperar: " + ex.Message);
         }
         if (result.Count == 0)
             throw new OriginalUnavailable(
+                "acción Descargar no disponible",
                 "Outlook no ofrece «Descargar» para esta fila o para sus tarjetas."
             );
         return result.DistinctBy(m => m.Hash).ToList();
@@ -340,6 +345,7 @@ internal sealed class Capture(
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
+                    reportError?.Invoke("Descargar fila de Outlook", e);
                     Notes.Add("Fila pendiente «" + row.Label + "»: " + e.Message);
                 }
             }
@@ -391,6 +397,7 @@ internal sealed class Capture(
                         }
                         catch (Exception e) when (e is not OperationCanceledException)
                         {
+                            reportError?.Invoke("Descargar respuesta", e);
                             Notes.Add(
                                 "Una coincidencia de «" + term + "» quedó pendiente: " + e.Message
                             );
@@ -399,6 +406,7 @@ internal sealed class Capture(
                 }
                 catch (Exception e) when (e is not OperationCanceledException)
                 {
+                    reportError?.Invoke("Buscar conversación", e);
                     Notes.Add("No se completó la búsqueda de «" + term + "»: " + e.Message);
                 }
             }

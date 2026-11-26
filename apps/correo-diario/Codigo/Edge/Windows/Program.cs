@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using Registry = Microsoft.Win32.Registry;
 
 namespace CorreoDiario.EdgeApp;
@@ -56,6 +57,9 @@ internal sealed class MainWindow : Form
     readonly Button export = Button("Exportar selección"),
         cancel = Button("Cancelar"),
         open = Button("Abrir resultado");
+    readonly Button copyDiagnostics = Button("Copiar diagnóstico");
+    readonly DiagnosticLog diagnostics = new();
+    readonly System.Windows.Forms.Timer copyFeedback = new() { Interval = 2200 };
     readonly ProgressBar bar = new()
     {
         Width = 105,
@@ -176,6 +180,9 @@ internal sealed class MainWindow : Form
         var lc = Stack();
         live.Controls.Add(lc);
         Add(lc, LabelOf("Deja la bandeja de Outlook visible en Edge y selecciona su ventana."));
+        windows.Name = "OutlookWindows";
+        windows.AccessibleName = "Ventanas de Outlook en Edge";
+        status.Name = "OperationStatus";
         var detect = Button("Detectar Edge");
         var reload = Button("Leer selección");
         Add(lc, Horizontal(windows, detect, reload));
@@ -208,7 +215,12 @@ internal sealed class MainWindow : Form
         lockable.Add(destination);
         Add(page, Horizontal(target, destination));
         var bottom = Line();
-        bottom.Controls.AddRange([export, open, cancel, bar]);
+        copyDiagnostics.Name = "CopyDiagnostics";
+        copyDiagnostics.AccessibleDescription = "Copia un informe técnico para compartir cuando ocurra un error.";
+        copyDiagnostics.Click += (_, _) => CopyDiagnostics();
+        copyFeedback.Tick += (_, _) => { copyFeedback.Stop(); copyDiagnostics.Text = "Copiar diagnóstico"; };
+        FormClosed += (_, _) => copyFeedback.Dispose();
+        bottom.Controls.AddRange([export, open, cancel, copyDiagnostics, bar]);
         Add(page, bottom);
         Add(page, status);
         cancel.Enabled = false;
@@ -277,6 +289,28 @@ internal sealed class MainWindow : Form
             }
         };
         Shown += async (_, _) => await Discover();
+    }
+
+    void CopyDiagnostics()
+    {
+        var report = diagnostics.Report();
+        try
+        {
+            Clipboard.SetDataObject(report, true, 5, 80);
+            copyDiagnostics.Text = "Diagnóstico copiado";
+            copyFeedback.Stop();
+            copyFeedback.Start();
+        }
+        catch (ExternalException)
+        {
+            using var dialog = new Form { Text = "Diagnóstico · selecciona el texto y pulsa Ctrl+C", Width = 680,
+                Height = 380, StartPosition = FormStartPosition.CenterParent };
+            var text = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both,
+                WordWrap = false, Text = report };
+            dialog.Controls.Add(text);
+            dialog.Shown += (_, _) => { text.Focus(); text.SelectAll(); };
+            dialog.ShowDialog(this);
+        }
     }
 
     void Counts() =>
@@ -355,22 +389,29 @@ internal sealed class MainWindow : Form
         Busy(true);
         try
         {
-            var list = await Task.Run(EdgeWindow.List);
             windows.Items.Clear();
             rows.Items.Clear();
             connected = null;
             edgeCount = null;
+            status.Text = "Buscando la pestaña visible de Outlook en las ventanas de Edge…";
+            var detection = await Task.Run(EdgeWindow.Discover);
+            diagnostics.DetectionResult(detection);
+            var list = detection.Windows;
             if (list.Count > 0)
             {
                 windows.Items.AddRange(list.ToArray());
                 windows.SelectedIndex = 0;
             }
             else
-                status.Text =
-                    "No se ha detectado una bandeja compatible. Abre Outlook en la pestaña visible de Edge y pulsa Detectar Edge.";
+                status.Text = (detection.Processes == 0 ? "No se ha encontrado Microsoft Edge abierto."
+                    : detection.Probes.Count == 0 ? "Edge está abierto, pero no se encontró una ventana visible."
+                    : detection.Probes.All(p => p.Minimized) ? "Restaura la ventana de Edge y vuelve a detectar."
+                    : "No se ha podido confirmar la pestaña de Outlook. Deja su pestaña seleccionada en Edge.")
+                    + " Pulsa Copiar diagnóstico para ver el detalle.";
         }
         catch (Exception e)
         {
+            diagnostics.Fault("Detectar Edge", e);
             status.Text = "No se pudo consultar Edge. " + e.Message;
         }
         finally
@@ -393,6 +434,8 @@ internal sealed class MainWindow : Form
         status.Text = "Leyendo la lista de Outlook…";
         rows.Items.Clear();
         connected = null;
+        edgeCount = null;
+        diagnostics.Event("Leer selección", "inicio");
         try
         {
             var view = await Task.Run(() =>
@@ -408,11 +451,12 @@ internal sealed class MainWindow : Form
             });
             edgeCount = view.Item2;
             connected = w;
+            diagnostics.Event("Leer selección", $"filas {view.Item1.Count} · marcadas {view.Item1.Count(r => r.Selected)} · contador de Outlook {edgeCount?.ToString() ?? "sin dato"}");
             foreach (var r in view.Item1)
                 rows.Items.Add(r, r.Selected);
             status.Text =
                 view.Item1.Count == 0
-                    ? "Outlook no expone filas en esta vista. Prueba la bandeja con la lista visible o usa Archivos originales."
+                    ? "Pestaña de Outlook detectada. No hay filas de correo visibles en esta vista."
                 : edgeCount > view.Item1.Count(r => r.Selected)
                     ? "Edge indica más elementos seleccionados de los que muestra. Reduce la selección en Outlook y pulsa Leer selección."
                 : "Marca los correos. Cada uno tendrá una carpeta con su PDF y sus adjuntos. Durante la lectura, deja Edge en primer plano.";
@@ -421,6 +465,7 @@ internal sealed class MainWindow : Form
         }
         catch (Exception e)
         {
+            diagnostics.Fault("Leer selección", e);
             status.Text = e.Message;
         }
         finally
@@ -444,22 +489,26 @@ internal sealed class MainWindow : Form
         var searchOrigin = search.Checked;
         if (!Directory.Exists(dest))
         {
+            diagnostics.Event("Validar exportación", "carpeta de destino no disponible");
             status.Text = "Elige una carpeta de destino existente.";
             return;
         }
         if (fromEdge && (window == null || labels.Count == 0) || !fromEdge && paths.Length == 0)
         {
+            diagnostics.Event("Validar exportación", "selección vacía o pestaña sin conectar");
             status.Text = "Marca al menos un correo para exportar.";
             return;
         }
         if (fromEdge && edgeCount > rows.Items.Cast<BrowserRow>().Count(r => r.Selected))
         {
+            diagnostics.Event("Validar exportación", "selección incompleta en Edge");
             status.Text =
                 "La selección de Edge contiene filas ocultas. Reduce la selección en Outlook y vuelve a leerla.";
             return;
         }
         if (fromEdge && !Directory.Exists(downloads))
         {
+            diagnostics.Event("Validar exportación", "carpeta de descargas no disponible");
             status.Text = "Indica la carpeta de descargas que usa Edge.";
             return;
         }
@@ -468,10 +517,12 @@ internal sealed class MainWindow : Form
         Busy(true);
         last = null;
         status.Text = "Preparando la exportación…";
-        var work = Directory.CreateTempSubdirectory("CorreoDiario-captura-").FullName;
+        string? work = null;
+        diagnostics.Event("Exportar", fromEdge ? $"desde Edge · seleccionados {labels.Count}" : $"archivos locales {paths.Length}");
         IProgress<string> progress = new Progress<string>(s => status.Text = s);
         try
         {
+            work = Directory.CreateTempSubdirectory("CorreoDiario-captura-").FullName;
             var result = await Task.Run(
                 async () =>
                 {
@@ -479,7 +530,7 @@ internal sealed class MainWindow : Form
                     List<Mail> messages;
                     if (fromEdge)
                     {
-                        var capt = new Capture(window!, downloads, work, progress, ct);
+                        var capt = new Capture(window!, downloads, work, progress, ct, diagnostics.Fault);
                         messages = capt.Collect(labels, searchOrigin);
                         notes.AddRange(capt.Notes);
                         if (messages.Count == 0)
@@ -506,6 +557,7 @@ internal sealed class MainWindow : Form
                             }
                             catch (Exception e)
                             {
+                                diagnostics.Fault("Leer archivo EML/MSG", e);
                                 notes.Add(Path.GetFileName(p) + " · " + e.Message);
                             }
                         }
@@ -513,11 +565,13 @@ internal sealed class MainWindow : Form
                             throw new InvalidDataException(string.Join(" · ", notes));
                     }
                     var printer = new MailPrinter();
-                    return await Archive.WriteAsync(messages, dest, printer, notes, progress, ct);
+                    diagnostics.Event("Generar PDF y guardar adjuntos", $"originales {messages.Count}");
+                    return await Archive.WriteAsync(messages, dest, printer, notes, progress, ct, diagnostics.Fault);
                 },
                 ct
             );
             last = result.Folder;
+            diagnostics.Event("Exportación terminada", $"originales {result.Originals} · PDF {result.Pdfs} · hilos {result.Combined} · avisos {result.Warnings}");
             status.Text =
                 $"{result.Originals} originales · {result.Pdfs} PDF de correo · {result.Combined} PDF de hilo. "
                 + (
@@ -529,6 +583,8 @@ internal sealed class MainWindow : Form
         }
         catch (OperationCanceledException e)
         {
+            if (ct.IsCancellationRequested) diagnostics.Event("Exportar", "cancelado por el usuario");
+            else diagnostics.Fault("Verificar ventana durante la captura", e);
             status.Text = ct.IsCancellationRequested
                 ? "Exportación cancelada. Los archivos ya guardados están en la carpeta de destino."
                 : e.Message;
@@ -536,6 +592,7 @@ internal sealed class MainWindow : Form
         }
         catch (Exception e)
         {
+            diagnostics.Fault("Exportar", e);
             status.Text = e.Message;
             Activate();
         }
@@ -543,7 +600,7 @@ internal sealed class MainWindow : Form
         {
             try
             {
-                Directory.Delete(work, true);
+                if (work != null) Directory.Delete(work, true);
             }
             catch (IOException) { }
             catch (UnauthorizedAccessException) { }

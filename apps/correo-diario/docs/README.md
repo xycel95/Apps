@@ -6,6 +6,12 @@
 4. Elige la carpeta de destino y pulsa **Exportar selección**. Mantén la ventana de Outlook en primer plano mientras la app lee los mensajes.
 5. Pulsa **Abrir resultado**. Cada carpeta de mensaje contiene `Correo.pdf`, `Original.eml` u `Original.msg` y los adjuntos. Si ya hay un `Correo.pdf` como adjunto, se guarda como `Correo (2).pdf`.
 
+### Si la pestaña no aparece
+
+Selecciona la pestaña de Outlook en Edge y pulsa **Detectar Edge**. También puedes detectar una bandeja vacía. Si CorreoDiario identifica la pestaña y muestra cero filas, abre una carpeta con mensajes y pulsa **Leer selección**.
+
+Si sigue fallando, pulsa **Copiar diagnóstico** en la parte inferior y pega el texto en tu consulta. El informe indica cuántas ventanas encontró, cómo intentó leer su dirección, el resultado de cada ventana y la fase del último error. Se puede copiar aunque la lista esté vacía y también desde **Archivos originales**. El informe omite títulos, URL, direcciones de correo, asuntos y rutas locales.
+
 ### Exportar archivos ya descargados
 
 Pulsa **Archivos originales**, selecciona uno o varios EML o MSG y elige el destino. Esta opción también sirve cuando el menú de tu Outlook no ofrece la descarga a través de la app.
@@ -20,6 +26,4 @@ Marca **Buscar también el origen y las respuestas en Outlook**. Si tu Outlook l
 
 ### Comprobaciones de la beta
 
-El ejecutable distribuido abrió su ventana en Windows y superó la comprobación de arranque. El motor pasó 37 comprobaciones con mensajes sintéticos EML y MSG. La captura desde un buzón real de Outlook sigue pendiente de prueba.
-
-[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
+[Informe de Windows 0.5.1](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.5.1-beta.1/VALIDACION-WINDOWS.json)

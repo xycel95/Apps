@@ -7,3 +7,7 @@ Compilar para Windows x64:
   dotnet publish Windows/Windows.csproj -c Release -o publicacion
 
 Las pruebas utilizan ejemplos sintéticos. La conexión de accesibilidad se prueba en una sesión de Edge en Windows.
+
+Comprobar la detección con Edge real en un escritorio de Windows de pruebas:
+  dotnet run -c Release --project WindowsChecks/WindowsChecks.csproj -- "ruta\CorreoDiario-Edge.exe" "ruta\msedge.exe"
+La comprobación abre un perfil temporal sin conexión y prueba el portapapeles.

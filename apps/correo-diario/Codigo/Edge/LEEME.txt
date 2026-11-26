@@ -1,4 +1,4 @@
-CORREODIARIO PARA EDGE · 0.5.0 BETA
+CORREODIARIO PARA EDGE · 0.5.1 BETA
 Windows 10/11 de 64 bits (x64)
 
 Descomprime el ZIP y abre CorreoDiario-Edge.exe.
@@ -25,6 +25,9 @@ Cada respuesta recuperada se archiva en una carpeta individual. «Hilos» contie
 «Buscar también el origen y las respuestas en Outlook» comprueba las tarjetas que expone la conversación, busca por el tema y consulta los identificadores de antecesores que siguen faltando. El alcance es el que tenga el buscador de Outlook. Para incluir también Enviados o Archivo, selecciona «Todas las carpetas» en el buscador de Outlook cuando tu versión lo permita. La app contrasta Message-ID, In-Reply-To, References y el índice de conversación de Exchange. Una copia textual citada en un mensaje se conserva como parte del cuerpo. Los mensajes con el mismo asunto que carecen de otra relación se mantienen independientes.
 
 En Resumen.txt se indica qué origen pudo identificarse y qué mensajes o imágenes faltan. Origen.json registra por carpeta las cabeceras disponibles, la procedencia y las huellas de los archivos. La dirección de remitente que figura en el original es la que se muestra. Las imágenes enlazadas a internet se señalan en el PDF. Los originales protegidos solo se procesan cuando Outlook permite descargarlos y leerlos.
+
+SI EDGE NO APARECE
+Selecciona la pestaña de Outlook en una ventana normal de Edge y pulsa «Detectar Edge». Una bandeja sin mensajes también puede detectarse. Si el problema continúa, pulsa «Copiar diagnóstico» y pega el texto para pedir ayuda. Incluye versión, etapa, contadores y errores técnicos. Los datos de los correos, títulos, direcciones web y rutas de archivos quedan fuera del informe.
 
 CONEXIÓN
 La app utiliza los controles de accesibilidad de la ventana normal de Edge y la acción «Descargar» de Outlook. No requiere instalar una extensión. Se contemplan los dominios outlook.cloud.microsoft, outlook.office.com, outlook.office365.com, outlook.live.com y correo.salud.madrid.org. La disponibilidad de filas, conversaciones y descargas depende de la versión y la configuración de Outlook. Si esa vista no ofrece la acción de descarga, puedes pasar a «Archivos originales» con los EML o MSG que facilite tu buzón.

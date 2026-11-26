@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.5.1 beta · 26/11/2026
+
+- Detección de ventanas nativas de Microsoft Edge y lectura de la barra en español e inglés mediante sus controles de accesibilidad. Si la barra no facilita el valor, se comprueba la dirección del documento superior cuando es inequívoca.
+- La aplicación distingue una pestaña reconocida sin filas de una ventana cuya dirección no pudo confirmarse.
+- Nuevo botón **Copiar diagnóstico**. Registra versiones, fase, ventanas, método de detección, contadores y tipo de error. Excluye títulos de pestaña, asuntos, URLs completas, direcciones de correo y rutas personales.
+
+[Descargas de la versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.5.1-beta.1)
+
 ## 0.5.0 beta · 26/11/2026
 
 - Selección de correos en la ventana visible de Outlook web en Edge y descarga de los originales mediante los controles de accesibilidad de Windows. También admite EML y MSG locales.

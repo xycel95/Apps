@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.5.1 beta para Edge
+
+`EdgeDetection.cs` enumera ventanas nativas de `msedge` y confirma su origen mediante la barra del navegador o la URL del único documento superior visible. `DiagnosticLog.cs` conserva durante la sesión datos técnicos de detección, selección y exportación. Las excepciones aportan su tipo, HRESULT y método. Los mensajes de las excepciones, los datos de la ventana y el contenido del correo se reservan para la interfaz o el archivo local correspondiente. `WindowsChecks` prueba el ejecutable y el portapapeles en un escritorio de Windows con Edge sin conexión.
+
 ## 0.5.0 beta para Edge
 
 El ejecutable distribuido abrió su ventana en Windows y superó la comprobación de arranque. El motor pasó 37 comprobaciones con mensajes sintéticos EML y MSG. La captura desde un buzón real de Outlook sigue pendiente de prueba. Las cinco descargas públicas se comprobaron por tamaño y SHA-256.
