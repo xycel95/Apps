@@ -26,7 +26,7 @@ internal static partial class Program
             var text = "From: Test <a@example.test>\r\nTo: b@example.test\r\nSubject: " + PrivateMarker + n
                 + "\r\nDate: Thu, 26 Nov 2026 13:45:00 +0100\r\nMessage-ID: <test-" + n + "@example.test>\r\n"
                 + "MIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=prueba\r\n\r\n--prueba\r\nContent-Type: text/plain\r\n\r\n"
-                + "Cuerpo del mensaje " + n + ".\r\n--prueba\r\nContent-Type: application/octet-stream\r\nContent-Disposition: attachment; filename=test.bin\r\n"
+                + "Cuerpo del mensaje " + n + ".\r\n" + string.Concat(Enumerable.Range(1, 140).Select(i => "Apartado de prueba " + i + ".\r\n\r\n")) + "--prueba\r\nContent-Type: application/octet-stream\r\nContent-Disposition: attachment; filename=test.bin\r\n"
                 + "Content-Transfer-Encoding: base64\r\n\r\nAQIDBA==\r\n--prueba--\r\n";
             return Encoding.ASCII.GetBytes(text);
         }
@@ -119,6 +119,12 @@ internal static partial class Program
         Check(mails.All(m => CorreoDiario.MailReader.ReadContent(m).Parts.Single().Bytes.SequenceEqual(new byte[]{1,2,3,4})), "se conservan los bytes de los adjuntos de ambos mensajes");
         try { MailTransfer.Read(new TestMailObject(true)); throw new Exception("Lote incompleto aceptado"); }
         catch (TransferException e) { Check(e.Reason == "entrega incompleta", "un segundo elemento truncado invalida todo el lote"); }
+        var paths = new System.Collections.Specialized.StringCollection();
+        paths.Add(Path.Combine(Path.GetTempPath(), "correo-de-prueba.eml"));
+        var fileList = new DataObject();
+        fileList.SetFileDropList(paths);
+        var pathsResult = MailTransfer.Read((OleData)fileList);
+        Check(pathsResult.Inputs.Count == 1 && pathsResult.Inputs[0].PathOnDisk == paths[0], "la lista estándar de archivos Windows se recibe en modo de lectura");
         var onlyText = new DataObject();
         onlyText.SetText("https://example.test/" + PrivateMarker);
         try { MailTransfer.Read((OleData)onlyText); throw new Exception("Enlace aceptado"); }
@@ -152,13 +158,24 @@ internal static partial class Program
             ready.Task.WaitAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
             Invoke(Named(form,"Pegar correos")!);
             Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable recibe dos mensajes virtuales del portapapeles de Windows");
-            var pos = Cursor.Position;
-            SetForegroundWindow(other);
-            Check(Wait(() => GetForegroundWindow() == other, 5), "otra ventana está en primer plano antes de exportar");
+            // Start a normal export, then switch to the browser while the worker is running.
+            // UI Automation itself may focus the control it invokes, just like a user click.
             Invoke(Named(form, "Exportar selección")!);
-            Check(Wait(() => Directory.EnumerateFiles(folder, "Origen.json", SearchOption.AllDirectories).Any() && Named(form,"Abrir resultado")?.Current.IsEnabled == true),
-                "exportación finalizada desde el ejecutable publicado");
-            Check(GetForegroundWindow() == other && Cursor.Position == pos, "la exportación conserva tanto el foco de otra ventana como la posición del ratón");
+            Check(Wait(() => Named(form, "Cancelar")?.Current.IsEnabled == true, 10), "la exportación sigue en curso al cambiar de ventana");
+            SetForegroundWindow(other);
+            Check(Wait(() => GetForegroundWindow() == other, 5), "Edge recibe el foco mientras la aplicación trabaja");
+            var pos = Cursor.Position;
+            var fg = GetForegroundWindow();
+            bool keptFocus = true, keptPointer = true;
+            Check(Wait(() =>
+                {
+                    keptFocus &= GetForegroundWindow() == fg;
+                    keptPointer &= Cursor.Position == pos;
+                    return Directory.EnumerateFiles(folder, "Origen.json", SearchOption.AllDirectories).Any()
+                        && Named(form,"Abrir resultado")?.Current.IsEnabled == true;
+                }), "exportación finalizada desde el ejecutable publicado");
+            Check(keptPointer && Cursor.Position == pos, "el ratón permanece en su posición durante la exportación");
+            Check(keptFocus && GetForegroundWindow() == fg, "la ventana en uso conserva el foco hasta después de terminar");
             var pdfs = Directory.GetFiles(folder,"Correo.pdf",SearchOption.AllDirectories);
             Check(pdfs.Length == 2 && pdfs.All(f => CorreoDiario.MailPrinter.VerifyPdf(f) > 0), "dos PDF legibles en dos carpetas");
             var parts = Directory.GetFiles(folder,"test.bin",SearchOption.AllDirectories);
