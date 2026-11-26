@@ -103,7 +103,7 @@ internal static partial class Program
                 Check(copy!=null && copy.Current.IsEnabled, "botón Copiar diagnóstico disponible");
                 Invoke(copy!);
                 string text="";
-                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.Contains("CorreoDiario para Edge 0.6.0"); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
+                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.StartsWith("CorreoDiario para Edge 0.6.0 · Diagnóstico" + Environment.NewLine, StringComparison.Ordinal); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
                 Console.WriteLine(text);
                 var picker = Named(form,"Ventanas de Outlook en Edge");
                 bool selectedInApp = picker != null && (
@@ -130,6 +130,9 @@ internal static partial class Program
     static int Main(string[] args)
     {
         if (args.Length!=2) { Console.Error.WriteLine("Indica las rutas del ejecutable de CorreoDiario y de Microsoft Edge."); return 2; }
+        var version = FileVersionInfo.GetVersionInfo(args[0]);
+        Check(version.ProductVersion == "0.6.0" && !version.IsPreRelease,
+            "el ejecutable de Windows se identifica como versión estable 0.6.0");
         Rules();
         TransferRules();
         string dir=Directory.CreateTempSubdirectory("CorreoDiario-Edge-prueba-").FullName;

@@ -1,5 +1,11 @@
 # Notas de parche
 
+## 0.6.0 · 26/11/2026
+
+Primera publicación estable de CorreoDiario para Edge. El ejecutable de Windows y el diagnóstico muestran la versión 0.6.0.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0)
+
 ## 0.6.0 beta 2 · 26/11/2026
 
 - Se admiten flujos de correo que Windows entrega posicionados al final y mensajes MSG entregados como almacenamiento compuesto. Ambos se leen en memoria.

@@ -1,4 +1,4 @@
-CORREODIARIO PARA EDGE 0.6.0 BETA 2
+CORREODIARIO PARA EDGE 0.6.0
 Windows 10 y 11 x64
 
 1. Abre CorreoDiario-Edge.exe. Selecciona los correos en tu Outlook de Edge y pulsa Ctrl+C. En CorreoDiario, pulsa Pegar correos. También puedes arrastrar la selección hasta la lista.

@@ -17,8 +17,6 @@ Incluye el primer mensaje y las respuestas que quieras archivar. CorreoDiario us
 
 [Manual incluido en el ZIP](../Codigo/Edge/LEEME.txt) · [Descargar](../descargas/README.md)
 
-### Comprobaciones de la beta
+### Comprobaciones de la versión
 
-En Windows se ejecutaron 43 comprobaciones de EML y MSG y 45 de escritorio. La prueba de Windows cubrió la detección de Edge sin conexión, la entrega de dos correos virtuales, PDF y adjuntos, y la conservación del foco y del cursor al exportar. Queda pendiente la prueba con un buzón real de Outlook.
-
-[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
+[Informe de Windows](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0/VALIDACION-WINDOWS.json)
