@@ -26,4 +26,6 @@ Marca **Buscar también el origen y las respuestas en Outlook**. Si tu Outlook l
 
 ### Comprobaciones de la beta
 
-[Informe de Windows 0.5.1](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.5.1-beta.1/VALIDACION-WINDOWS.json)
+En Windows se ejecutaron 37 comprobaciones de EML y MSG y 26 de detección y diagnóstico. La prueba de escritorio utilizó Microsoft Edge sin conexión, la ventana del ejecutable y el portapapeles real. Queda pendiente la prueba con un buzón real de Outlook.
+
+[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)

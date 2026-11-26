@@ -2,6 +2,8 @@
 
 ## 0.5.1 beta para Edge
 
+En Windows se ejecutaron 37 comprobaciones de EML y MSG y 26 de detección y diagnóstico. La prueba de escritorio utilizó Microsoft Edge sin conexión, la ventana del ejecutable y el portapapeles real. Queda pendiente la prueba con un buzón real de Outlook.
+
 `EdgeDetection.cs` enumera ventanas nativas de `msedge` y confirma su origen mediante la barra del navegador o la URL del único documento superior visible. `DiagnosticLog.cs` conserva durante la sesión datos técnicos de detección, selección y exportación. Las excepciones aportan su tipo, HRESULT y método. Los mensajes de las excepciones, los datos de la ventana y el contenido del correo se reservan para la interfaz o el archivo local correspondiente. `WindowsChecks` prueba el ejecutable y el portapapeles en un escritorio de Windows con Edge sin conexión.
 
 ## 0.5.0 beta para Edge

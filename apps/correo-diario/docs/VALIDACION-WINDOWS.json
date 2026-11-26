@@ -1,0 +1,17 @@
+{
+  "version": "0.5.1-beta.1",
+  "source_commit": "d2b327e5d67cf7ca03e233c8b45bf672041e243f",
+  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/45883305944",
+  "windows": "Windows-2025Server-10.0.26100-SP0",
+  "dotnet_sdk": "10.0.404",
+  "core_tests_passed": 37,
+  "edge_diagnostic_tests_passed": 26,
+  "native_startup_verified": true,
+  "native_edge_window_detection_verified": true,
+  "diagnostics_clipboard_verified": true,
+  "local_imitation_rejected": true,
+  "real_outlook_export_verified": false,
+  "user_mail_accessed": false,
+  "executable_sha256": "52b09f153047688a6b312c64ac0b94a69d5bcf9186f2c325f9dc302792ee5940",
+  "zip_sha256": "f1730cc65fd8d5e6847d496e60b4380ddb78a379837e1d880ba6ec2bb8682637"
+}
