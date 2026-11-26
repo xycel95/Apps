@@ -1,6 +1,6 @@
 # CorreoDiario para Edge
 
-Convierte en segundo plano los correos que reciba de Outlook en PDF y guarda sus adjuntos en una carpeta por mensaje. Admite mensajes completos entregados por Windows y archivos EML o MSG existentes.
+Exporta en segundo plano las carpetas que marques en tu buzón Microsoft 365. Guarda un PDF y los adjuntos en una carpeta de Windows por correo.
 
 1. **[Descripción del programa](DESCRIPCION.md)**
 2. **[Cómo funciona y guía](docs/README.md)**

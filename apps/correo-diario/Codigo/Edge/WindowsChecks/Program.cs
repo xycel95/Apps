@@ -103,7 +103,7 @@ internal static partial class Program
                 Check(copy!=null && copy.Current.IsEnabled, "botón Copiar diagnóstico disponible");
                 Invoke(copy!);
                 string text="";
-                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.StartsWith("CorreoDiario para Edge 0.6.0 · Diagnóstico" + Environment.NewLine, StringComparison.Ordinal); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
+                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.StartsWith("CorreoDiario para Edge 0.7.0 · Diagnóstico" + Environment.NewLine, StringComparison.Ordinal); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
                 Console.WriteLine(text);
                 var picker = Named(form,"Ventanas de Outlook en Edge");
                 bool selectedInApp = picker != null && (
@@ -118,6 +118,8 @@ internal static partial class Program
                 Check(selectedInApp && text.Contains("Outlook reconocido"), "Outlook figura en el selector de la aplicación con su ventana delante");
                 Check(text.Contains("ventanas Outlook") && !text.Contains(PrivateMarker) && !text.Contains("https://") && !text.Contains(profile), "el informe conserva causas y contadores y omite título, URL y rutas");
                 NativeExport(form,output,selected.Hwnd);
+                PackagedFolders(form, app.Id);
+                NativeFolders(Path.Combine(folder,"lote-nube"), selected.Hwnd);
             }
             finally { if (!app.HasExited) { app.CloseMainWindow(); if(!app.WaitForExit(5000)) app.Kill(true); } }
             }
@@ -131,8 +133,8 @@ internal static partial class Program
     {
         if (args.Length!=2) { Console.Error.WriteLine("Indica las rutas del ejecutable de CorreoDiario y de Microsoft Edge."); return 2; }
         var version = FileVersionInfo.GetVersionInfo(args[0]);
-        Check(version.ProductVersion == "0.6.0" && !version.IsPreRelease,
-            "el ejecutable de Windows se identifica como versión estable 0.6.0");
+        Check(version.ProductVersion == "0.7.0" && !version.IsPreRelease,
+            "el ejecutable de Windows se identifica como versión estable 0.7.0");
         Rules();
         TransferRules();
         string dir=Directory.CreateTempSubdirectory("CorreoDiario-Edge-prueba-").FullName;

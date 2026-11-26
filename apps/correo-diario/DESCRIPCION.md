@@ -1,9 +1,9 @@
 # Descripción del programa
 
-CorreoDiario para Edge 0.6.0 convierte los correos en PDF en tu equipo. Cada carpeta lleva la fecha, la hora de Madrid y el asunto. Dentro encontrarás `Correo.pdf` y los adjuntos del mensaje. Si un correo contiene otro correo como adjunto, ese adjunto conserva su formato.
+Exporta en segundo plano las carpetas que marques en tu buzón Microsoft 365. Guarda un PDF y los adjuntos en una carpeta de Windows por correo.
 
-Puedes pegar varios mensajes, arrastrarlos o elegir archivos EML y MSG existentes. La entrega desde Outlook web depende de los datos que Edge ofrezca a Windows. Cuando solo proporciona texto o un enlace, la aplicación identifica ese caso en **Copiar diagnóstico**. La detección de la pestaña permite consultar la selección visible.
+El programa se conecta al servicio de correo de Microsoft con la cuenta que elijas en el navegador. Puedes trabajar en otra pestaña, usar otras aplicaciones o minimizar CorreoDiario mientras se exporta. La primera conexión necesita un registro de escritorio y acceso de lectura autorizado por tu organización.
 
-Una vez recibidos los mensajes, puedes trabajar en otra ventana o minimizar Edge. La aplicación procesa el contenido localmente. Agrupa las respuestas entregadas mediante sus cabeceras y crea un PDF conjunto cuando reconoce varios mensajes del mismo hilo.
+Cada mensaje tiene su carpeta con fecha, hora, asunto, PDF y adjuntos. Al repetir una exportación, el programa comprueba las copias locales, recupera las que falten y señala los elementos pendientes o protegidos. Conserva el correo en el buzón. También admite convertir mensajes completos que ya tengas como archivos EML o MSG.
 
 [Guía de uso](docs/README.md) · [Descargas](descargas/README.md) · [Historial de versiones](notas-de-parche/README.md)

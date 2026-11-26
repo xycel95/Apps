@@ -380,6 +380,9 @@ public static class MailReader
             }
             if (e is not MimePart p)
                 return;
+            if (p.ContentType.MimeType.Equals("application/x-microsoft-rpmsg-message", StringComparison.OrdinalIgnoreCase)
+                || p.FileName?.EndsWith(".rpmsg", StringComparison.OrdinalIgnoreCase) == true)
+                notices.Add("El correo incluye contenido protegido por Microsoft. Comprueba el cuerpo y los adjuntos con la organización.");
             if (p.ContentType.MimeType.Contains("pkcs7-mime", StringComparison.OrdinalIgnoreCase))
                 notices.Add("El mensaje incluye contenido S/MIME. Comprueba si el PDF muestra el cuerpo.");
             if (

@@ -1,6 +1,10 @@
 # Trabajar en CorreoDiario
 
-## Edición para Edge 0.6 y posteriores
+## Edición para Edge 0.7 y posteriores
+
+El flujo por carpetas usa un registro propio delegado Mail.Read, el navegador del sistema y la cuenta elegida por el usuario. Respetar las decisiones del directorio y conservar en memoria las credenciales de sesión. Las preferencias locales contienen solo identificadores de configuración, carpetas y destino. El lector de Graph solo emite GET. Confirmar la copia de PDF y adjuntos antes de considerarla verificada, reanudar por identidad del mensaje y comprobar la privacidad de los diagnósticos. Mantener la compatibilidad con la entrada local descrita a continuación.
+
+## Edición para Edge 0.6
 
 Código en `Codigo/Edge`. La detección y los contadores de Edge son de solo lectura y opcionales. La entrada de mensajes completos se hace mediante una entrega explícita de Windows o la selección de archivos existentes. La exportación trabaja en segundo plano. Mantén la entrega en memoria, la integridad de adjuntos y la agrupación de los mensajes recibidos. El programa no descarga ni escribe copias del mensaje fuente y no controla la entrada ni el foco de otras ventanas. Comprueba el motor con `dotnet run -c Release --project Checks/Checks.csproj` y el flujo nativo con WindowsChecks. Las reglas de depuración remota, Outlook clásico y movimiento a Eliminados que siguen corresponden a la línea histórica 0.4.x.
 
@@ -26,7 +30,7 @@ Aplicar las instrucciones del AGENTS.md de la raíz. Responder en español.
   ni modificar otras aplicaciones o el repositorio privado de la web.
 
 - Requisito vigente: el usuario rechaza iniciar sesión dentro del programa.
-  Utilizar su pestaña de navegador ya abierta, con su permiso. No reintroducir
+  Para la detección visual utilizar su pestaña ya abierta. Para el modo por carpetas, usar el navegador corporativo y un registro autorizado. No reintroducir
   autenticación integrada ni crear un perfil de navegador distinto.
 - No cambiar la opción de depuración/conexión ni aceptar sus permisos por el
   usuario. No copiar bases de cookies o contraseñas; no presentar el permiso

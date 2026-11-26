@@ -103,3 +103,11 @@ MIT
 Microsoft
 © Microsoft Corporation. All rights reserved.
 https://dot.net/
+
+Microsoft.Identity.Client 4.92.0
+MIT · Microsoft Corporation
+https://github.com/AzureAD/microsoft-authentication-library-for-dotnet
+
+Microsoft.IdentityModel.Abstractions 8.14.0
+MIT · Microsoft Corporation
+https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet

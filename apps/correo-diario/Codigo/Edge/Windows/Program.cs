@@ -25,8 +25,9 @@ internal sealed class MainWindow : Form
     readonly CheckedListBox rows = new() { Dock = DockStyle.Fill, CheckOnClick = true, IntegralHeight = false, HorizontalScrollbar = true, AccessibleName = "Correos recibidos" };
     readonly ComboBox windows = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, AccessibleName = "Ventanas de Outlook en Edge" };
     readonly TextBox target = new() { Dock = DockStyle.Fill, ReadOnly = true, AccessibleName = "Carpeta de destino" };
-    readonly Label status = LabelOf("Copia los correos seleccionados en Outlook y pulsa Pegar correos. También puedes arrastrarlos aquí.");
+    readonly Label status = LabelOf("Para exportar un lote de Outlook web, pulsa Exportar carpetas de Outlook.");
     readonly Label counter = LabelOf("");
+    readonly Button cloud = Btn("Exportar carpetas de Outlook…");
     readonly Button paste = Btn("Pegar correos"), files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
         countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar selección"),
         clear = Btn("Quitar marcados"), select = Btn("Marcar todos"), open = Btn("Abrir resultado"),
@@ -77,7 +78,8 @@ internal sealed class MainWindow : Form
         var title = LabelOf("CorreoDiario");
         title.Font = new Font(Font.FontFamily, 20, FontStyle.Bold);
         Add(title);
-        Add(LabelOf("Copia o arrastra los correos completos desde Outlook. Una vez añadidos, puedes cambiar de pestaña o minimizar Edge."));
+        Add(Line(cloud));
+        Add(LabelOf("También puedes añadir mensajes completos que ya tengas en el ordenador."));
         Add(Line(paste, files));
         Add(rows, true);
         Add(Line(select, clear, counter));
@@ -102,6 +104,7 @@ internal sealed class MainWindow : Form
                 await Receive(() => MailTransfer.Read(ole));
             };
         }
+        cloud.Click += (_, _) => { using var window = new FolderWindow(diagnostics, target.Text); window.ShowDialog(this); };
         paste.Click += async (_, _) => await Receive(() => Clipboard.GetDataObject() is OleData ole
             ? MailTransfer.Read(ole) : throw new TransferException("portapapeles vacío", "El portapapeles no contiene correos completos."));
         files.Click += async (_, _) =>
@@ -137,7 +140,7 @@ internal sealed class MainWindow : Form
 
     void RefreshControls()
     {
-        foreach (var control in new Control[]{paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
+        foreach (var control in new Control[]{cloud, paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
         select.Enabled = !busy && rows.CheckedItems.Count < rows.Items.Count;
         clear.Enabled = !busy && rows.CheckedItems.Count > 0;
         countEdge.Enabled = !busy && windows.SelectedItem is EdgeWindow;
@@ -214,7 +217,7 @@ internal sealed class MainWindow : Form
             diagnostics.DetectionResult(found);
             windows.Items.AddRange(found.Windows.ToArray());
             if (found.Windows.Count > 0) windows.SelectedIndex = 0;
-            status.Text = found.Windows.Count > 0 ? "Outlook detectado. Puedes comprobar su selección o pegar los correos."
+            status.Text = found.Windows.Count > 0 ? "Outlook detectado. Para leer el contenido de una carpeta, pulsa Exportar carpetas de Outlook."
                 : "Deja la pestaña de Outlook seleccionada en su ventana y vuelve a pulsar Detectar Edge.";
         }
         catch (Exception e) { Error("Detectar Edge", e); }
@@ -239,7 +242,7 @@ internal sealed class MainWindow : Form
             lastSelectionCount = info.Total;
             var counts = $"filas visibles {info.Visible} · marcadas visibles {info.Marked} · contador de Outlook {info.Total?.ToString() ?? "sin dato"}";
             diagnostics.Event("Ver selección en Edge", counts);
-            status.Text = counts + ". Copia o arrastra los mensajes para añadir su contenido.";
+            status.Text = counts + ". Para exportar un lote desde la web, pulsa Exportar carpetas de Outlook.";
         }
         catch (Exception e) { Error("Ver selección en Edge", e); }
         finally { End(); }
@@ -274,7 +277,7 @@ internal sealed class MainWindow : Form
     void Error(string phase, Exception e)
     {
         diagnostics.Fault(phase, e);
-        status.Text = e is TransferException ? e.Message : phase + " · " + e.Message;
+        status.Text = e is TransferException ? e.Message + " Para un lote de Outlook web, pulsa Exportar carpetas de Outlook." : phase + " · " + e.Message;
     }
 
     void CopyReport()

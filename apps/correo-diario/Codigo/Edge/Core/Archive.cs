@@ -18,6 +18,12 @@ public sealed record ArchiveResult(
     int Warnings
 );
 
+internal sealed record SavedAttachment(
+    [property: System.Text.Json.Serialization.JsonPropertyName("nombre")] string Name,
+    [property: System.Text.Json.Serialization.JsonPropertyName("archivo")] string File,
+    [property: System.Text.Json.Serialization.JsonPropertyName("sha256")] string Hash,
+    [property: System.Text.Json.Serialization.JsonPropertyName("incrustado")] bool Inline);
+
 public static class Archive
 {
     static readonly UTF8Encoding Utf8 = new(false);
@@ -41,6 +47,28 @@ public static class Archive
         while (!occupied.Add(chosen) || File.Exists(Path.Combine(folder, chosen)))
             chosen = stem + " (" + (copy++) + ")" + ext;
         return Path.Combine(folder, chosen);
+    }
+
+    internal static async Task<int> WriteFiles(Mail mail, Content content, string folder, MailPrinter printer,
+        List<string> notes, List<SavedAttachment> files, CancellationToken ct)
+    {
+        notes.AddRange(content.Notices);
+        var occupied = new HashSet<string>(["Correo.pdf"], StringComparer.OrdinalIgnoreCase);
+        foreach (var part in content.Parts)
+        {
+            ct.ThrowIfCancellationRequested();
+            var path = AttachmentPath(folder, part.Name, occupied);
+            using (var stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                stream.Write(part.Bytes);
+            var hash = Convert.ToHexStringLower(SHA256.HashData(part.Bytes));
+            if (MailReader.FileHash(path) != hash)
+                throw new IOException("Error de comprobación del adjunto " + part.Name);
+            files.Add(new(part.Name, Path.GetFileName(path), hash, part.Inline));
+        }
+        var html = BodyHtml.Create(mail, content, notes);
+        var pdf = Path.Combine(folder, "Correo.pdf");
+        notes.AddRange(await printer.PrintAsync(html, pdf, mail.Key, ct));
+        return MailPrinter.VerifyPdf(pdf, mail.Key);
     }
 
     public static async Task<ArchiveResult> WriteAsync(
@@ -108,51 +136,16 @@ public static class Archive
                         dirName = preferred + " (" + suffix + ")";
                     var mailFolder = Path.Combine(folder, dirName);
                     Directory.CreateDirectory(mailFolder);
-                    var occupied = new HashSet<string>(
-                        ["Correo.pdf"],
-                        StringComparer.OrdinalIgnoreCase
-                    );
                     var notes = new List<string>();
-                    var files = new List<object>();
+                    var files = new List<SavedAttachment>();
                     string? pdf = null;
                     bool cancelled = false;
                     try
                     {
                         var c = MailReader.ReadContent(m);
                         messages++;
-                        notes.AddRange(c.Notices);
-                        foreach (var a in c.Parts)
-                        {
-                            ct.ThrowIfCancellationRequested();
-                            var target = AttachmentPath(mailFolder, a.Name, occupied);
-                            using (
-                                var stream = new FileStream(
-                                    target,
-                                    FileMode.CreateNew,
-                                    FileAccess.Write,
-                                    FileShare.None
-                                )
-                            )
-                                stream.Write(a.Bytes);
-                            var hash = Convert.ToHexStringLower(SHA256.HashData(a.Bytes));
-                            if (MailReader.FileHash(target) != hash)
-                                throw new IOException(
-                                    "Error de comprobación del adjunto " + a.Name
-                                );
-                            files.Add(
-                                new
-                                {
-                                    nombre = a.Name,
-                                    archivo = Path.GetFileName(target),
-                                    sha256 = hash,
-                                    incrustado = a.Inline,
-                                }
-                            );
-                        }
-                        var html = BodyHtml.Create(m, c, notes);
+                        groupPages += await WriteFiles(m, c, mailFolder, printer, notes, files, ct);
                         var targetPdf = Path.Combine(mailFolder, "Correo.pdf");
-                        notes.AddRange(await printer.PrintAsync(html, targetPdf, m.Key, ct));
-                        groupPages += MailPrinter.VerifyPdf(targetPdf, m.Key);
                         pdf = Path.GetFileName(targetPdf);
                         pdfs++;
                         groupPdfs.Add(targetPdf);

@@ -209,7 +209,7 @@ internal static partial class Program
             Check(!Directory.GetFiles(folder,"*",SearchOption.AllDirectories).Any(f => Path.GetExtension(f) is ".msg" or ".eml"), "el lote del ejecutable carece de copias de mensajes originales");
             Clipboard.SetText("https://example.test/" + PrivateMarker);
             Invoke(Named(form,"Pegar correos")!);
-            Check(Wait(() => Named(form,"Outlook entregó texto o un enlace. Faltan el cuerpo y los adjuntos del correo. No se ha añadido ningún mensaje.") != null), "la interfaz comunica que un enlace es insuficiente");
+            Check(Wait(() => Named(form,"Outlook entregó texto o un enlace. Faltan el cuerpo y los adjuntos del correo. No se ha añadido ningún mensaje. Para un lote de Outlook web, pulsa Exportar carpetas de Outlook.") != null), "la interfaz comunica que un enlace es insuficiente");
             Invoke(Named(form,"Copiar diagnóstico")!);
             Check(Wait(() => Clipboard.GetText().Contains("solo texto o enlace") && !Clipboard.GetText().Contains(PrivateMarker)), "el diagnóstico copiado incluye el motivo y excluye los asuntos y el enlace");
         }

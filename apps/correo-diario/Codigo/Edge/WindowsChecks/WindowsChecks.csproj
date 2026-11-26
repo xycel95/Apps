@@ -11,5 +11,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
     <ProjectReference Include="../Windows/Windows.csproj" />
+    <Compile Include="../Checks/FixtureMailbox.cs" Link="FixtureMailbox.cs" />
   </ItemGroup>
 </Project>

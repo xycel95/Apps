@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.7.0 · 26/11/2026
+
+- Exportación por carpetas del buzón Microsoft 365 en segundo plano con autorización de lectura. Puedes elegir varias y seguir trabajando mientras se crean los PDF y sus adjuntos.
+- Reanudación y comprobación de copias existentes. Se indican las carpetas incompletas, mensajes cambiados, adjuntos enlazados y archivos pendientes.
+- Configuración por identificadores o por archivo, solicitud para Informática y diagnóstico copiable.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.7.0)
+
 ## 0.6.0 · 26/11/2026
 
 Primera publicación estable de CorreoDiario para Edge. El ejecutable de Windows y el diagnóstico muestran la versión 0.6.0.

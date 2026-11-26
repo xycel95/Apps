@@ -10,3 +10,5 @@ Pruebas de escritorio en una sesión de Windows de pruebas
   dotnet run -c Release --project WindowsChecks/WindowsChecks.csproj -- "ruta/CorreoDiario-Edge.exe" "ruta/msedge.exe"
 
 Las pruebas usan mensajes sintéticos, el portapapeles de Windows y un perfil temporal de Edge sin conexión. Usan el escritorio y el portapapeles de esa sesión.
+
+Checks incluye un servidor HTTP simulado para carpetas, mensajes y adjuntos, paginación, cancelación, reintentos y verificación de copias. WindowsChecks abre el ejecutable y comprueba también el modo de carpetas con un servicio de ejemplo y otra ventana en primer plano. La conexión con un inquilino corporativo se prueba por separado con su propio registro.

@@ -361,6 +361,7 @@ try
     cancelled.Cancel();
     try { await Archive.WriteAsync([a], dir, printer, [], null, cancelled.Token); throw new Exception("Cancelación ignorada"); }
     catch (OperationCanceledException) { Check(true, "se respeta la cancelación del usuario"); }
+    await FolderChecks.Run(dir, Check);
     Console.WriteLine($"{assertions} comprobaciones superadas.");
     if (args.Contains("--retain"))
         Console.WriteLine("Archivos de prueba: " + dir);
