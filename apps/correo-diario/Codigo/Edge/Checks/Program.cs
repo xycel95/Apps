@@ -165,7 +165,7 @@ try
         MailReader.Inspect(received, origin).Stamp == "2026-11-26_13.01.02",
         "alternativa de fecha de recepción"
     );
-    var c = MailReader.ReadContent(a.FilePath);
+    var c = MailReader.ReadContent(a);
     Check(c.Parts.Count == 6, "adjuntos e imagen MIME recuperados");
     var warnings = new List<string>();
     var html = BodyHtml.Create(a, c, warnings);
@@ -207,7 +207,7 @@ try
         "lectura de un MSG binario con cabeceras originales"
     );
     Check(
-        MailReader.ReadContent(msgfile).Plain.Contains("cuerpo del MSG"),
+        MailReader.ReadContent(msg).Plain.Contains("cuerpo del MSG"),
         "cuerpo MAPI recuperado"
     );
     var invalid = Path.Combine(dir, "invalido.eml");
@@ -232,7 +232,7 @@ try
         default
     );
     Check(
-        output.Originals == 5 && output.Pdfs == 5 && output.Combined == 1,
+        output.Messages == 5 && output.Pdfs == 5 && output.Combined == 1,
         "cinco carpetas de correos y un PDF de hilo"
     );
     var dirs = Directory
@@ -271,8 +271,8 @@ try
     );
     Check(
         File.Exists(Path.Combine(originalFolder, "Correo (2).pdf"))
-            && File.Exists(Path.Combine(originalFolder, "Original (2).eml")),
-        "colisiones con los nombres reservados del correo"
+            && File.ReadAllBytes(Path.Combine(originalFolder, "Original.eml")).SequenceEqual(new byte[] {9, 2}),
+        "se protege Correo.pdf y se conserva un adjunto auténtico llamado Original.eml"
     );
     Check(
         File.Exists(Path.Combine(originalFolder, "firma.png"))
@@ -280,8 +280,9 @@ try
         "adjuntos e imágenes junto al PDF sin subcarpetas"
     );
     Check(
-        MailReader.FileHash(Path.Combine(originalFolder, "Original.eml")) == a.Hash,
-        "original íntegro por SHA-256"
+        Directory.EnumerateFiles(output.Folder, "*", SearchOption.AllDirectories)
+            .All(f => !stored.ContainsKey(MailReader.FileHash(f))),
+        "ningún archivo del lote contiene el mensaje fuente"
     );
     var combined = Directory.GetFiles(Path.Combine(output.Folder, "Hilos")).Single();
     Check(
@@ -345,6 +346,21 @@ try
             "tablas y texto largo llegan hasta la última página"
         );
     Check(!printNotes.Any(w => w.Contains("cotejar")), "texto multipágina cotejado con el cuerpo");
+    var virtualA = MailReader.Inspect(MailInput.FromMemory(File.ReadAllBytes(a.Input.PathOnDisk!), false), origin);
+    var virtualMsg = MailReader.Inspect(MailInput.FromMemory(File.ReadAllBytes(msgfile), true), origin);
+    Check(virtualA.Input.PathOnDisk == null && virtualMsg.Input.PathOnDisk == null, "los correos entregados en memoria carecen de ruta");
+    var inMemory = await Archive.WriteAsync([virtualA, virtualMsg], dir, printer, [], null, default);
+    Check(inMemory.Pdfs == 2 && inMemory.Messages == 2, "EML y MSG completos exportados desde memoria");
+    Check(Directory.GetFiles(inMemory.Folder, "*.msg", SearchOption.AllDirectories).Length == 0
+        && Directory.GetFiles(inMemory.Folder, "*.eml", SearchOption.AllDirectories).All(f => File.ReadAllBytes(f).SequenceEqual(new byte[]{9, 2})), "solo el adjunto de prueba puede tener una extensión de correo");
+    Check(new[] { a, b, msg }.All(m => MailReader.FileHash(m.Input.PathOnDisk!) == m.Hash), "las entradas locales siguen intactas");
+    File.AppendAllText(other.Input.PathOnDisk!, "contenido cambiado");
+    var changed = await Archive.WriteAsync([other], dir, printer, [], null, default);
+    Check(changed.Pdfs == 0 && changed.Warnings > 0, "un archivo modificado después de añadirlo queda pendiente");
+    using var cancelled = new CancellationTokenSource();
+    cancelled.Cancel();
+    try { await Archive.WriteAsync([a], dir, printer, [], null, cancelled.Token); throw new Exception("Cancelación ignorada"); }
+    catch (OperationCanceledException) { Check(true, "se respeta la cancelación del usuario"); }
     Console.WriteLine($"{assertions} comprobaciones superadas.");
     if (args.Contains("--retain"))
         Console.WriteLine("Archivos de prueba: " + dir);

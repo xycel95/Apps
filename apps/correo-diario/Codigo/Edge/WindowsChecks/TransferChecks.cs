@@ -1,0 +1,175 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
+using System.Text.Json;
+using System.Windows.Automation;
+using CorreoDiario.EdgeApp;
+using OleData = System.Runtime.InteropServices.ComTypes.IDataObject;
+using AE = System.Windows.Automation.AutomationElement;
+
+internal static partial class Program
+{
+    const int BadFormat = unchecked((int)0x80040064);
+    static short F(string name) => unchecked((short)DataFormats.GetFormat(name).Id);
+    static FORMATETC Fmt(short id, TYMED medium, int index = -1) =>
+        new() { cfFormat = id, dwAspect = DVASPECT.DVASPECT_CONTENT, lindex = index, tymed = medium };
+
+    // Native data object emulates Outlook's indexed virtual files. The first message
+    // is an IStream, the second an HGLOBAL with a little extra allocation padding.
+    [ComVisible(true), ClassInterface(ClassInterfaceType.None)]
+    sealed class TestMailObject(bool truncated = false) : OleData
+    {
+        readonly short descriptor = F("FileGroupDescriptorW"), contents = F("FileContents");
+        static byte[] Message(int n)
+        {
+            var text = "From: Test <a@example.test>\r\nTo: b@example.test\r\nSubject: " + PrivateMarker + n
+                + "\r\nDate: Thu, 26 Nov 2026 13:45:00 +0100\r\nMessage-ID: <test-" + n + "@example.test>\r\n"
+                + "MIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=prueba\r\n\r\n--prueba\r\nContent-Type: text/plain\r\n\r\n"
+                + "Cuerpo del mensaje " + n + ".\r\n--prueba\r\nContent-Type: application/octet-stream\r\nContent-Disposition: attachment; filename=test.bin\r\n"
+                + "Content-Transfer-Encoding: base64\r\n\r\nAQIDBA==\r\n--prueba--\r\n";
+            return Encoding.ASCII.GetBytes(text);
+        }
+        public int QueryGetData(ref FORMATETC f)
+        {
+            if (f.dwAspect != DVASPECT.DVASPECT_CONTENT) return BadFormat;
+            if (f.cfFormat == descriptor && f.lindex == -1 && f.tymed.HasFlag(TYMED.TYMED_HGLOBAL)) return 0;
+            if (f.cfFormat == contents && (f.lindex == 0 && f.tymed.HasFlag(TYMED.TYMED_ISTREAM)
+                || f.lindex == 1 && f.tymed.HasFlag(TYMED.TYMED_HGLOBAL))) return 0;
+            return BadFormat;
+        }
+        static IntPtr Block(byte[] bytes)
+        {
+            var h = GlobalAlloc(0x42, (UIntPtr)bytes.Length);
+            if (h == 0) throw new OutOfMemoryException();
+            var p = GlobalLock(h);
+            try { Marshal.Copy(bytes, 0, p, bytes.Length); }
+            finally { GlobalUnlock(h); }
+            return h;
+        }
+        public void GetData(ref FORMATETC f, out STGMEDIUM medium)
+        {
+            if (QueryGetData(ref f) != 0) throw new COMException("Formato", BadFormat);
+            if (f.cfFormat == descriptor)
+            {
+                byte[] description = new byte[4 + 2 * 592];
+                BitConverter.GetBytes(2).CopyTo(description, 0);
+                for (int i = 0; i < 2; i++)
+                {
+                    int start = 4 + i * 592;
+                    BitConverter.GetBytes(0x40).CopyTo(description, start);
+                    BitConverter.GetBytes(Message(i).Length + (truncated && i == 1 ? 200 : 0)).CopyTo(description, start + 68);
+                    Encoding.Unicode.GetBytes("prueba" + i + ".eml").CopyTo(description, start + 72);
+                }
+                medium = new() { tymed = TYMED.TYMED_HGLOBAL, unionmember = Block(description) };
+            }
+            else if (f.lindex == 0)
+            {
+                var h = Block(Message(0));
+                Marshal.ThrowExceptionForHR(CreateStreamOnHGlobal(h, true, out var stream));
+                // The Shell's stream size is the logical size, irrespective of allocation rounding.
+                stream.SetSize(Message(0).Length);
+                medium = new() { tymed = TYMED.TYMED_ISTREAM, unionmember = Marshal.GetComInterfaceForObject(stream, typeof(IStream)) };
+                Marshal.ReleaseComObject(stream);
+            }
+            else medium = new() { tymed = TYMED.TYMED_HGLOBAL, unionmember = Block(Message(1).Concat(new byte[16]).ToArray()) };
+        }
+        public IEnumFORMATETC EnumFormatEtc(DATADIR dir) => dir == DATADIR.DATADIR_GET
+            ? new Formats([Fmt(descriptor, TYMED.TYMED_HGLOBAL), Fmt(contents, TYMED.TYMED_ISTREAM, 0), Fmt(contents, TYMED.TYMED_HGLOBAL, 1)])
+            : throw new NotImplementedException();
+        public void GetDataHere(ref FORMATETC f, ref STGMEDIUM m) => throw new NotImplementedException();
+        public int GetCanonicalFormatEtc(ref FORMATETC i, out FORMATETC o) { o = default; return 0x40130; }
+        public void SetData(ref FORMATETC f, ref STGMEDIUM m, bool release) => throw new NotImplementedException();
+        public int DAdvise(ref FORMATETC f, ADVF flags, IAdviseSink sink, out int c) { c = 0; return unchecked((int)0x80040003); }
+        public void DUnadvise(int connection) => throw new NotImplementedException();
+        public int EnumDAdvise(out IEnumSTATDATA? result) { result = null; return unchecked((int)0x80040003); }
+    }
+
+    [ComVisible(true), ClassInterface(ClassInterfaceType.None)]
+    sealed class Formats(FORMATETC[] items, int position = 0) : IEnumFORMATETC
+    {
+        int cursor = position;
+        public int Next(int count, FORMATETC[] dest, int[]? fetched)
+        {
+            var n = Math.Min(count, items.Length - cursor);
+            Array.Copy(items, cursor, dest, 0, n);
+            cursor += n;
+            if (fetched?.Length > 0) fetched[0] = n;
+            return n == count ? 0 : 1;
+        }
+        public int Skip(int count) { int n = Math.Min(count, items.Length - cursor); cursor += n; return n == count ? 0 : 1; }
+        public int Reset() { cursor = 0; return 0; }
+        public void Clone(out IEnumFORMATETC copy) => copy = new Formats(items, cursor);
+    }
+
+    [DllImport("ole32.dll")] static extern int CreateStreamOnHGlobal(nint h, bool delete, out IStream stream);
+    [DllImport("ole32.dll")] static extern int OleSetClipboard([MarshalAs(UnmanagedType.Interface)] OleData? data);
+    [DllImport("kernel32.dll")] static extern nint GlobalAlloc(uint flags, UIntPtr size);
+    [DllImport("kernel32.dll")] static extern nint GlobalLock(nint h);
+    [DllImport("kernel32.dll")] static extern bool GlobalUnlock(nint h);
+    [DllImport("user32.dll")] static extern nint GetForegroundWindow();
+    [DllImport("user32.dll")] static extern bool SetForegroundWindow(nint handle);
+
+    static void TransferRules()
+    {
+        var result = MailTransfer.Read(new TestMailObject());
+        Check(result.Inputs.Count == 2 && result.Inputs.All(i => i.PathOnDisk == null), "dos correos nativos, recibidos en memoria por índice");
+        var mails = result.Inputs.Select(i => CorreoDiario.MailReader.Inspect(i, new("", "", "", "Prueba"))).ToArray();
+        Check(mails[0].Subject.EndsWith("0") && mails[1].Subject.EndsWith("1"), "el flujo y la memoria global corresponden a sus descriptores");
+        Check(mails.All(m => CorreoDiario.MailReader.ReadContent(m).Parts.Single().Bytes.SequenceEqual(new byte[]{1,2,3,4})), "se conservan los bytes de los adjuntos de ambos mensajes");
+        try { MailTransfer.Read(new TestMailObject(true)); throw new Exception("Lote incompleto aceptado"); }
+        catch (TransferException e) { Check(e.Reason == "entrega incompleta", "un segundo elemento truncado invalida todo el lote"); }
+        var onlyText = new DataObject();
+        onlyText.SetText("https://example.test/" + PrivateMarker);
+        try { MailTransfer.Read((OleData)onlyText); throw new Exception("Enlace aceptado"); }
+        catch (TransferException e) { Check(e.Reason == "solo texto o enlace", "una URL no se convierte en correo"); }
+    }
+
+    static void NativeExport(AE form, string folder, IntPtr other)
+    {
+        var ready = new TaskCompletionSource();
+        using var finish = new ManualResetEventSlim();
+        var owner = new Thread(() =>
+        {
+            try
+            {
+                Application.OleRequired();
+                var provider = new TestMailObject();
+                Marshal.ThrowExceptionForHR(OleSetClipboard(provider));
+                ready.SetResult();
+                using var timer = new System.Windows.Forms.Timer { Interval = 75 };
+                timer.Tick += (_, _) => { if (finish.IsSet) Application.ExitThread(); };
+                timer.Start();
+                Application.Run();
+                GC.KeepAlive(provider);
+            }
+            catch (Exception e) { ready.TrySetException(e); }
+        }) { IsBackground = true };
+        owner.SetApartmentState(ApartmentState.STA);
+        owner.Start();
+        try
+        {
+            ready.Task.WaitAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
+            Invoke(Named(form,"Pegar correos")!);
+            Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable recibe dos mensajes virtuales del portapapeles de Windows");
+            var pos = Cursor.Position;
+            SetForegroundWindow(other);
+            Check(Wait(() => GetForegroundWindow() == other, 5), "otra ventana está en primer plano antes de exportar");
+            Invoke(Named(form, "Exportar selección")!);
+            Check(Wait(() => Directory.EnumerateFiles(folder, "Origen.json", SearchOption.AllDirectories).Any() && Named(form,"Abrir resultado")?.Current.IsEnabled == true),
+                "exportación finalizada desde el ejecutable publicado");
+            Check(GetForegroundWindow() == other && Cursor.Position == pos, "la exportación conserva tanto el foco de otra ventana como la posición del ratón");
+            var pdfs = Directory.GetFiles(folder,"Correo.pdf",SearchOption.AllDirectories);
+            Check(pdfs.Length == 2 && pdfs.All(f => CorreoDiario.MailPrinter.VerifyPdf(f) > 0), "dos PDF legibles en dos carpetas");
+            var parts = Directory.GetFiles(folder,"test.bin",SearchOption.AllDirectories);
+            Check(parts.Length == 2 && parts.All(p => File.ReadAllBytes(p).SequenceEqual(new byte[]{1,2,3,4})), "ambos adjuntos se recuperan íntegros en la exportación real");
+            Check(!Directory.GetFiles(folder,"*",SearchOption.AllDirectories).Any(f => Path.GetExtension(f) is ".msg" or ".eml"), "el lote del ejecutable carece de copias de mensajes originales");
+            Clipboard.SetText("https://example.test/" + PrivateMarker);
+            Invoke(Named(form,"Pegar correos")!);
+            Check(Wait(() => Named(form,"Outlook entregó texto o un enlace. Faltan el cuerpo y los adjuntos del correo. No se ha añadido ningún mensaje.") != null), "la interfaz comunica que un enlace es insuficiente");
+            Invoke(Named(form,"Copiar diagnóstico")!);
+            Check(Wait(() => Clipboard.GetText().Contains("solo texto o enlace") && !Clipboard.GetText().Contains(PrivateMarker)), "el diagnóstico copiado incluye el motivo y excluye los asuntos y el enlace");
+        }
+        finally { finish.Set(); owner.Join(TimeSpan.FromSeconds(5)); }
+    }
+}

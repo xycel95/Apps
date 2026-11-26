@@ -12,7 +12,7 @@ namespace CorreoDiario;
 
 public sealed record ArchiveResult(
     string Folder,
-    int Originals,
+    int Messages,
     int Pdfs,
     int Combined,
     int Warnings
@@ -21,16 +21,6 @@ public sealed record ArchiveResult(
 public static class Archive
 {
     static readonly UTF8Encoding Utf8 = new(false);
-
-    static void CopyVerified(string source, string dest, string hash)
-    {
-        File.Copy(source, dest, false);
-        if (MailReader.FileHash(dest) != hash)
-        {
-            File.Delete(dest);
-            throw new IOException("El original ha cambiado durante la copia.");
-        }
-    }
 
     static string ArtifactName(string original, int max)
     {
@@ -71,7 +61,7 @@ public static class Archive
             .Select(g => g.Key)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (threads.Count == 0)
-            throw new InvalidOperationException("No hay originales para exportar.");
+            throw new InvalidOperationException("Añade al menos un correo completo.");
         var folder = Path.Combine(
             dest,
             "CorreoDiario_"
@@ -85,7 +75,7 @@ public static class Archive
             "CORREODIARIO · EXPORTACIÓN\r\nFechas del correo en hora de Madrid.\r\n\r\n"
         );
         var ledger = new List<object>();
-        var originals = 0;
+        var messages = 0;
         var pdfs = 0;
         var joined = 0;
         var total = threads.Sum(t => t.Messages.Count);
@@ -118,12 +108,8 @@ public static class Archive
                         dirName = preferred + " (" + suffix + ")";
                     var mailFolder = Path.Combine(folder, dirName);
                     Directory.CreateDirectory(mailFolder);
-                    var source = Path.Combine(
-                        mailFolder,
-                        "Original" + Path.GetExtension(m.FilePath).ToLowerInvariant()
-                    );
                     var occupied = new HashSet<string>(
-                        ["Correo.pdf", "Original.eml", "Original.msg"],
+                        ["Correo.pdf"],
                         StringComparer.OrdinalIgnoreCase
                     );
                     var notes = new List<string>();
@@ -132,12 +118,12 @@ public static class Archive
                     bool cancelled = false;
                     try
                     {
-                        CopyVerified(m.FilePath, source, m.Hash);
-                        originals++;
-                        var c = MailReader.ReadContent(source);
+                        var c = MailReader.ReadContent(m);
+                        messages++;
                         notes.AddRange(c.Notices);
                         foreach (var a in c.Parts)
                         {
+                            ct.ThrowIfCancellationRequested();
                             var target = AttachmentPath(mailFolder, a.Name, occupied);
                             using (
                                 var stream = new FileStream(
@@ -182,10 +168,10 @@ public static class Archive
                         notes.Add("Exportación parcial: " + e.Message);
                     }
                     if (m.Id.Length == 0)
-                        notes.Add("El original no declara Message-ID.");
+                        notes.Add("El mensaje no declara Message-ID.");
                     if (m.Madrid == null)
                         notes.Add(
-                            "El original no declara una fecha de envío ni recepción utilizable."
+                            "El mensaje no declara una fecha de envío ni recepción utilizable."
                         );
                     if (m.From.Length == 0)
                         notes.Add("No consta el remitente en las cabeceras.");
@@ -202,7 +188,6 @@ public static class Archive
                         new
                         {
                             carpeta = dirName,
-                            archivo = File.Exists(source) ? Path.GetFileName(source) : null,
                             sha256 = m.Hash,
                             pdf,
                             asunto = m.Subject,
@@ -282,7 +267,7 @@ public static class Archive
             report
                 .AppendLine()
                 .AppendLine(
-                    $"Originales copiados: {originals}. PDF individuales: {pdfs}. PDF de hilo: {joined}."
+                    $"Mensajes leídos: {messages}. PDF individuales: {pdfs}. PDF de hilo: {joined}."
                 );
             File.WriteAllText(Path.Combine(folder, "Resumen.txt"), report.ToString(), Utf8);
             File.WriteAllText(
@@ -294,6 +279,6 @@ public static class Archive
                 Utf8
             );
         }
-        return new(folder, originals, pdfs, joined, log.Distinct().Count());
+        return new(folder, messages, pdfs, joined, log.Distinct().Count());
     }
 }

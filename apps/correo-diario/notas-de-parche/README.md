@@ -1,5 +1,14 @@
 # Notas de parche
 
+## 0.6.0 beta · 26/11/2026
+
+- PDF y adjuntos en segundo plano. El ratón, el teclado y la pestaña de Edge quedan disponibles mientras se exporta.
+- Se elimina la descarga automática y la copia EML o MSG del mensaje fuente. Se conservan los correos que sean adjuntos reales.
+- **Pegar correos** y arrastre admiten varios mensajes completos. Los archivos EML y MSG existentes se abren en modo de lectura.
+- **Copiar diagnóstico** identifica las entregas incompletas y las que solo incluyen texto o enlaces. Los contadores de Edge se muestran por separado de los mensajes recibidos.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.1)
+
 ## 0.5.1 beta · 26/11/2026
 
 - Detección de ventanas nativas de Microsoft Edge y lectura de la barra en español e inglés mediante sus controles de accesibilidad. Si la barra no facilita el valor, se comprueba la dirección del documento superior cuando es inequívoca.

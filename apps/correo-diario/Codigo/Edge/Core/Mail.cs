@@ -20,8 +20,24 @@ public sealed record FilePart(
     byte[] Bytes
 );
 
+// Memory transfers have no filesystem path. Local selections are opened read-only.
+public sealed class MailInput
+{
+    readonly byte[]? bytes;
+    public string? PathOnDisk { get; }
+    public bool IsMsg { get; }
+    MailInput(string? path, byte[]? data, bool isMsg) =>
+        (PathOnDisk, bytes, IsMsg) = (path, data, isMsg);
+    public static MailInput FromFile(string path) =>
+        new(path, null, Path.GetExtension(path).Equals(".msg", StringComparison.OrdinalIgnoreCase));
+    public static MailInput FromMemory(byte[] bytes, bool isMsg) => new(null, bytes, isMsg);
+    public Stream Open() => bytes is null
+        ? new FileStream(PathOnDisk!, FileMode.Open, FileAccess.Read, FileShare.Read)
+        : new MemoryStream(bytes, writable: false);
+}
+
 public sealed record Mail(
-    string FilePath,
+    MailInput Input,
     string Hash,
     Origin Origin,
     string Subject,
@@ -168,16 +184,16 @@ public static class MailReader
             );
     }
 
-    static bool IsMsg(string path) =>
-        Path.GetExtension(path).Equals(".msg", StringComparison.OrdinalIgnoreCase);
+    public static Mail Inspect(string path, Origin origin) => Inspect(MailInput.FromFile(path), origin);
 
-    public static Mail Inspect(string path, Origin origin)
+    public static Mail Inspect(MailInput input, Origin origin)
     {
-        var hash = FileHash(path);
-        if (IsMsg(path))
+        using var stream = input.Open();
+        var hash = Convert.ToHexStringLower(SHA256.HashData(stream));
+        stream.Position = 0;
+        if (input.IsMsg)
         {
-            using var f = File.OpenRead(path);
-            using var m = new Storage.Message(f, FileAccess.Read, true);
+            using var m = new Storage.Message(stream, FileAccess.Read, true);
             var raw = m.TransportMessageHeaders ?? "";
             using var headerStream = new MemoryStream(
                 Encoding.UTF8.GetBytes(raw.TrimEnd() + "\r\n\r\n")
@@ -202,7 +218,7 @@ public static class MailReader
             var received = Received(h) ?? m.ReceivedOn;
             var mi = NormalizeId(Ids(H(h, "Message-ID")).FirstOrDefault() ?? m.Id);
             return new(
-                path,
+                input,
                 hash,
                 origin,
                 Clean(m.Subject),
@@ -228,14 +244,13 @@ public static class MailReader
                 received
             );
         }
-        using var stream = File.OpenRead(path);
         var eml = MimeMessage.Load(stream);
         ValidateEml(eml);
         var headers = eml.Headers;
         var date = DateValue(headers["Date"]);
         var recv = Received(headers);
         return new(
-            path,
+            input,
             hash,
             origin,
             Clean(eml.Subject),
@@ -256,14 +271,18 @@ public static class MailReader
         );
     }
 
-    public static Content ReadContent(string path)
+    public static Content ReadContent(Mail mail)
     {
+        using var stream = mail.Input.Open();
+        if (Convert.ToHexStringLower(SHA256.HashData(stream)) != mail.Hash)
+            throw new InvalidDataException("El mensaje ha cambiado desde que se añadió. Vuelve a añadirlo.");
+        stream.Position = 0;
+
         var parts = new List<FilePart>();
         var notices = new List<string>();
-        if (IsMsg(path))
+        if (mail.Input.IsMsg)
         {
-            using var fs = File.OpenRead(path);
-            using var msg = new Storage.Message(fs, FileAccess.Read, true);
+            using var msg = new Storage.Message(stream, FileAccess.Read, true);
             foreach (var entry in msg.Attachments)
             {
                 if (entry is Storage.Attachment a)
@@ -309,7 +328,6 @@ public static class MailReader
             }
             return new(msg.BodyHtml ?? "", msg.BodyText ?? "", parts, notices);
         }
-        using var stream = File.OpenRead(path);
         var m = MimeMessage.Load(stream);
         ValidateEml(m);
         // Include only the alternatives that the MIME tree selected as message bodies.
@@ -327,7 +345,7 @@ public static class MailReader
                         StringComparison.OrdinalIgnoreCase
                     )
                 )
-                    notices.Add("Contenido cifrado conservado en el original.");
+                    notices.Add("El cuerpo cifrado no se ha podido representar en el PDF.");
                 var related = multipart as MultipartRelated;
                 for (var i = 0; i < multipart.Count; i++)
                     Visit(
@@ -363,7 +381,7 @@ public static class MailReader
             if (e is not MimePart p)
                 return;
             if (p.ContentType.MimeType.Contains("pkcs7-mime", StringComparison.OrdinalIgnoreCase))
-                notices.Add("Contenido S/MIME conservado en el original.");
+                notices.Add("El mensaje incluye contenido S/MIME. Comprueba si el PDF muestra el cuerpo.");
             if (
                 p is TextPart t
                 && bodyBranch

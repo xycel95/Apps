@@ -30,7 +30,7 @@ internal sealed class DiagnosticLog
     {
         var method = new StackTrace(e, false).GetFrames()?.Select(frame => frame.GetMethod())
             .FirstOrDefault(m => m?.DeclaringType?.Namespace?.StartsWith("CorreoDiario", StringComparison.Ordinal) == true);
-        var reason = e is OriginalUnavailable u ? " · " + u.Reason : "";
+        var reason = e is TransferException t ? " · " + t.Reason : "";
         var where = method == null ? "" : $" · {method.DeclaringType!.Name}.{method.Name}";
         lock (gate)
         {
@@ -65,9 +65,4 @@ internal sealed class DiagnosticLog
             return report.ToString();
         }
     }
-}
-
-internal sealed class OriginalUnavailable(string reason, string message) : Exception(message)
-{
-    internal string Reason { get; } = reason;
 }

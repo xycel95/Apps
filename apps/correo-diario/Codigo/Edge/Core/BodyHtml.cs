@@ -187,7 +187,7 @@ public static class BodyHtml
             sb.Append("<p class=note>")
                 .Append(E(string.Join(" · ", notices.Distinct())))
                 .Append("</p>");
-        return sb.Append("<footer>Original ")
+        return sb.Append("<footer>Correo ")
             .Append(m.Key)
             .Append("</footer></body></html>")
             .ToString();

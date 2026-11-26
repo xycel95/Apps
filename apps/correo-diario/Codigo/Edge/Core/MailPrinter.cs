@@ -121,7 +121,7 @@ public sealed class MailPrinter
             details.Format.SpaceBefore = 7;
             details.Format.Font.Color = Color.FromRgb(112, 74, 20);
         }
-        var footer = section.Footers.Primary.AddParagraph("Original " + key + "     ·     ");
+        var footer = section.Footers.Primary.AddParagraph("Correo " + key + "     ·     ");
         footer.AddPageField();
         footer.Format.Font.Size = 8;
         footer.Format.Font.Color = Colors.Gray;
@@ -160,7 +160,7 @@ public sealed class MailPrinter
                 );
                 if (missing > 0)
                     notes.Add(
-                        $"Texto pendiente de cotejar en el PDF: {missing} palabras. El original se conserva completo."
+                        $"Texto pendiente de cotejar en el PDF: {missing} palabras. Revisa el PDF de este mensaje."
                     );
             }
             ct.ThrowIfCancellationRequested();
@@ -193,7 +193,7 @@ public sealed class MailPrinter
                 found = true;
         }
         if (!found)
-            throw new InvalidDataException("El PDF no contiene el identificador del original.");
+            throw new InvalidDataException("El PDF no contiene el identificador del correo.");
         return pdf.NumberOfPages;
     }
 

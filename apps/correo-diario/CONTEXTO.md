@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.6.0 beta para Edge
+
+La detección de la ventana y de las filas visibles es informativa. La cola contiene únicamente mensajes completos recibidos por portapapeles, arrastre o selección explícita de archivos. No se ejecutan acciones en Outlook. `Windows/MailTransfer.cs` recibe descriptores de archivos virtuales y su contenido por índice, mensajes MIME y archivos de Windows. Rechaza las entregas incompletas y las que solo contienen texto o enlaces. `Core/Mail.cs` abre un flujo de memoria o un archivo de solo lectura y comprueba su huella antes de generar el PDF y extraer los adjuntos. Se conservan las relaciones de los mensajes efectivamente recibidos. La disponibilidad de datos virtuales depende del origen y de las políticas del equipo.
+
 ## 0.5.1 beta para Edge
 
 En Windows se ejecutaron 37 comprobaciones de EML y MSG y 26 de detección y diagnóstico. La prueba de escritorio utilizó Microsoft Edge sin conexión, la ventana del ejecutable y el portapapeles real. Queda pendiente la prueba con un buzón real de Outlook.

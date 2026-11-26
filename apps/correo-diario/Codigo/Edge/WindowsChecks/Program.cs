@@ -4,7 +4,7 @@ using System.Windows.Automation;
 using CorreoDiario.EdgeApp;
 using AE = System.Windows.Automation.AutomationElement;
 
-internal static class Program
+internal static partial class Program
 {
     const string PrivateMarker = "CASO_PRIVADO_SOLO_DE_PRUEBA";
     const string Outlook = "https://outlook.cloud.microsoft/mail/inbox/id/" + PrivateMarker;
@@ -81,6 +81,15 @@ internal static class Program
             var selected = last!.Windows.First(w=> w.Site=="outlook.cloud.microsoft" && w.Hwnd!=fake);
             selected.Verify();
             Check(last.Windows.Count(w=>w.Hwnd==selected.Hwnd)==1, "una sola entrada para la ventana detectada");
+            var output = Directory.CreateDirectory(Path.Combine(folder,"exportaciones")).FullName;
+            // Isolate the packaged app's legacy settings from any workstation settings.
+            // The native CI desktop is disposable. Restore the previous value after the test.
+            var settings = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XyceL", "CorreoDiarioEdge", "carpetas.json");
+            var saved = File.Exists(settings) ? File.ReadAllBytes(settings) : null;
+            Directory.CreateDirectory(Path.GetDirectoryName(settings)!);
+            File.WriteAllText(settings, System.Text.Json.JsonSerializer.Serialize(new[] { output, folder }));
+            try
+            {
             using var app = Process.Start(new ProcessStartInfo(exe){UseShellExecute=false})!;
             try
             {
@@ -94,7 +103,7 @@ internal static class Program
                 Check(copy!=null && copy.Current.IsEnabled, "botón Copiar diagnóstico disponible");
                 Invoke(copy!);
                 string text="";
-                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.Contains("CorreoDiario para Edge 0.5.1"); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
+                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.Contains("CorreoDiario para Edge 0.6.0"); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
                 Console.WriteLine(text);
                 var picker = Named(form,"Ventanas de Outlook en Edge");
                 bool selectedInApp = picker != null && (
@@ -107,9 +116,12 @@ internal static class Program
                         SendMessage((IntPtr)hwnd, 0x146, IntPtr.Zero, IntPtr.Zero).ToInt64() > 0;
                 }
                 Check(selectedInApp && text.Contains("Outlook reconocido"), "Outlook figura en el selector de la aplicación con su ventana delante");
-                Check(text.Contains("ventanas Outlook") && text.Contains("Leer selección") && !text.Contains(PrivateMarker) && !text.Contains("https://") && !text.Contains(profile), "el informe conserva causas y contadores y omite título, URL y rutas");
+                Check(text.Contains("ventanas Outlook") && !text.Contains(PrivateMarker) && !text.Contains("https://") && !text.Contains(profile), "el informe conserva causas y contadores y omite título, URL y rutas");
+                NativeExport(form,output,selected.Hwnd);
             }
             finally { if (!app.HasExited) { app.CloseMainWindow(); if(!app.WaitForExit(5000)) app.Kill(true); } }
+            }
+            finally { if (saved != null) File.WriteAllBytes(settings,saved); else File.Delete(settings); }
         }
         finally { if (!first.HasExited) first.Kill(true); }
     }
@@ -119,6 +131,7 @@ internal static class Program
     {
         if (args.Length!=2) { Console.Error.WriteLine("Indica las rutas del ejecutable de CorreoDiario y de Microsoft Edge."); return 2; }
         Rules();
+        TransferRules();
         string dir=Directory.CreateTempSubdirectory("CorreoDiario-Edge-prueba-").FullName;
         try { Desktop(Path.GetFullPath(args[0]),Path.GetFullPath(args[1]),dir); }
         finally { try { Directory.Delete(dir,true); } catch(IOException) {} catch(UnauthorizedAccessException) {} }

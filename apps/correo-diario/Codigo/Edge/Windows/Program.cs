@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using System.Text.Json;
 using System.Runtime.InteropServices;
-using Registry = Microsoft.Win32.Registry;
+using System.Text.Json;
+using OleData = System.Runtime.InteropServices.ComTypes.IDataObject;
 
 namespace CorreoDiario.EdgeApp;
 
@@ -17,136 +17,46 @@ static class Program
 
 internal sealed class MainWindow : Form
 {
-    readonly ComboBox windows = new()
+    sealed record Row(Mail Message)
     {
-        DropDownStyle = ComboBoxStyle.DropDownList,
-        Dock = DockStyle.Fill,
-    };
-    readonly CheckedListBox rows = new()
-    {
-        Dock = DockStyle.Fill,
-        CheckOnClick = true,
-        HorizontalScrollbar = true,
-        IntegralHeight = false,
-        BorderStyle = BorderStyle.FixedSingle,
-    };
-    readonly CheckedListBox files = new()
-    {
-        Dock = DockStyle.Fill,
-        CheckOnClick = true,
-        HorizontalScrollbar = true,
-        IntegralHeight = false,
-    };
-    readonly TabControl tabs = new() { Dock = DockStyle.Fill };
-    readonly CheckBox search = new()
-    {
-        Text = "Buscar también el origen y las respuestas en Outlook",
-        Checked = true,
-        AutoSize = true,
-    };
-    readonly Label status = new()
-    {
-        AutoSize = true,
-        MaximumSize = new(1200, 0),
-        ForeColor = Color.FromArgb(27, 68, 100),
-        Margin = new(0, 8, 0, 2),
-    };
-    readonly Label counter = new() { AutoSize = true, Margin = new(7, 9, 0, 0) };
-    readonly TextBox target = new() { Dock = DockStyle.Fill, ReadOnly = true };
-    readonly TextBox incoming = new() { Dock = DockStyle.Fill, ReadOnly = true };
-    readonly Button export = Button("Exportar selección"),
-        cancel = Button("Cancelar"),
-        open = Button("Abrir resultado");
-    readonly Button copyDiagnostics = Button("Copiar diagnóstico");
-    readonly DiagnosticLog diagnostics = new();
-    readonly System.Windows.Forms.Timer copyFeedback = new() { Interval = 2200 };
-    readonly ProgressBar bar = new()
-    {
-        Width = 105,
-        Height = 13,
-        Style = ProgressBarStyle.Marquee,
-        Visible = false,
-        Margin = new(10, 11, 0, 0),
-    };
-    readonly List<Control> lockable = [];
-    EdgeWindow? connected;
-    int? edgeCount;
-    string? last;
-    CancellationTokenSource? operation;
-    bool refreshing;
-    static readonly string settings = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "XyceL",
-        "CorreoDiarioEdge",
-        "carpetas.json"
-    );
-
-    static Button Button(string text) =>
-        new()
-        {
-            Text = text,
-            AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = new(8, 3, 8, 3),
-            FlatStyle = FlatStyle.System,
-            Margin = new(0, 0, 6, 0),
-        };
-
-    static Label LabelOf(string t) =>
-        new()
-        {
-            Text = t,
-            AutoSize = true,
-            Anchor = AnchorStyles.Left,
-            Margin = new(0, 3, 8, 3),
-        };
-
-    static FlowLayoutPanel Line() =>
-        new()
-        {
-            AutoSize = true,
-            Dock = DockStyle.Fill,
-            WrapContents = true,
-            Padding = Padding.Empty,
-            Margin = new(0, 3, 0, 3),
-        };
-
-    static TableLayoutPanel Stack() =>
-        new()
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 0,
-            Margin = Padding.Empty,
-            Padding = Padding.Empty,
-        };
-
-    static void Add(TableLayoutPanel table, Control item, bool fill = false)
-    {
-        int r = table.RowCount++;
-        table.RowStyles.Add(
-            new RowStyle(fill ? SizeType.Percent : SizeType.AutoSize, fill ? 100 : 0)
-        );
-        table.Controls.Add(item, 0, r);
+        public override string ToString() => Message.DisplayDate + "   ·   " + Message.From + "   ·   " + Message.Subject;
     }
+    readonly DiagnosticLog diagnostics = new();
+    readonly CheckedListBox rows = new() { Dock = DockStyle.Fill, CheckOnClick = true, IntegralHeight = false, HorizontalScrollbar = true, AccessibleName = "Correos recibidos" };
+    readonly ComboBox windows = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, AccessibleName = "Ventanas de Outlook en Edge" };
+    readonly TextBox target = new() { Dock = DockStyle.Fill, ReadOnly = true, AccessibleName = "Carpeta de destino" };
+    readonly Label status = LabelOf("Copia los correos seleccionados en Outlook y pulsa Pegar correos. También puedes arrastrarlos aquí.");
+    readonly Label counter = LabelOf("");
+    readonly Button paste = Btn("Pegar correos"), files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
+        countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar selección"),
+        clear = Btn("Quitar marcados"), select = Btn("Marcar todos"), open = Btn("Abrir resultado"),
+        stop = Btn("Cancelar"), copy = Btn("Copiar diagnóstico");
+    bool busy, closeRequested;
+    CancellationTokenSource? operation;
+    string? last;
+    int? lastSelectionCount;
+    static readonly string Settings = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "XyceL", "CorreoDiarioEdge", "carpetas.json");
 
-    static TableLayoutPanel Horizontal(Control center, params Control[] side)
+    static Button Btn(string text) => new() { AutoSize = true, Text = text, FlatStyle = FlatStyle.System, Padding = new(7, 3, 7, 3) };
+    static Label LabelOf(string text) => new() { Text = text, AutoSize = true, Dock = DockStyle.Fill, Margin = new(3, 5, 3, 5) };
+    static FlowLayoutPanel Line(params Control[] controls)
     {
-        var t = new TableLayoutPanel
+        var line = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Margin = Padding.Empty };
+        line.Controls.AddRange(controls);
+        return line;
+    }
+    static TableLayoutPanel Field(Control field, params Button[] buttons)
+    {
+        var line = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = buttons.Length + 1, RowCount = 1 };
+        line.ColumnStyles.Add(new(SizeType.Percent, 100));
+        line.Controls.Add(field, 0, 0);
+        for (int i = 0; i < buttons.Length; i++)
         {
-            AutoSize = true,
-            Dock = DockStyle.Fill,
-            ColumnCount = 1 + side.Length,
-            Margin = new(0, 4, 0, 4),
-        };
-        t.ColumnStyles.Add(new(SizeType.Percent, 100));
-        t.Controls.Add(center, 0, 0);
-        for (int i = 0; i < side.Length; i++)
-        {
-            t.ColumnStyles.Add(new(SizeType.AutoSize));
-            t.Controls.Add(side[i], i + 1, 0);
+            line.ColumnStyles.Add(new(SizeType.AutoSize));
+            line.Controls.Add(buttons[i], i + 1, 0);
         }
-        return t;
+        return line;
     }
 
     public MainWindow()
@@ -154,464 +64,255 @@ internal sealed class MainWindow : Form
         Text = "CorreoDiario para Edge";
         Font = new Font("Segoe UI", 10);
         AutoScaleMode = AutoScaleMode.Dpi;
-        Size = new(935, 715);
-        MinimumSize = new(710, 570);
-        StartPosition = FormStartPosition.CenterScreen;
-        var page = Stack();
-        page.Padding = new(20, 14, 20, 12);
+        Size = new(910, 685);
+        MinimumSize = new(700, 570);
+        var page = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(18), ColumnCount = 1 };
         Controls.Add(page);
-        Add(
-            page,
-            new Label
+        void Add(Control control, bool expand = false)
+        {
+            int i = page.RowCount++;
+            page.RowStyles.Add(new(expand ? SizeType.Percent : SizeType.AutoSize, expand ? 100 : 0));
+            page.Controls.Add(control, 0, i);
+        }
+        var title = LabelOf("CorreoDiario");
+        title.Font = new Font(Font.FontFamily, 20, FontStyle.Bold);
+        Add(title);
+        Add(LabelOf("Copia o arrastra los correos completos desde Outlook. Una vez añadidos, puedes cambiar de pestaña o minimizar Edge."));
+        Add(Line(paste, files));
+        Add(rows, true);
+        Add(Line(select, clear, counter));
+        Add(LabelOf("Comprobar la pestaña de Outlook (opcional)"));
+        Add(Field(windows, detect, countEdge));
+        Add(LabelOf("Carpeta de destino"));
+        Add(Field(target, choose));
+        Add(Line(export, stop, open, copy));
+        status.ForeColor = Color.FromArgb(21, 61, 91);
+        Add(status);
+        LoadFolder();
+        foreach (Control surface in new Control[] { this, rows, page, title })
+        {
+            surface.AllowDrop = true;
+            surface.DragEnter += (_, e) =>
+                e.Effect = !busy && e.Data != null && e.AllowedEffect.HasFlag(DragDropEffects.Copy) ? DragDropEffects.Copy : DragDropEffects.None;
+            surface.DragDrop += async (_, e) =>
             {
-                Text = "CorreoDiario",
-                AutoSize = true,
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = Color.FromArgb(17, 47, 73),
-                Margin = new(0, 0, 0, 5),
-            }
-        );
-        Add(page, tabs, true);
-        lockable.Add(tabs);
-        var live = new TabPage("Desde Edge") { Padding = new(12) };
-        var disk = new TabPage("Archivos originales") { Padding = new(12) };
-        tabs.Controls.Add(live);
-        tabs.Controls.Add(disk);
-        var lc = Stack();
-        live.Controls.Add(lc);
-        Add(lc, LabelOf("Deja la bandeja de Outlook visible en Edge y selecciona su ventana."));
-        windows.Name = "OutlookWindows";
-        windows.AccessibleName = "Ventanas de Outlook en Edge";
-        status.Name = "OperationStatus";
-        var detect = Button("Detectar Edge");
-        var reload = Button("Leer selección");
-        Add(lc, Horizontal(windows, detect, reload));
-        var pick = Line();
-        var all = Button("Marcar lista");
-        var none = Button("Desmarcar");
-        pick.Controls.AddRange([all, none, counter]);
-        Add(lc, pick);
-        Add(lc, rows, true);
-        Add(lc, search);
-        var incomingButton = Button("Cambiar…");
-        Add(lc, LabelOf("Carpeta donde Edge descarga los mensajes originales"));
-        Add(lc, Horizontal(incoming, incomingButton));
-        var fc = Stack();
-        disk.Controls.Add(fc);
-        Add(
-            fc,
-            LabelOf(
-                "Selecciona archivos EML o MSG descargados desde Outlook. Se agrupan por las cabeceras del hilo."
-            )
-        );
-        var actions = Line();
-        var choose = Button("Añadir archivos…");
-        var clear = Button("Quitar marcados");
-        actions.Controls.AddRange([choose, clear]);
-        Add(fc, actions);
-        Add(fc, files, true);
-        Add(page, LabelOf("Carpeta de destino"));
-        var destination = Button("Elegir carpeta…");
-        lockable.Add(destination);
-        Add(page, Horizontal(target, destination));
-        var bottom = Line();
-        copyDiagnostics.Name = "CopyDiagnostics";
-        copyDiagnostics.AccessibleDescription = "Copia un informe técnico para compartir cuando ocurra un error.";
-        copyDiagnostics.Click += (_, _) => CopyDiagnostics();
-        copyFeedback.Tick += (_, _) => { copyFeedback.Stop(); copyDiagnostics.Text = "Copiar diagnóstico"; };
-        FormClosed += (_, _) => copyFeedback.Dispose();
-        bottom.Controls.AddRange([export, open, cancel, copyDiagnostics, bar]);
-        Add(page, bottom);
-        Add(page, status);
-        cancel.Enabled = false;
-        open.Enabled = false;
-        status.Text = "Abre la bandeja en Edge o añade originales descargados.";
-        LoadFolders();
-        all.Click += (_, _) =>
-        {
-            for (int i = 0; i < rows.Items.Count; i++)
-                rows.SetItemChecked(i, true);
-        };
-        none.Click += (_, _) =>
-        {
-            for (int i = 0; i < rows.Items.Count; i++)
-                rows.SetItemChecked(i, false);
-        };
-        rows.ItemCheck += (_, _) => BeginInvoke(new Action(Counts));
-        tabs.SelectedIndexChanged += (_, _) => Counts();
-        destination.Click += (_, _) => PickFolder(target, "Carpeta de destino");
-        incomingButton.Click += (_, _) => PickFolder(incoming, "Carpeta de descargas de Edge");
-        detect.Click += async (_, _) => await Discover();
-        reload.Click += async (_, _) => await RefreshRows();
-        windows.SelectedIndexChanged += async (_, _) =>
-        {
-            if (!refreshing)
-                await RefreshRows();
-        };
-        choose.Click += (_, _) =>
-        {
-            using var d = new OpenFileDialog
-            {
-                Filter = "Mensajes de correo (*.eml;*.msg)|*.eml;*.msg",
-                Multiselect = true,
-                Title = "Añadir mensajes originales",
+                e.Effect = DragDropEffects.None;
+                if (busy || !e.AllowedEffect.HasFlag(DragDropEffects.Copy) || e.Data is not OleData ole) return;
+                e.Effect = DragDropEffects.Copy;
+                await Receive(() => MailTransfer.Read(ole));
             };
-            if (d.ShowDialog(this) == DialogResult.OK)
-                foreach (var file in d.FileNames)
-                    if (!files.Items.Contains(file))
-                        files.Items.Add(file, true);
-        };
-        clear.Click += (_, _) =>
+        }
+        paste.Click += async (_, _) => await Receive(() => Clipboard.GetDataObject() is OleData ole
+            ? MailTransfer.Read(ole) : throw new TransferException("portapapeles vacío", "El portapapeles no contiene correos completos."));
+        files.Click += async (_, _) =>
         {
-            foreach (var f in files.CheckedItems.Cast<object>().ToArray())
-                files.Items.Remove(f);
+            using var dialog = new OpenFileDialog { Multiselect = true, Filter = "Correos (*.eml;*.msg)|*.eml;*.msg", Title = "Añadir correos existentes" };
+            if (dialog.ShowDialog(this) == DialogResult.OK) await Receive(() => MailTransfer.Files(dialog.FileNames));
         };
+        detect.Click += async (_, _) => await Detect();
+        countEdge.Click += async (_, _) => await InspectSelection();
+        windows.SelectedIndexChanged += (_, _) => { lastSelectionCount = null; RefreshControls(); };
+        select.Click += (_, _) => { for (int i = 0; i < rows.Items.Count; i++) rows.SetItemChecked(i, true); };
+        clear.Click += (_, _) => { foreach (int i in rows.CheckedIndices.Cast<int>().Reverse().ToArray()) rows.Items.RemoveAt(i); RefreshControls(); };
+        rows.ItemCheck += (_, _) => BeginInvoke(RefreshControls);
+        choose.Click += (_, _) => ChooseFolder();
         export.Click += async (_, _) => await Export();
-        cancel.Click += (_, _) => operation?.Cancel();
+        stop.Click += (_, _) => operation?.Cancel();
         open.Click += (_, _) =>
         {
-            if (last != null && Directory.Exists(last))
-                Process.Start(
-                    new ProcessStartInfo("explorer.exe")
-                    {
-                        ArgumentList = { last },
-                        UseShellExecute = false,
-                    }
-                );
+            try { if (last != null) Process.Start(new ProcessStartInfo(last) { UseShellExecute = true }); }
+            catch (Exception e) { Error("Abrir resultado", e); }
         };
+        copy.Click += (_, _) => CopyReport();
         FormClosing += (_, e) =>
         {
-            if (operation != null)
-            {
-                operation.Cancel();
-                e.Cancel = true;
-                status.Text = "Deteniendo la operación…";
-            }
+            if (!busy) return;
+            e.Cancel = true;
+            closeRequested = true;
+            operation?.Cancel();
+            status.Text = "Cerrando al terminar la operación en curso…";
         };
-        Shown += async (_, _) => await Discover();
+        RefreshControls();
     }
 
-    void CopyDiagnostics()
+    void RefreshControls()
     {
-        var report = diagnostics.Report();
+        foreach (var control in new Control[]{paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
+        select.Enabled = !busy && rows.CheckedItems.Count < rows.Items.Count;
+        clear.Enabled = !busy && rows.CheckedItems.Count > 0;
+        countEdge.Enabled = !busy && windows.SelectedItem is EdgeWindow;
+        export.Enabled = !busy && rows.CheckedItems.Count > 0 && target.Text.Length > 0;
+        open.Enabled = !busy && last != null;
+        stop.Enabled = operation != null && !operation.IsCancellationRequested;
+        counter.Text = $"{rows.CheckedItems.Count} marcados de {rows.Items.Count} correos recibidos";
+    }
+
+    void End()
+    {
+        operation?.Dispose();
+        operation = null;
+        busy = false;
+        RefreshControls();
+        if (closeRequested) Close();
+    }
+
+    async Task Receive(Func<MailDelivery> take)
+    {
+        if (busy) return;
+        busy = true;
+        operation = new();
+        var token = operation.Token;
+        RefreshControls();
+        string phase = "Recibir selección";
         try
         {
-            Clipboard.SetDataObject(report, true, 5, 80);
-            copyDiagnostics.Text = "Diagnóstico copiado";
-            copyFeedback.Stop();
-            copyFeedback.Start();
-        }
-        catch (ExternalException)
-        {
-            using var dialog = new Form { Text = "Diagnóstico · selecciona el texto y pulsa Ctrl+C", Width = 680,
-                Height = 380, StartPosition = FormStartPosition.CenterParent };
-            var text = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both,
-                WordWrap = false, Text = report };
-            dialog.Controls.Add(text);
-            dialog.Shown += (_, _) => { text.Focus(); text.SelectAll(); };
-            dialog.ShowDialog(this);
-        }
-    }
-
-    void Counts() =>
-        counter.Text = $"{rows.CheckedItems.Count} marcados · {rows.Items.Count} en la lista";
-
-    static string Downloads()
-    {
-        const string key =
-            @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders";
-        var value =
-            Registry.GetValue(key, "{374DE290-123F-4565-9164-39C4925E467B}", null) as string;
-        return value == null
-            ? Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads"
-            )
-            : Environment.ExpandEnvironmentVariables(value);
-    }
-
-    void LoadFolders()
-    {
-        target.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        incoming.Text = Downloads();
-        try
-        {
-            var a = JsonSerializer.Deserialize<string[]>(File.ReadAllText(settings));
-            if (a?.Length == 2)
+            status.Text = "Recibiendo los mensajes…";
+            // Capture the offered OLE data during the user's paste/drop on its owning STA.
+            var delivery = take();
+            diagnostics.Event(phase, $"{delivery.Method} · recibidos {delivery.Inputs.Count}");
+            phase = "Validar correos recibidos";
+            var incoming = await Task.Run(() => delivery.Inputs.Select(input =>
             {
-                if (Directory.Exists(a[0]))
-                    target.Text = a[0];
-                if (Directory.Exists(a[1]))
-                    incoming.Text = a[1];
+                token.ThrowIfCancellationRequested();
+                return MailReader.Inspect(input, new("", "", "", delivery.Method));
+            }).ToArray(), token);
+            token.ThrowIfCancellationRequested();
+            var known = rows.Items.Cast<Row>().Select(r => r.Message.Hash).ToHashSet();
+            int added = 0;
+            rows.BeginUpdate();
+            try
+            {
+                foreach (var message in incoming)
+                    if (known.Add(message.Hash)) { rows.Items.Add(new Row(message), true); added++; }
             }
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
-        { }
-    }
-
-    void PickFolder(TextBox box, string title)
-    {
-        using var d = new FolderBrowserDialog
-        {
-            Description = title,
-            UseDescriptionForTitle = true,
-            InitialDirectory = box.Text,
-        };
-        if (d.ShowDialog(this) != DialogResult.OK)
-            return;
-        box.Text = d.SelectedPath;
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(settings)!);
-            File.WriteAllText(
-                settings,
-                JsonSerializer.Serialize(new[] { target.Text, incoming.Text })
-            );
-        }
-        catch (IOException) { }
-    }
-
-    void Busy(bool on)
-    {
-        foreach (var c in lockable)
-            c.Enabled = !on;
-        export.Enabled = !on;
-        cancel.Enabled = on && operation != null;
-        bar.Visible = on;
-        open.Enabled = !on && last != null;
-    }
-
-    async Task Discover()
-    {
-        if (refreshing || operation != null)
-            return;
-        refreshing = true;
-        Busy(true);
-        try
-        {
-            windows.Items.Clear();
-            rows.Items.Clear();
-            connected = null;
-            edgeCount = null;
-            diagnostics.Event("Detectar Edge", "inicio");
-            status.Text = "Buscando la pestaña visible de Outlook en las ventanas de Edge…";
-            var detection = await Task.Run(EdgeWindow.Discover);
-            diagnostics.DetectionResult(detection);
-            var list = detection.Windows;
-            if (list.Count > 0)
+            finally { rows.EndUpdate(); }
+            var result = $"Recibidos {incoming.Length} · añadidos {added} · repetidos {incoming.Length - added}.";
+            diagnostics.Event(phase, result);
+            if (lastSelectionCount is int previous && previous != incoming.Length)
             {
-                windows.Items.AddRange(list.ToArray());
-                windows.SelectedIndex = 0;
+                var difference = $"Último contador de Outlook {previous} · recibidos ahora {incoming.Length}.";
+                diagnostics.Event("Comprobar cantidad", difference);
+                result += " " + difference + " Revisa la lista antes de exportar.";
             }
-            else
-                status.Text = (detection.Processes == 0 ? "No se ha encontrado Microsoft Edge abierto."
-                    : detection.Probes.Count == 0 ? "Edge está abierto, pero no se encontró una ventana visible."
-                    : detection.Probes.All(p => p.Minimized) ? "Restaura la ventana de Edge y vuelve a detectar."
-                    : "No se ha podido confirmar la pestaña de Outlook. Deja su pestaña seleccionada en Edge.")
-                    + " Pulsa Copiar diagnóstico para ver el detalle.";
+            lastSelectionCount = null;
+            status.Text = result + " Puedes cambiar de pestaña y pulsar Exportar selección.";
         }
-        catch (Exception e)
-        {
-            diagnostics.Fault("Detectar Edge", e);
-            status.Text = "No se pudo consultar Edge. " + e.Message;
-        }
-        finally
-        {
-            refreshing = false;
-            Busy(false);
-        }
-        if (windows.SelectedItem != null)
-            await RefreshRows();
-        else
-            Counts();
+        catch (OperationCanceledException) { diagnostics.Event(phase, "cancelado"); status.Text = "Entrada cancelada."; }
+        catch (Exception e) { Error(phase, e); }
+        finally { End(); }
     }
 
-    async Task RefreshRows()
+    async Task Detect()
     {
-        if (refreshing || operation != null || windows.SelectedItem is not EdgeWindow w)
-            return;
-        refreshing = true;
-        Busy(true);
-        status.Text = "Leyendo la lista de Outlook…";
-        rows.Items.Clear();
-        connected = null;
-        edgeCount = null;
-        var phase = "Confirmar pestaña";
-        diagnostics.Event("Leer selección", "inicio");
+        if (busy) return;
+        busy = true;
+        windows.Items.Clear();
+        RefreshControls();
         try
         {
-            var view = await Task.Run(() =>
+            var found = await Task.Run(EdgeWindow.Discover);
+            diagnostics.DetectionResult(found);
+            windows.Items.AddRange(found.Windows.ToArray());
+            if (found.Windows.Count > 0) windows.SelectedIndex = 0;
+            status.Text = found.Windows.Count > 0 ? "Outlook detectado. Puedes comprobar su selección o pegar los correos."
+                : "Deja la pestaña de Outlook seleccionada en su ventana y vuelve a pulsar Detectar Edge.";
+        }
+        catch (Exception e) { Error("Detectar Edge", e); }
+        finally { End(); }
+    }
+
+    async Task InspectSelection()
+    {
+        if (busy || windows.SelectedItem is not EdgeWindow window) return;
+        busy = true;
+        RefreshControls();
+        try
+        {
+            var info = await Task.Run(() =>
             {
-                w.Verify();
-                phase = "Buscar filas en la vista de Outlook";
-                var visible = w.Rows();
-                phase = "Leer contador de selección";
-                var count = w.SelectionCount();
-                phase = "Recorrer la lista de mensajes";
-                var scan =
-                    count > visible.Count(r => r.Selected)
-                        ? w.Scan(true, count, CancellationToken.None)
-                        : (Rows: visible, Notice: (string?)null);
-                return (scan.Rows, count, scan.Notice);
+                window.Verify();
+                var visible = window.VisibleSelection();
+                var count = window.SelectionCount();
+                window.Verify();
+                return (visible.Visible, visible.Marked, Total: count);
             });
-            edgeCount = view.Item2;
-            connected = w;
-            diagnostics.Event("Leer selección", $"filas {view.Item1.Count} · marcadas {view.Item1.Count(r => r.Selected)} · contador de Outlook {edgeCount?.ToString() ?? "sin dato"}");
-            foreach (var r in view.Item1)
-                rows.Items.Add(r, r.Selected);
-            status.Text =
-                view.Item1.Count == 0
-                    ? "Pestaña de Outlook detectada. No hay filas de correo visibles en esta vista."
-                : edgeCount > view.Item1.Count(r => r.Selected)
-                    ? "Edge indica más elementos seleccionados de los que muestra. Reduce la selección en Outlook y pulsa Leer selección."
-                : "Marca los correos. Cada uno tendrá una carpeta con su PDF y sus adjuntos. Durante la lectura, deja Edge en primer plano.";
-            if (view.Item3 != null)
-                status.Text += " " + view.Item3;
+            lastSelectionCount = info.Total;
+            var counts = $"filas visibles {info.Visible} · marcadas visibles {info.Marked} · contador de Outlook {info.Total?.ToString() ?? "sin dato"}";
+            diagnostics.Event("Ver selección en Edge", counts);
+            status.Text = counts + ". Copia o arrastra los mensajes para añadir su contenido.";
         }
-        catch (Exception e)
-        {
-            diagnostics.Fault(phase, e);
-            status.Text = phase == "Confirmar pestaña" ? e.Message : "Pestaña de Outlook detectada. " + e.Message;
-        }
-        finally
-        {
-            refreshing = false;
-            Busy(false);
-            Counts();
-        }
+        catch (Exception e) { Error("Ver selección en Edge", e); }
+        finally { End(); }
     }
 
     async Task Export()
     {
-        if (operation != null || refreshing)
-            return;
-        var fromEdge = tabs.SelectedIndex == 0;
-        var window = connected;
-        var labels = rows.CheckedItems.Cast<BrowserRow>().ToList();
-        var paths = files.CheckedItems.Cast<string>().ToArray();
-        var dest = target.Text;
-        var downloads = incoming.Text;
-        var searchOrigin = search.Checked;
-        if (!Directory.Exists(dest))
-        {
-            diagnostics.Event("Validar exportación", "carpeta de destino no disponible");
-            status.Text = "Elige una carpeta de destino existente.";
-            return;
-        }
-        if (fromEdge && (window == null || labels.Count == 0) || !fromEdge && paths.Length == 0)
-        {
-            diagnostics.Event("Validar exportación", "selección vacía o pestaña sin conectar");
-            status.Text = "Marca al menos un correo para exportar.";
-            return;
-        }
-        if (fromEdge && edgeCount > rows.Items.Cast<BrowserRow>().Count(r => r.Selected))
-        {
-            diagnostics.Event("Validar exportación", "selección incompleta en Edge");
-            status.Text =
-                "La selección de Edge contiene filas ocultas. Reduce la selección en Outlook y vuelve a leerla.";
-            return;
-        }
-        if (fromEdge && !Directory.Exists(downloads))
-        {
-            diagnostics.Event("Validar exportación", "carpeta de descargas no disponible");
-            status.Text = "Indica la carpeta de descargas que usa Edge.";
-            return;
-        }
+        var items = rows.CheckedItems.Cast<Row>().Select(r => r.Message).ToArray();
+        if (busy || items.Length == 0) return;
+        var folder = target.Text;
+        busy = true;
         operation = new();
-        var ct = operation.Token;
-        Busy(true);
-        last = null;
-        status.Text = "Preparando la exportación…";
-        string? work = null;
-        diagnostics.Event("Exportar", fromEdge ? $"desde Edge · seleccionados {labels.Count}" : $"archivos locales {paths.Length}");
-        IProgress<string> progress = new Progress<string>(s => status.Text = s);
+        var token = operation.Token;
+        RefreshControls();
+        diagnostics.Event("Exportar", $"en segundo plano · seleccionados {items.Length}");
+        var progress = new Progress<string>(s => { if (!IsDisposed && busy) status.Text = s; });
         try
         {
-            work = Directory.CreateTempSubdirectory("CorreoDiario-captura-").FullName;
-            var result = await Task.Run(
-                async () =>
-                {
-                    var notes = new List<string>();
-                    List<Mail> messages;
-                    if (fromEdge)
-                    {
-                        var capt = new Capture(window!, downloads, work, progress, ct, diagnostics.Fault);
-                        messages = capt.Collect(labels, searchOrigin);
-                        notes.AddRange(capt.Notes);
-                        if (messages.Count == 0)
-                            throw new InvalidOperationException(
-                                notes.Count > 0
-                                    ? notes[0]
-                                    : "Ningún original comprobable en la selección."
-                            );
-                    }
-                    else
-                    {
-                        messages = [];
-                        foreach (var p in paths)
-                        {
-                            ct.ThrowIfCancellationRequested();
-                            try
-                            {
-                                messages.Add(
-                                    MailReader.Inspect(
-                                        p,
-                                        new("", "", "", "Archivo original elegido")
-                                    )
-                                );
-                            }
-                            catch (Exception e)
-                            {
-                                diagnostics.Fault("Leer archivo EML/MSG", e);
-                                notes.Add(Path.GetFileName(p) + " · " + e.Message);
-                            }
-                        }
-                        if (messages.Count == 0)
-                            throw new InvalidDataException(string.Join(" · ", notes));
-                    }
-                    var printer = new MailPrinter();
-                    diagnostics.Event("Generar PDF y guardar adjuntos", $"originales {messages.Count}");
-                    return await Archive.WriteAsync(messages, dest, printer, notes, progress, ct, diagnostics.Fault);
-                },
-                ct
-            );
+            var result = await Task.Run(() => Archive.WriteAsync(items, folder, new MailPrinter(), [], progress, token, diagnostics.Fault), token);
             last = result.Folder;
-            diagnostics.Event("Exportación terminada", $"originales {result.Originals} · PDF {result.Pdfs} · hilos {result.Combined} · avisos {result.Warnings}");
-            status.Text =
-                $"{result.Originals} originales · {result.Pdfs} PDF de correo · {result.Combined} PDF de hilo. "
-                + (
-                    result.Warnings > 0
-                        ? $"{result.Warnings} avisos en Resumen.txt."
-                        : "Exportación terminada."
-                );
-            Activate();
+            var resultText = $"PDF de correo {result.Pdfs}/{items.Length} · PDF de hilo {result.Combined} · avisos {result.Warnings}";
+            diagnostics.Event("Exportación terminada", resultText);
+            status.Text = resultText + ". " + (result.Warnings > 0 ? "Consulta Resumen.txt en la carpeta del lote." : "Puedes abrir la carpeta del lote.");
+            if (result.Pdfs == items.Length && result.Warnings == 0)
+                foreach (int i in rows.CheckedIndices.Cast<int>().Reverse().ToArray()) rows.Items.RemoveAt(i);
         }
-        catch (OperationCanceledException e)
+        catch (OperationCanceledException) { diagnostics.Event("Exportar", "cancelado por el usuario"); status.Text = "Exportación cancelada. Los archivos ya terminados están en la carpeta de destino."; }
+        catch (Exception e) { Error("Exportar", e); }
+        finally { End(); }
+    }
+
+    void Error(string phase, Exception e)
+    {
+        diagnostics.Fault(phase, e);
+        status.Text = e is TransferException ? e.Message : phase + " · " + e.Message;
+    }
+
+    void CopyReport()
+    {
+        var report = diagnostics.Report();
+        try { Clipboard.SetDataObject(report, true, 5, 80); status.Text = "Diagnóstico copiado. Ya puedes pegarlo en tu consulta."; }
+        catch (ExternalException)
         {
-            if (ct.IsCancellationRequested) diagnostics.Event("Exportar", "cancelado por el usuario");
-            else diagnostics.Fault("Verificar ventana durante la captura", e);
-            status.Text = ct.IsCancellationRequested
-                ? "Exportación cancelada. Los archivos ya guardados están en la carpeta de destino."
-                : e.Message;
-            Activate();
+            using var dialog = new Form { Text = "Copiar diagnóstico", Width = 700, Height = 410, StartPosition = FormStartPosition.CenterParent };
+            var text = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both, WordWrap = false, Text = report };
+            dialog.Controls.Add(text);
+            dialog.Shown += (_, _) => text.SelectAll();
+            dialog.ShowDialog(this);
         }
-        catch (Exception e)
+    }
+
+    void LoadFolder()
+    {
+        target.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        try
         {
-            diagnostics.Fault("Exportar", e);
-            status.Text = e.Message;
-            Activate();
+            var saved = JsonSerializer.Deserialize<string[]>(File.ReadAllText(Settings));
+            if (saved is { Length: > 0 } && Directory.Exists(saved[0])) target.Text = saved[0];
         }
-        finally
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { }
+    }
+
+    void ChooseFolder()
+    {
+        using var dialog = new FolderBrowserDialog { Description = "Carpeta para los PDF y los adjuntos", UseDescriptionForTitle = true, InitialDirectory = target.Text };
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+        target.Text = dialog.SelectedPath;
+        try
         {
-            try
-            {
-                if (work != null) Directory.Delete(work, true);
-            }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
-            operation.Dispose();
-            operation = null;
-            Busy(false);
+            Directory.CreateDirectory(Path.GetDirectoryName(Settings)!);
+            File.WriteAllText(Settings, JsonSerializer.Serialize(new[] { target.Text }));
         }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { Error("Recordar carpeta", e); }
+        RefreshControls();
     }
 }

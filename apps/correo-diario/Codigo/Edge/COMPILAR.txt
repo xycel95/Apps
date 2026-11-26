@@ -1,13 +1,12 @@
-Abra un terminal en esta carpeta con el SDK de .NET 10.
+Con el SDK de .NET 10, ejecuta desde esta carpeta los comandos que necesites.
 
-Comprobar el motor de exportación:
+Pruebas de conversión y estructura de los lotes
   dotnet run -c Release --project Checks/Checks.csproj
 
-Compilar para Windows x64:
-  dotnet publish Windows/Windows.csproj -c Release -o publicacion
+Ejecutable portátil Windows x64
+  dotnet publish Windows/Windows.csproj -c Release -r win-x64 --self-contained true -o publicacion
 
-Las pruebas utilizan ejemplos sintéticos. La conexión de accesibilidad se prueba en una sesión de Edge en Windows.
+Pruebas de escritorio en una sesión de Windows de pruebas
+  dotnet run -c Release --project WindowsChecks/WindowsChecks.csproj -- "ruta/CorreoDiario-Edge.exe" "ruta/msedge.exe"
 
-Comprobar la detección con Edge real en un escritorio de Windows de pruebas:
-  dotnet run -c Release --project WindowsChecks/WindowsChecks.csproj -- "ruta\CorreoDiario-Edge.exe" "ruta\msedge.exe"
-La comprobación abre un perfil temporal sin conexión y prueba el portapapeles.
+Las pruebas usan mensajes sintéticos, el portapapeles de Windows y un perfil temporal de Edge sin conexión. Usan el escritorio y el portapapeles de esa sesión.

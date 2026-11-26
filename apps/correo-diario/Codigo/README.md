@@ -1,6 +1,6 @@
 # Código de CorreoDiario
 
-La edición 0.5.0 para Edge se encuentra en [Edge](Edge/). Consulta sus [instrucciones de compilación](Edge/COMPILAR.txt), [manual](Edge/LEEME.txt) y [licencias](Edge/Licencias/).
+La edición vigente para Edge se encuentra en [Edge](Edge/). Consulta sus [instrucciones de compilación](Edge/COMPILAR.txt), [manual](Edge/LEEME.txt) y [licencias](Edge/Licencias/).
 
 ## Ediciones anteriores
 

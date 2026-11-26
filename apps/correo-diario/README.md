@@ -1,6 +1,6 @@
 # CorreoDiario para Edge
 
-Guarda los mensajes que marques en Outlook web desde Microsoft Edge. Cada correo y cada respuesta tienen su propia carpeta con el PDF, los adjuntos y el mensaje original. También puedes importar archivos EML o MSG descargados.
+Convierte en segundo plano los correos que reciba de Outlook en PDF y guarda sus adjuntos en una carpeta por mensaje. Admite mensajes completos entregados por Windows y archivos EML o MSG existentes.
 
 1. **[Descripción del programa](DESCRIPCION.md)**
 2. **[Cómo funciona y guía](docs/README.md)**

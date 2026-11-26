@@ -1,31 +1,22 @@
 # Cómo funciona y guía
 
-1. Descomprime el ZIP y abre `CorreoDiario-Edge.exe`. Abre Outlook en la pestaña visible de Edge y marca los correos en la lista.
-2. En CorreoDiario pulsa **Detectar Edge**, elige la ventana y pulsa **Leer selección**. Revisa las casillas de los correos que quieres exportar.
-3. Comprueba que la carpeta de descargas indicada es la que usa Edge. Si Edge pregunta dónde guardar un original, elige esa carpeta.
-4. Elige la carpeta de destino y pulsa **Exportar selección**. Mantén la ventana de Outlook en primer plano mientras la app lee los mensajes.
-5. Pulsa **Abrir resultado**. Cada carpeta de mensaje contiene `Correo.pdf`, `Original.eml` u `Original.msg` y los adjuntos. Si ya hay un `Correo.pdf` como adjunto, se guarda como `Correo (2).pdf`.
+1. Abre `CorreoDiario-Edge.exe`. Selecciona los correos en tu Outlook de Edge y pulsa **Ctrl+C**. En CorreoDiario, pulsa **Pegar correos**. También puedes arrastrar la selección hasta la lista.
+2. Comprueba cuántos correos completos se han añadido. Si Outlook solo ofrece texto, identificadores o un enlace, la app te lo indica. Pulsa **Copiar diagnóstico** para compartir el motivo. Si ya tienes archivos EML o MSG, puedes seleccionarlos en **Añadir archivos…**.
+3. Elige la **Carpeta de destino** y pulsa **Exportar selección**. Puedes usar el ratón, cambiar de pestaña o minimizar tanto Edge como CorreoDiario. La aplicación permanece abierta hasta terminar.
+4. Pulsa **Abrir resultado**. Cada carpeta contiene `Correo.pdf` y los adjuntos. Un mensaje sin adjuntos contiene solo el PDF. Si un adjunto ya se llama `Correo.pdf`, se guarda como `Correo (2).pdf`. El mensaje fuente se lee en memoria o desde el archivo que hayas elegido.
 
-### Si la pestaña no aparece
+### Comprobar la pestaña
 
-Selecciona la pestaña de Outlook en Edge y pulsa **Detectar Edge**. También puedes detectar una bandeja vacía. Si CorreoDiario identifica la pestaña y muestra cero filas, abre una carpeta con mensajes y pulsa **Leer selección**.
+Selecciona la pestaña de Outlook en su ventana de Edge, pulsa **Detectar Edge** y **Ver selección en Edge**. Aparecerán por separado el contador que muestra Outlook y las casillas que Windows puede ver. La lista de Outlook puede mostrar una parte de la selección. Estos contadores sirven de referencia y no añaden mensajes a la cola.
 
-Si sigue fallando, pulsa **Copiar diagnóstico** en la parte inferior y pega el texto en tu consulta. El informe indica cuántas ventanas encontró, cómo intentó leer su dirección, el resultado de cada ventana y la fase del último error. Se puede copiar aunque la lista esté vacía y también desde **Archivos originales**. El informe omite títulos, URL, direcciones de correo, asuntos y rutas locales.
+### Conversaciones y avisos
 
-### Exportar archivos ya descargados
+Incluye el primer mensaje y las respuestas que quieras archivar. CorreoDiario usa las cabeceras de los mensajes recibidos para agruparlos en `Hilos`. En la raíz del lote, `Resumen.txt` indica las referencias e imágenes pendientes y `Origen.json` recoge la procedencia de los archivos. La app no busca en otras carpetas de tu buzón. Si cancelas, el resumen recoge el trabajo realizado.
 
-Pulsa **Archivos originales**, selecciona uno o varios EML o MSG y elige el destino. Esta opción también sirve cuando el menú de tu Outlook no ofrece la descarga a través de la app.
-
-### Recuperar una conversación
-
-Marca **Buscar también el origen y las respuestas en Outlook**. Si tu Outlook lo permite, selecciona **Todas las carpetas** en el buscador para incluir Enviados o Archivo. La app utiliza las cabeceras y el índice de conversación para relacionar mensajes. Cada respuesta recuperada conserva su carpeta. En `Hilos` aparece además el PDF conjunto cuando hay varios mensajes relacionados.
-
-`Resumen.txt` indica qué se recuperó y qué falta. `Origen.json` recoge las cabeceras disponibles, la procedencia y las huellas de los archivos. Las imágenes externas se señalan en el PDF. Edge puede conservar las descargas originales y Outlook puede marcar los mensajes abiertos como leídos.
+**Copiar diagnóstico** incluye la versión, la fase, el tipo de entrega, los contadores y los códigos de error. Omite asuntos, direcciones de correo, contenido, enlaces y rutas personales.
 
 [Manual incluido en el ZIP](../Codigo/Edge/LEEME.txt) · [Descargar](../descargas/README.md)
 
 ### Comprobaciones de la beta
 
-En Windows se ejecutaron 37 comprobaciones de EML y MSG y 26 de detección y diagnóstico. La prueba de escritorio utilizó Microsoft Edge sin conexión, la ventana del ejecutable y el portapapeles real. Queda pendiente la prueba con un buzón real de Outlook.
-
-[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
+[Informe de Windows](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/VALIDACION-WINDOWS.json)
