@@ -42,7 +42,7 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
 6. **[CorreoDiario](https://github.com/xycel95/Apps/tree/correo-diario/apps/correo-diario)**
 
-   Convierte en segundo plano los correos recibidos desde Outlook o desde archivos EML y MSG. Cada mensaje tiene su carpeta con el PDF y los adjuntos.
+   Exporta en segundo plano las carpetas que elijas de tu buzón Microsoft 365 y convierte archivos EML o MSG existentes. Guarda el PDF y los adjuntos en una carpeta por correo.
 
    [Descripción del programa](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/notas-de-parche/README.md)
 
