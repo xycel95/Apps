@@ -1,6 +1,6 @@
 # Descripción del programa
 
-CorreoDiario para Edge 0.6.0 beta convierte los correos en PDF en tu equipo. Cada carpeta lleva la fecha, la hora de Madrid y el asunto. Dentro encontrarás `Correo.pdf` y los adjuntos del mensaje. Si un correo contiene otro correo como adjunto, ese adjunto conserva su formato.
+CorreoDiario para Edge 0.6.0 beta 2 convierte los correos en PDF en tu equipo. Cada carpeta lleva la fecha, la hora de Madrid y el asunto. Dentro encontrarás `Correo.pdf` y los adjuntos del mensaje. Si un correo contiene otro correo como adjunto, ese adjunto conserva su formato.
 
 Puedes pegar varios mensajes, arrastrarlos o elegir archivos EML y MSG existentes. La entrega desde Outlook web depende de los datos que Edge ofrezca a Windows. Cuando solo proporciona texto o un enlace, la aplicación identifica ese caso en **Copiar diagnóstico**. La detección de la pestaña permite consultar la selección visible.
 

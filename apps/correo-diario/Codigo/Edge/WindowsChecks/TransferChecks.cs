@@ -18,7 +18,7 @@ internal static partial class Program
     // Native data object emulates Outlook's indexed virtual files. The first message
     // is an IStream, the second an HGLOBAL with a little extra allocation padding.
     [ComVisible(true), ClassInterface(ClassInterfaceType.None)]
-    sealed class TestMailObject(bool truncated = false) : OleData
+    sealed class TestMailObject(bool truncated = false, bool atEnd = true, bool compound = false) : OleData
     {
         readonly short descriptor = F("FileGroupDescriptorW"), contents = F("FileContents");
         static byte[] Message(int n)
@@ -34,7 +34,7 @@ internal static partial class Program
         {
             if (f.dwAspect != DVASPECT.DVASPECT_CONTENT) return BadFormat;
             if (f.cfFormat == descriptor && f.lindex == -1 && f.tymed.HasFlag(TYMED.TYMED_HGLOBAL)) return 0;
-            if (f.cfFormat == contents && (f.lindex == 0 && f.tymed.HasFlag(TYMED.TYMED_ISTREAM)
+            if (f.cfFormat == contents && (f.lindex == 0 && f.tymed.HasFlag(compound ? TYMED.TYMED_ISTORAGE : TYMED.TYMED_ISTREAM)
                 || f.lindex == 1 && f.tymed.HasFlag(TYMED.TYMED_HGLOBAL))) return 0;
             return BadFormat;
         }
@@ -57,11 +57,31 @@ internal static partial class Program
                 for (int i = 0; i < 2; i++)
                 {
                     int start = 4 + i * 592;
-                    BitConverter.GetBytes(0x40).CopyTo(description, start);
+                    BitConverter.GetBytes(compound && i == 0 ? 0 : 0x40).CopyTo(description, start);
                     BitConverter.GetBytes(Message(i).Length + (truncated && i == 1 ? 200 : 0)).CopyTo(description, start + 68);
-                    Encoding.Unicode.GetBytes("prueba" + i + ".eml").CopyTo(description, start + 72);
+                    Encoding.Unicode.GetBytes("prueba" + i + (compound && i == 0 ? ".msg" : ".eml")).CopyTo(description, start + 72);
                 }
                 medium = new() { tymed = TYMED.TYMED_HGLOBAL, unionmember = Block(description) };
+            }
+            else if (f.lindex == 0 && compound)
+            {
+                using var file = new MemoryStream();
+                using (var root = OpenMcdf.RootStorage.Create(file, OpenMcdf.Version.V3, OpenMcdf.StorageModeFlags.LeaveOpen))
+                {
+                    using (var item = root.CreateStream("__substg1.0_001A001F")) item.Write(Encoding.Unicode.GetBytes("IPM.Note"));
+                    using (var subject = root.CreateStream("__substg1.0_0037001F")) subject.Write(Encoding.Unicode.GetBytes("Contenedor MSG"));
+                    using (var body = root.CreateStream("__substg1.0_1000001F")) body.Write(Encoding.Unicode.GetBytes("Texto de almacenamiento."));
+                    using var props = root.CreateStream("__properties_version1.0");
+                    props.Write(new byte[32]);
+                }
+                Marshal.ThrowExceptionForHR(StructuredMail.CreateILockBytesOnHGlobal(Block(file.ToArray()), true, out var backing));
+                try
+                {
+                    Marshal.ThrowExceptionForHR(StgOpenStorageOnILockBytes(backing, 0, 0x10, 0, 0, out var storage));
+                    medium = new() { tymed = TYMED.TYMED_ISTORAGE, unionmember = Marshal.GetComInterfaceForObject(storage, typeof(INativeStorage)) };
+                    Marshal.ReleaseComObject(storage);
+                }
+                finally { Marshal.Release(backing); }
             }
             else if (f.lindex == 0)
             {
@@ -69,6 +89,7 @@ internal static partial class Program
                 Marshal.ThrowExceptionForHR(CreateStreamOnHGlobal(h, true, out var stream));
                 // The Shell's stream size is the logical size, irrespective of allocation rounding.
                 stream.SetSize(Message(0).Length);
+                if (atEnd) stream.Seek(0, 2, IntPtr.Zero);
                 medium = new() { tymed = TYMED.TYMED_ISTREAM, unionmember = Marshal.GetComInterfaceForObject(stream, typeof(IStream)) };
                 Marshal.ReleaseComObject(stream);
             }
@@ -102,6 +123,7 @@ internal static partial class Program
         public void Clone(out IEnumFORMATETC copy) => copy = new Formats(items, cursor);
     }
 
+    [DllImport("ole32.dll")] static extern int StgOpenStorageOnILockBytes(nint backing, nint priority, uint flags, nint exclude, uint reserved, out INativeStorage storage);
     [DllImport("ole32.dll")] static extern int CreateStreamOnHGlobal(nint h, bool delete, out IStream stream);
     [DllImport("ole32.dll")] static extern int OleSetClipboard([MarshalAs(UnmanagedType.Interface)] OleData? data);
     [DllImport("kernel32.dll")] static extern nint GlobalAlloc(uint flags, UIntPtr size);
@@ -114,11 +136,15 @@ internal static partial class Program
     {
         var result = MailTransfer.Read(new TestMailObject());
         Check(result.Inputs.Count == 2 && result.Inputs.All(i => i.PathOnDisk == null), "dos correos nativos, recibidos en memoria por índice");
+        Check(MailTransfer.Read(new TestMailObject(atEnd: false)).Inputs.Count == 2, "también se recibe un flujo situado al principio");
         var mails = result.Inputs.Select(i => CorreoDiario.MailReader.Inspect(i, new("", "", "", "Prueba"))).ToArray();
         Check(mails[0].Subject.EndsWith("0") && mails[1].Subject.EndsWith("1"), "el flujo y la memoria global corresponden a sus descriptores");
         Check(mails.All(m => CorreoDiario.MailReader.ReadContent(m).Parts.Single().Bytes.SequenceEqual(new byte[]{1,2,3,4})), "se conservan los bytes de los adjuntos de ambos mensajes");
         try { MailTransfer.Read(new TestMailObject(true)); throw new Exception("Lote incompleto aceptado"); }
         catch (TransferException e) { Check(e.Reason == "entrega incompleta", "un segundo elemento truncado invalida todo el lote"); }
+        var compound = MailTransfer.Read(new TestMailObject(compound: true));
+        var msg = CorreoDiario.MailReader.Inspect(compound.Inputs[0], new("", "", "", "Prueba"));
+        Check(msg.Input.PathOnDisk == null && msg.Subject == "Contenedor MSG" && CorreoDiario.MailReader.ReadContent(msg).Plain.Contains("Texto de almacenamiento."), "mensaje MSG recibido en memoria como almacenamiento compuesto");
         var paths = new System.Collections.Specialized.StringCollection();
         paths.Add(Path.Combine(Path.GetTempPath(), "correo-de-prueba.eml"));
         var fileList = new DataObject();

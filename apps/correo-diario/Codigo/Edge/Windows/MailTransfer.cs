@@ -132,7 +132,7 @@ internal static class MailTransfer
         for (int i = 0; i < entries.Count; i++)
         {
             var item = entries[i];
-            var bytes = Bytes(data, contents, i, item.Size, budget);
+            var bytes = Bytes(data, contents, i, item.Size, budget, item.IsMsg);
             budget -= bytes.Length;
             inputs.Add(MailInput.FromMemory(bytes, item.IsMsg));
         }
@@ -141,11 +141,12 @@ internal static class MailTransfer
 
     static long Budget() => Math.Max(0, (GC.GetGCMemoryInfo().TotalAvailableMemoryBytes - GC.GetTotalMemory(false)) / 2);
 
-    static byte[] Bytes(OleData data, short format, int index, long? expected, long available)
+    static byte[] Bytes(OleData data, short format, int index, long? expected, long available, bool compound = false)
     {
         long limit = Math.Min(Array.MaxLength, available);
         if (expected > limit) throw TooLarge();
-        foreach (var kind in new[] { Stream, Memory })
+        TYMED[] kinds = compound ? [Stream, Memory, TYMED.TYMED_ISTORAGE] : [Stream, Memory];
+        foreach (var kind in kinds)
         {
             var request = Request(format, kind, index);
             STGMEDIUM medium;
@@ -153,42 +154,43 @@ internal static class MailTransfer
             catch (COMException e) when (e.HResult is unchecked((int)0x80040064) or unchecked((int)0x80040069) or unchecked((int)0x80040068) or unchecked((int)0x80004001)) { continue; }
             try
             {
-                if (medium.tymed == Memory)
-                {
-                    long size = checked((long)GlobalSize(medium.unionmember).ToUInt64());
-                    if (expected > size) throw Incomplete();
-                    var length = expected ?? size;
-                    if (length < 1) throw Incomplete();
-                    if (length > limit) throw TooLarge();
-                    var ptr = GlobalLock(medium.unionmember);
-                    if (ptr == 0) throw Incomplete();
-                    try
-                    {
-                        var bytes = new byte[(int)length];
-                        Marshal.Copy(ptr, bytes, 0, bytes.Length);
-                        return bytes;
-                    }
-                    finally { GlobalUnlock(medium.unionmember); }
-                }
+                if (medium.tymed == Memory) return CopyGlobal(medium.unionmember, expected, limit);
+                if (compound && medium.tymed == TYMED.TYMED_ISTORAGE)
+                    return StructuredMail.Read(medium.unionmember, limit);
                 if (medium.tymed == Stream)
                 {
                     var source = (IStream)Marshal.GetObjectForIUnknown(medium.unionmember);
-                    var countPtr = Marshal.AllocHGlobal(sizeof(int));
+                    var countPtr = Marshal.AllocHGlobal(sizeof(long));
                     try
                     {
+                        // OLE providers may return the transfer positioned at its end. Some
+                        // virtual-file providers instead expose a fresh, forward-only stream.
+                        long? length = expected;
+                        try
+                        {
+                            source.Seek(0, 1, countPtr);
+                            long position = Marshal.ReadInt64(countPtr);
+                            source.Seek(0, 0, IntPtr.Zero);
+                            if (length == null && position > 0) length = position;
+                        }
+                        catch (COMException e) when (e.HResult is unchecked((int)0x80030001)
+                            or unchecked((int)0x80004001) or unchecked((int)0x80070032)) { }
+                        if (length > limit) throw TooLarge();
                         using var sink = new MemoryStream();
                         var buffer = new byte[65536];
                         while (true)
                         {
                             Marshal.WriteInt32(countPtr, 0);
-                            source.Read(buffer, buffer.Length, countPtr);
+                            int requested = length is long n ? (int)Math.Min(n - sink.Length, buffer.Length) : buffer.Length;
+                            if (requested == 0) break;
+                            source.Read(buffer, requested, countPtr);
                             int read = Marshal.ReadInt32(countPtr);
                             if (read == 0) break;
-                            if (read < 0 || read > buffer.Length || sink.Length + read > expected) throw Incomplete();
+                            if (read < 0 || read > requested) throw Incomplete();
                             if (sink.Length + read > limit) throw TooLarge();
                             sink.Write(buffer, 0, read);
                         }
-                        if (sink.Length == 0 || expected.HasValue && sink.Length != expected) throw Incomplete();
+                        if (sink.Length == 0 || length.HasValue && sink.Length != length) throw Incomplete();
                         return sink.ToArray();
                     }
                     finally
@@ -201,6 +203,24 @@ internal static class MailTransfer
             finally { ReleaseStgMedium(ref medium); }
         }
         throw Incomplete();
+    }
+
+    internal static byte[] CopyGlobal(IntPtr handle, long? expected, long limit)
+    {
+        long size = checked((long)GlobalSize(handle).ToUInt64());
+        if (expected > size) throw Incomplete();
+        var length = expected ?? size;
+        if (length < 1) throw Incomplete();
+        if (length > limit) throw TooLarge();
+        var ptr = GlobalLock(handle);
+        if (ptr == 0) throw Incomplete();
+        try
+        {
+            var bytes = new byte[(int)length];
+            Marshal.Copy(ptr, bytes, 0, bytes.Length);
+            return bytes;
+        }
+        finally { GlobalUnlock(handle); }
     }
 
     [DllImport("ole32.dll")] static extern void ReleaseStgMedium(ref STGMEDIUM medium);

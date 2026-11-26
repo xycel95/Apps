@@ -1,6 +1,6 @@
 # Continuar CorreoDiario
 
-## 0.6.0 beta para Edge
+## 0.6.0 beta 2 para Edge
 
 La detección de la ventana y de las filas visibles es informativa. La cola contiene únicamente mensajes completos recibidos por portapapeles, arrastre o selección explícita de archivos. No se ejecutan acciones en Outlook. `Windows/MailTransfer.cs` recibe descriptores de archivos virtuales y su contenido por índice, mensajes MIME y archivos de Windows. Rechaza las entregas incompletas y las que solo contienen texto o enlaces. `Core/Mail.cs` abre un flujo de memoria o un archivo de solo lectura y comprueba su huella antes de generar el PDF y extraer los adjuntos. Se conservan las relaciones de los mensajes efectivamente recibidos. La disponibilidad de datos virtuales depende del origen y de las políticas del equipo.
 

@@ -19,4 +19,4 @@ Incluye el primer mensaje y las respuestas que quieras archivar. CorreoDiario us
 
 ### Comprobaciones de la beta
 
-[Informe de Windows](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/VALIDACION-WINDOWS.json)
+[Informe de Windows](https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/VALIDACION-WINDOWS.json)

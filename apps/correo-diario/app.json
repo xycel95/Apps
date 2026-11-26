@@ -7,7 +7,7 @@
   "description_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/DESCRIPCION.md",
   "guide_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/README.md",
   "changelog_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/notas-de-parche/README.md",
-  "version": "0.6.0-beta.1",
+  "version": "0.6.0-beta.2",
   "release_date": "2026-11-26",
   "summary": "Convierte en segundo plano los correos que reciba de Outlook en PDF y guarda sus adjuntos en una carpeta por mensaje. Admite mensajes completos entregados por Windows y archivos EML o MSG existentes.",
   "platforms": [
@@ -20,38 +20,38 @@
   "download": {
     "available": true,
     "filename": "CorreoDiario_Edge_0.6.0.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/CorreoDiario_Edge_0.6.0.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/CorreoDiario_Edge_0.6.0.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.6.0-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.6.0-beta.2",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.2",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/SHA256SUMS.txt"
   },
   "zip_download": {
     "available": true,
     "filename": "CorreoDiario_Edge_0.6.0.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/CorreoDiario_Edge_0.6.0.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/CorreoDiario_Edge_0.6.0.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.6.0-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.6.0-beta.2",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.2",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/SHA256SUMS.txt"
   },
   "executable": {
     "available": true,
     "filename": "CorreoDiario-Edge.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/CorreoDiario-Edge.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/CorreoDiario-Edge.exe",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.6.0-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.6.0-beta.2",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.2",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/SHA256SUMS.txt"
   },
   "source_download": {
     "available": true,
     "filename": "CorreoDiario_Edge_0.6.0_fuentes.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/CorreoDiario_Edge_0.6.0_fuentes.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/CorreoDiario_Edge_0.6.0_fuentes.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.6.0-beta.1",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.1",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/SHA256SUMS.txt"
+    "release_tag": "correo-diario-v0.6.0-beta.2",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.2",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/SHA256SUMS.txt"
   },
   "distribution": {
     "type": "portable-single-executable",
@@ -64,7 +64,7 @@
   "validation": {
     "real_outlook_export_verified": false,
     "user_mail_accessed": false,
-    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.1/VALIDACION-WINDOWS.json"
+    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.6.0-beta.2/VALIDACION-WINDOWS.json"
   },
   "prerelease": true,
   "online_updates_configured": false,

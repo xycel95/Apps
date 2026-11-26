@@ -1,5 +1,11 @@
 # Notas de parche
 
+## 0.6.0 beta 2 · 26/11/2026
+
+- Se admiten flujos de correo que Windows entrega posicionados al final y mensajes MSG entregados como almacenamiento compuesto. Ambos se leen en memoria.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.6.0-beta.2)
+
 ## 0.6.0 beta · 26/11/2026
 
 - PDF y adjuntos en segundo plano. El ratón, el teclado y la pestaña de Edge quedan disponibles mientras se exporta.

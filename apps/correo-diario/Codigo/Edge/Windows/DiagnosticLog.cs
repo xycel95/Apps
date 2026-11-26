@@ -53,10 +53,10 @@ internal sealed class DiagnosticLog
 
     public string Report()
     {
-        var version = typeof(DiagnosticLog).Assembly.GetName().Version?.ToString(3);
+        var version = typeof(DiagnosticLog).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0];
         lock (gate)
         {
-            var report = new StringBuilder().AppendLine($"CorreoDiario para Edge {version} beta · Diagnóstico")
+            var report = new StringBuilder().AppendLine($"CorreoDiario para Edge {version} · Diagnóstico")
                 .AppendLine($"Fecha {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}")
                 .AppendLine($"Windows {Environment.OSVersion.Version} · {RuntimeInformation.ProcessArchitecture} · .NET {Environment.Version}")
                 .AppendLine().AppendLine(detection).AppendLine();
