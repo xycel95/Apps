@@ -1,0 +1,105 @@
+Componentes redistribuidos de CorreoDiario para Edge
+
+HtmlAgilityPack 1.13.1
+MIT
+ZZZ Projects,Simon Mourrier,Jeff Klawiter,Stephan Grell
+Copyright © ZZZ Projects Inc.
+http://html-agility-pack.net/
+
+Microsoft.Extensions.DependencyInjection.Abstractions 8.0.2
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://dot.net/
+
+Microsoft.Extensions.Logging.Abstractions 8.0.3
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://dot.net/
+
+Microsoft.IO.RecyclableMemoryStream 4.0.1
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream
+
+Microsoft.Maui.Graphics 10.0.120
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://github.com/dotnet/maui
+
+MimeKitLite 4.18.1
+MIT
+Jeffrey Stedfast
+.NET Foundation and Contributors
+https://www.mimekit.net/
+
+MsgReader 6.2.1
+MIT
+Kees van Spelde
+(c)2013-2026 - Kees van Spelde
+https://github.com/Sicos1977/MSGReader
+
+OpenMcdf 3.4.0
+MPL-2.0
+ironfede,jeremy-visionaid
+Copyright © 2010-2026, Federico Blaseotto, Jeremy Powell
+https://openmcdf.github.io/openmcdf/
+
+PdfPig 0.1.16
+Apache-2.0
+UglyToad
+https://github.com/UglyToad/PdfPig
+
+PDFsharp 6.2.4
+MIT
+PDFsharp Team
+© 2026 empira
+https://docs.pdfsharp.net/
+
+PDFsharp-MigraDoc 6.2.4
+MIT
+PDFsharp Team
+© 2026 empira
+https://docs.pdfsharp.net/
+
+RtfPipe 2.0.7677.4303
+Eric Domke
+https://github.com/erdomke/RtfPipe
+
+SkiaSharp 4.157.0
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://go.microsoft.com/fwlink/?linkid=868515
+
+SkiaSharp.NativeAssets.Win32 4.157.0
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://go.microsoft.com/fwlink/?linkid=868515
+
+System.Security.Cryptography.Pkcs 10.0.14
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://dot.net/
+
+UTF.Unknown 2.8.0
+MPL-1.1
+Julian Verdurmen, Rustam Sayfutdinov, Rudi Pettazzi, Shy Shalom
+https://github.com/CharsetDetector/UTF-unknown
+
+Microsoft.NETCore.App.Runtime.win-x64 10.0.15
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://dot.net/
+
+Microsoft.WindowsDesktop.App.Runtime.win-x64 10.0.15
+MIT
+Microsoft
+© Microsoft Corporation. All rights reserved.
+https://dot.net/

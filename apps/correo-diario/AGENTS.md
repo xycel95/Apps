@@ -1,5 +1,9 @@
 # Trabajar en CorreoDiario
 
+## Edición para Edge desde la 0.5.0
+
+El código vigente para esta edición está en `Codigo/Edge`. Conserva la descarga ofrecida por Outlook, la importación EML/MSG, una carpeta con los adjuntos por mensaje y la recuperación de hilos por cabeceras. Las pruebas sintéticas se ejecutan con `dotnet run -c Release --project Checks/Checks.csproj` desde esa carpeta. Mantén independientes la prueba en Windows con datos sintéticos y la validación con un buzón real. Las reglas de depuración remota, Outlook clásico y movimiento a Eliminados que siguen corresponden a la línea 0.4.x.
+
 Aplicar las instrucciones del AGENTS.md de la raíz. Responder en español.
 
 - Rama `correo-diario`, aplicación en `apps/correo-diario/`, código en `Codigo/`.

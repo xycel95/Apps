@@ -1,0 +1,9 @@
+Abra un terminal en esta carpeta con el SDK de .NET 10.
+
+Comprobar el motor de exportación:
+  dotnet run -c Release --project Checks/Checks.csproj
+
+Compilar para Windows x64:
+  dotnet publish Windows/Windows.csproj -c Release -o publicacion
+
+Las pruebas utilizan ejemplos sintéticos. La conexión de accesibilidad se prueba en una sesión de Edge en Windows.

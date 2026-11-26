@@ -1,14 +1,10 @@
-# CorreoDiario
+# CorreoDiario para Edge
 
-Guarda los correos de un intervalo de fechas en PDF y sus adjuntos originales por separado,
-utilizando la **pestaña de Outlook que ya tienes abierta en Edge o Chrome**.
-El navegador pide autorizar la conexión. El borrado viene desmarcado y solo
-mueve a Eliminados después de completar y verificar la exportación.
+Guarda los mensajes que marques en Outlook web desde Microsoft Edge. Cada correo y cada respuesta tienen su propia carpeta con el PDF, los adjuntos y el mensaje original. También puedes importar archivos EML o MSG descargados.
 
 1. **[Descripción del programa](DESCRIPCION.md)**
 2. **[Cómo funciona y guía](docs/README.md)**
 3. **[Descargar](descargas/README.md)**
 4. **[Notas de parche](notas-de-parche/README.md)**
 
-Documentación complementaria: [código](Codigo/), [estado del desarrollo](CONTEXTO.md),
-[instrucciones](AGENTS.md) y [metadatos](app.json).
+[Código de la versión para Edge](Codigo/Edge/) · [Licencias](Codigo/Edge/Licencias/) · [Estado del desarrollo](CONTEXTO.md) · [Metadatos](app.json)

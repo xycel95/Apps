@@ -1,0 +1,35 @@
+CORREODIARIO PARA EDGE · 0.5.0 BETA
+Windows 10/11 de 64 bits (x64)
+
+Descomprime el ZIP y abre CorreoDiario-Edge.exe.
+
+1. Abre tu bandeja de Outlook en la pestaña visible de una ventana de Microsoft Edge. Marca los correos en la lista.
+2. En CorreoDiario, pulsa «Detectar Edge», elige la ventana y pulsa «Leer selección». Revisa los marcados. También puedes marcar filas directamente en la app.
+3. Comprueba la carpeta de descargas de Edge. La app la utiliza para recoger los originales que entrega Outlook. Si Edge te pregunta dónde guardarlos, elige esa carpeta.
+4. Elige la carpeta de destino y pulsa «Exportar selección». Deja la ventana de Edge en primer plano mientras la app lee los mensajes. Para exportar los archivos que ya tengas, usa «Archivos originales» y selecciona los EML o MSG.
+5. Pulsa «Abrir resultado» al terminar.
+
+CÓMO QUEDA CADA CORREO
+Cada mensaje tiene su propia carpeta dentro del lote. El nombre empieza por la fecha y la hora de Madrid, seguidas del asunto. Si dos correos coinciden también en el asunto y el segundo, cada carpeta recibe además un identificador para diferenciarlas.
+
+Por ejemplo, dentro de la carpeta de una solicitud puedes encontrar estos tres archivos.
+  Correo.pdf
+  Solicitud firmada.pdf
+  Original.eml
+
+Los adjuntos originales están junto al PDF. Cuando se repite un nombre, se añade « (2)», « (3)», etc. El archivo Original.eml u Original.msg conserva el mensaje descargado de Outlook. Las imágenes incrustadas disponibles figuran dentro del PDF y también como archivos. En los correos sin adjuntos se guardan el PDF y el original.
+
+HILOS Y ORIGEN
+Cada respuesta recuperada se archiva en una carpeta individual. «Hilos» contiene además un PDF por conversación con varios mensajes recuperados, ordenados por su fecha. En un empate de hora, una referencia explícita al padre lo sitúa antes de su respuesta.
+
+«Buscar también el origen y las respuestas en Outlook» comprueba las tarjetas que expone la conversación, busca por el tema y consulta los identificadores de antecesores que siguen faltando. El alcance es el que tenga el buscador de Outlook. Para incluir también Enviados o Archivo, selecciona «Todas las carpetas» en el buscador de Outlook cuando tu versión lo permita. La app contrasta Message-ID, In-Reply-To, References y el índice de conversación de Exchange. Una copia textual citada en un mensaje se conserva como parte del cuerpo. Los mensajes con el mismo asunto que carecen de otra relación se mantienen independientes.
+
+En Resumen.txt se indica qué origen pudo identificarse y qué mensajes o imágenes faltan. Origen.json registra por carpeta las cabeceras disponibles, la procedencia y las huellas de los archivos. La dirección de remitente que figura en el original es la que se muestra. Las imágenes enlazadas a internet se señalan en el PDF. Los originales protegidos solo se procesan cuando Outlook permite descargarlos y leerlos.
+
+CONEXIÓN
+La app utiliza los controles de accesibilidad de la ventana normal de Edge y la acción «Descargar» de Outlook. No requiere instalar una extensión. Se contemplan los dominios outlook.cloud.microsoft, outlook.office.com, outlook.office365.com, outlook.live.com y correo.salud.madrid.org. La disponibilidad de filas, conversaciones y descargas depende de la versión y la configuración de Outlook. Si esa vista no ofrece la acción de descarga, puedes pasar a «Archivos originales» con los EML o MSG que facilite tu buzón.
+
+Outlook puede marcar como leídos los mensajes que abra durante el proceso. La búsqueda puede dejar a la vista sus resultados. Edge puede conservar en Descargas los originales que haya generado.
+
+VALIDACIÓN
+La composición de PDF, la estructura de carpetas, la recuperación de adjuntos, los nombres coincidentes y el agrupado de conversaciones se han probado con mensajes EML y MSG de prueba. La conexión con una sesión real de Edge en Windows y con el buzón del hospital está pendiente de prueba.

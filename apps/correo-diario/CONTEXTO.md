@@ -1,5 +1,11 @@
 # Continuar CorreoDiario
 
+## 0.5.0 beta para Edge
+
+La fuente de esta edición está en `Codigo/Edge`. El paquete original contiene el ejecutable Windows x64, las fuentes y las licencias. `Windows/Capture.cs` y `Windows/EdgeWindow.cs` controlan la descarga que ofrece Outlook mediante la accesibilidad de la ventana. `Core/Archive.cs` crea una carpeta por correo. `Core/Threads.cs` agrupa respuestas a partir de sus cabeceras. `Checks/Program.cs` genera originales sintéticos EML y MSG y comprueba el resultado en el disco.
+
+Esta edición guarda copias sin mover mensajes a Eliminados. La conexión a un buzón real depende de la vista de Outlook y de sus controles de accesibilidad. Las verificaciones de la línea 0.4.8 se conservan en `docs/historico/0.4.8`. La funcionalidad de esa línea se describe a continuación.
+
 Rama permanente `correo-diario`; carpeta `apps/correo-diario/`.
 
 ## Diagnóstico 0.4.8: evidencia CID y reintento de pendientes

@@ -1,96 +1,11 @@
 # Descripción del programa
 
-Reintentar solo los pendientes: conecta la misma cuenta y busca con las mismas
-carpetas y fechas. Pulsa **Marcar pendientes** y elige el Comprobacion_….json del
-lote anterior (compatible con 0.4.7). Exige copias verificadas, ausencia de
-movimientos y que todos los IDs estén en la lista. No exporta ni borra por sí solo.
-Tras un lote incompleto con copias verificadas, solo quedan marcados los
-pendientes para el siguiente intento. El borrado queda desmarcado.
+CorreoDiario para Edge 0.5.0 beta archiva los correos que elijas en la pestaña visible de Outlook. Utiliza los controles de accesibilidad de Windows y la descarga de originales que ofrece Outlook. Puedes usar la sesión que ya tienes abierta. También admite archivos EML y MSG guardados en el equipo.
 
-**Ver error** reabre el último aviso. Ante un fallo de asociación CID, la acción
-separada **Copiar identificadores** copia las referencias fallidas y los Content-ID
-de los adjuntos. Pueden contener direcciones internas: revisa el texto antes
-de compartirlo. No incluye cuerpo, nombres de archivo ni datos de sesión.
-**Copiar error** y el registro siguen excluyendo esos valores, que permanecen
-solo durante la sesión. Esta versión recoge evidencia de las imágenes
-pendientes; no cambia las reglas de asociación ni declara resuelto el CID.
+Cada mensaje tiene una carpeta con `Correo.pdf`, el original y sus adjuntos. Las carpetas llevan la fecha y hora de Madrid y el asunto. Un identificador distingue dos mensajes con el mismo asunto en el mismo segundo. Los adjuntos con nombres repetidos reciben un sufijo para conservar ambos archivos.
 
-Las imágenes incrustadas se relacionan por sus identificadores, incluidos los
-datos completos de la descarga. Si una imagen falta o no puede decodificarse,
-el correo queda pendiente y se copian los demás. Las copias guardadas se revisan,
-pero ningún correo del lote se mueve a Eliminados mientras haya pendientes.
-El aviso, el registro y **Copiar error** indican qué ha quedado sin completar.
+Las respuestas recuperadas tienen su propia carpeta. Si hay varios mensajes relacionados, encontrarás además un PDF de la conversación en `Hilos`. El resumen indica qué antecesores e imágenes faltan. La recuperación depende de los mensajes a los que Outlook dé acceso y del alcance de su buscador.
 
-Los avisos incluyen **Copiar error**. También puedes usar **Copiar último error**
-en la ventana principal mientras el programa siga abierto, aunque cierres el
-aviso o borres el registro. El informe contiene versión, mensaje y diagnóstico
-de la exportación, sin copiar el cuerpo del correo.
+La captura requiere Windows 10 u 11 x64 y Microsoft Edge. La importación de originales funciona con archivos locales. La app guarda copias en el destino que elijas. Outlook puede marcar como leído un mensaje al abrirlo.
 
-CorreoDiario 0.4.8 beta trabaja con la sesión de Outlook que ya tienes abierta
-**en tu navegador habitual**. Permite buscar las pestañas de correo, elegir
-una, seleccionar carpetas y un intervalo de fechas, y exportar los mensajes a PDF con sus
-adjuntos originales separados. Conserva el modo alternativo de Outlook clásico. Los campos **Desde** y **Hasta**
-incluyen ambos días. Si son iguales, busca solo ese día. La lista muestra fecha
-y hora para distinguir mensajes de varios días.
-
-El acceso web se realiza con el permiso que solicita Edge o Chrome. No hay
-una pantalla de inicio de sesión dentro del programa. No se instala una extensión,
-no se lanza un perfil de navegador nuevo y no se copian bases de contraseñas
-ni cookies de tu perfil. Reutiliza las cabeceras de autorización de solicitudes
-correctas de la pestaña elegida; se mantienen solo en memoria y se descartan
-al desconectar. Si es necesario, pide pulsar Actualizar en Outlook.
-
-## Conexión con tu navegador
-
-La opción de conexión debe estar habilitada en `edge://inspect/#remote-debugging`
-o `chrome://inspect/#remote-debugging`, según el navegador. La aplicación incluye
-un botón **Cómo conectar** con los pasos. El navegador muestra un aviso para
-aceptar o rechazar la conexión.
-
-Ese permiso técnico da acceso a la sesión del navegador. CorreoDiario limita
-sus operaciones a la pestaña que selecciones y comprueba su origen antes de
-actuar. Las políticas del equipo pueden impedir habilitar esta opción.
-
-## Requisitos y límites
-
-Windows de 64 bits, Edge o Chrome con esta función de conexión y perfil estándar,
-y Microsoft Edge WebView2 Runtime para componer los PDF localmente. WebView2
-se utiliza para impresión, no para iniciar sesión en el correo.
-
-La compatibilidad del servicio interno de Outlook sigue dependiendo del servidor.
-La conexión y la exportación con las cuentas del usuario no están certificadas
-por las pruebas simuladas. Las imágenes externas no se descargan y la composición
-PDF puede variar respecto al cuadro de impresión de Outlook.
-
-El PDF adapta las tablas al ancho de página y retira alturas fijas o recortes
-que pueden esconder texto al imprimir. El cotejo reconoce palabras partidas
-entre líneas o páginas si conserva todas sus letras y cifras. Si detecta una
-omisión, detiene la operación y conserva los correos.
-
-La comparación distingue los selectores de presentación de emoji FE0E/FE0F
-del texto. El PDF puede omitir esas marcas de estilo sin perder letras o
-cifras; se registran aparte. Los acentos y otras marcas siguen comprobándose.
-
-Si el PDF con formato no supera el cotejo, crea una segunda composición con
-texto sencillo y las imágenes incluidas al final. Esa copia debe superar el
-cotejo completo de letras y cifras en orden y cantidad. El PDF y el resultado
-indican que se ha usado formato simplificado. Si falla también esa composición,
-se conserva el correo y el registro incluye los recuentos de ambos intentos.
-
-El borrado es opcional y mueve a Eliminados después de verificar toda la
-exportación. No vacía esa carpeta ni garantiza liberar cuota inmediatamente.
-
-## Comprobación de adjuntos
-
-El tamaño que informa Outlook puede incluir propiedades del objeto adjunto y
-ser mayor que el archivo. La aplicación distingue ese dato del tamaño real de
-los bytes descargados. Vuelve a leer cada adjunto y compara longitud y SHA-256
-antes de considerar verificada la exportación; también comprueba la escritura
-en disco. Esto implica dos lecturas por adjunto.
-
-## Carpeta de destino
-
-Todos los PDF y adjuntos se guardan directamente en la carpeta que elijas.
-No se crea una subcarpeta por ejecución ni por carpeta del buzón. Los nombres
-repetidos reciben un sufijo numérico y se conserva la relación entre cada PDF
-y sus adjuntos. Cada ejecución tiene un registro Comprobacion_….json propio.
+[Guía de uso](docs/README.md) · [Descargas](descargas/README.md) · [Versión anterior 0.4.8 beta](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.4.8-beta.1)

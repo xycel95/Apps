@@ -1,5 +1,14 @@
 # Notas de parche
 
+## 0.5.0 beta · 26/11/2026
+
+- Selección de correos en la ventana visible de Outlook web en Edge y descarga de los originales mediante los controles de accesibilidad de Windows. También admite EML y MSG locales.
+- Una carpeta por mensaje y por respuesta con `Correo.pdf`, el original y los adjuntos. Conserva los archivos cuando coinciden el nombre de un adjunto o la fecha, la hora y el asunto de dos correos.
+- Búsqueda opcional de mensajes relacionados, identificación de antecesores pendientes y PDF conjunto de las conversaciones recuperadas.
+- `Resumen.txt` y `Origen.json` recogen los resultados del lote. Esta edición no incorpora movimiento de correos a Eliminados.
+
+[Descargas de la versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.5.0-beta.1)
+
 ## 0.4.8-beta.1 · 22/11/2026
 
 - **Marcar pendientes** importa un registro desde 0.4.7 para reintentar solo

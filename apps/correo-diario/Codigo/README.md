@@ -1,4 +1,12 @@
-# CorreoDiario 0.4.2 beta
+# Código de CorreoDiario
+
+La edición 0.5.0 para Edge se encuentra en [Edge](Edge/). Consulta sus [instrucciones de compilación](Edge/COMPILAR.txt), [manual](Edge/LEEME.txt) y [licencias](Edge/Licencias/).
+
+## Ediciones anteriores
+
+Los directorios `src`, `tests` y `packaging` corresponden a la línea 0.4.x.
+
+### CorreoDiario 0.4.2 beta
 
 Aplicación portátil de Windows para exportar correos de un intervalo a PDF y conservar
 sus adjuntos originales. Incluye acceso web a Outlook y acceso al perfil del
