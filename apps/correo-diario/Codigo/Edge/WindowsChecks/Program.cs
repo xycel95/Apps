@@ -58,6 +58,9 @@ internal static class Program
     static AE? Named(AE root, string name) => root.FindFirst(TreeScope.Descendants, new PropertyCondition(AE.NameProperty, name));
     static void Invoke(AE button) => ((InvokePattern)button.GetCurrentPattern(InvokePattern.Pattern)).Invoke();
 
+    [DllImport("user32.dll")]
+    static extern IntPtr SendMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+
     static void Desktop(string exe, string edge, string folder)
     {
         var profile = Path.Combine(folder,"perfil");
@@ -86,14 +89,25 @@ internal static class Program
                 var detect=Named(form,"Detectar Edge");
                 Check(detect!=null && Wait(()=>detect.Current.IsEnabled), "botón Detectar Edge operativo");
                 Invoke(detect!);
-                Check(Wait(()=> Named(form,"Pestaña de Outlook detectada. No hay filas de correo visibles en esta vista.")!=null), "la app reconoce la pestaña con su propia ventana delante y la lista sin filas");
+                Check(Wait(() => Named(form,"Detectar Edge")?.Current.IsEnabled == true), "finaliza el intento de detección en la aplicación");
                 var copy=Named(form,"Copiar diagnóstico");
                 Check(copy!=null && copy.Current.IsEnabled, "botón Copiar diagnóstico disponible");
                 Invoke(copy!);
                 string text="";
-                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.Contains("CorreoDiario para Edge 0.5.1") && text.Contains("Outlook reconocido"); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
-                Check(text.Contains("ventanas Outlook") && text.Contains("Leer selección") && !text.Contains(PrivateMarker) && !text.Contains("https://") && !text.Contains(profile), "el informe conserva causas y contadores y omite título, URL y rutas");
+                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.Contains("CorreoDiario para Edge 0.5.1"); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
                 Console.WriteLine(text);
+                var picker = Named(form,"Ventanas de Outlook en Edge");
+                bool selectedInApp = picker != null && (
+                    picker.TryGetCurrentPattern(ValuePattern.Pattern, out var value) && ((ValuePattern)value).Current.Value.Contains("outlook.cloud.microsoft") ||
+                    picker.TryGetCurrentPattern(SelectionPattern.Pattern, out var selection) && ((SelectionPattern)selection).Current.GetSelection().Any(item=>item.Current.Name.Contains("outlook.cloud.microsoft")));
+                if (!selectedInApp && picker?.Current.NativeWindowHandle is int hwnd && hwnd != 0)
+                {
+                    // A read-only WinForms combo can expose its selection via the native control only.
+                    selectedInApp = SendMessage((IntPtr)hwnd, 0x147, IntPtr.Zero, IntPtr.Zero).ToInt64() >= 0 &&
+                        SendMessage((IntPtr)hwnd, 0x146, IntPtr.Zero, IntPtr.Zero).ToInt64() > 0;
+                }
+                Check(selectedInApp && text.Contains("Outlook reconocido"), "Outlook figura en el selector de la aplicación con su ventana delante");
+                Check(text.Contains("ventanas Outlook") && text.Contains("Leer selección") && !text.Contains(PrivateMarker) && !text.Contains("https://") && !text.Contains(profile), "el informe conserva causas y contadores y omite título, URL y rutas");
             }
             finally { if (!app.HasExited) { app.CloseMainWindow(); if(!app.WaitForExit(5000)) app.Kill(true); } }
         }

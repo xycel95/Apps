@@ -178,16 +178,18 @@ public sealed partial class EdgeWindow
     {
         get
         {
-            var visible = By(Root, Ctrl.Document).Where(Visible).ToList();
-            if (visible.Count == 0)
-                throw new InvalidOperationException(
-                    "Edge no expone la página. Abre la bandeja de Outlook en la pestaña visible."
-                );
-            return visible
-                .OrderByDescending(d =>
-                    d.Current.BoundingRectangle.Width * d.Current.BoundingRectangle.Height
-                )
-                .First();
+            var root = Root;
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                var visible = By(root, Ctrl.Document).Where(d => Visible(d) && IsTopDocument(d, root));
+                var document = visible.OrderByDescending(d =>
+                    d.Current.BoundingRectangle.Width * d.Current.BoundingRectangle.Height).FirstOrDefault();
+                if (document != null) return document;
+                if (attempt < 2) Thread.Sleep(250 * (attempt + 1));
+            }
+            throw new InvalidOperationException(
+                "Edge no expone el contenido de esta vista. Pulsa Leer selección para reintentar o Copiar diagnóstico."
+            );
         }
     }
 

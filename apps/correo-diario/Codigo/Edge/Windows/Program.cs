@@ -393,6 +393,7 @@ internal sealed class MainWindow : Form
             rows.Items.Clear();
             connected = null;
             edgeCount = null;
+            diagnostics.Event("Detectar Edge", "inicio");
             status.Text = "Buscando la pestaña visible de Outlook en las ventanas de Edge…";
             var detection = await Task.Run(EdgeWindow.Discover);
             diagnostics.DetectionResult(detection);
@@ -435,14 +436,18 @@ internal sealed class MainWindow : Form
         rows.Items.Clear();
         connected = null;
         edgeCount = null;
+        var phase = "Confirmar pestaña";
         diagnostics.Event("Leer selección", "inicio");
         try
         {
             var view = await Task.Run(() =>
             {
                 w.Verify();
+                phase = "Buscar filas en la vista de Outlook";
                 var visible = w.Rows();
+                phase = "Leer contador de selección";
                 var count = w.SelectionCount();
+                phase = "Recorrer la lista de mensajes";
                 var scan =
                     count > visible.Count(r => r.Selected)
                         ? w.Scan(true, count, CancellationToken.None)
@@ -465,8 +470,8 @@ internal sealed class MainWindow : Form
         }
         catch (Exception e)
         {
-            diagnostics.Fault("Leer selección", e);
-            status.Text = e.Message;
+            diagnostics.Fault(phase, e);
+            status.Text = phase == "Confirmar pestaña" ? e.Message : "Pestaña de Outlook detectada. " + e.Message;
         }
         finally
         {
