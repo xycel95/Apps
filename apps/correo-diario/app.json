@@ -72,7 +72,15 @@
   "validation": {
     "real_outlook_export_verified": false,
     "user_mail_accessed": false,
-    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.5.0-beta.1/VALIDACION-WINDOWS.json"
+    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.5.0-beta.1/VALIDACION-WINDOWS.json",
+    "source_commit": "32b26d5cb1590e222aa68871a4a32d99ab2de113",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/45880294715",
+    "native_startup_verified": true,
+    "core_tests_passed": 37,
+    "synthetic_eml_msg_export_verified": true,
+    "source_and_licenses_match_original": true,
+    "published_downloads_verified": true,
+    "publication_report_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/VALIDACION-PUBLICACION.json"
   },
   "prerelease": true,
   "online_updates_configured": false,

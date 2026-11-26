@@ -17,3 +17,9 @@ Marca **Buscar también el origen y las respuestas en Outlook**. Si tu Outlook l
 `Resumen.txt` indica qué se recuperó y qué falta. `Origen.json` recoge las cabeceras disponibles, la procedencia y las huellas de los archivos. Las imágenes externas se señalan en el PDF. Edge puede conservar las descargas originales y Outlook puede marcar los mensajes abiertos como leídos.
 
 [Manual incluido en el ZIP](../Codigo/Edge/LEEME.txt) · [Descargar](../descargas/README.md)
+
+### Comprobaciones de la beta
+
+El ejecutable distribuido abrió su ventana en Windows y superó la comprobación de arranque. El motor pasó 37 comprobaciones con mensajes sintéticos EML y MSG. La captura desde un buzón real de Outlook sigue pendiente de prueba.
+
+[Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
