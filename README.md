@@ -42,7 +42,7 @@ Este es el catálogo de programas de XYCEL. Elige una aplicación para conocerla
 
 6. **[CorreoDiario](https://github.com/xycel95/Apps/tree/correo-diario/apps/correo-diario)**
 
-   Aplicación para Windows que guarda correos en PDF y adjuntos originales separados, con acceso a Outlook web o clásico y movimiento opcional a Eliminados tras verificar la exportación.
+   Guarda los correos seleccionados en Outlook web desde Microsoft Edge, con una carpeta por mensaje que reúne el PDF, el original y los adjuntos. También admite EML y MSG locales.
 
    [Descripción del programa](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/DESCRIPCION.md) · [Cómo funciona y guía](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/README.md) · [Descargar](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/descargas/README.md) · [Notas de parche](https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/notas-de-parche/README.md)
 
