@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Windows.Automation;
 using CorreoDiario;
 using CorreoDiario.EdgeApp;
@@ -6,27 +7,36 @@ using AE = System.Windows.Automation.AutomationElement;
 
 internal static partial class Program
 {
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    static extern IntPtr FindWindow(string? className, string windowName);
+    [DllImport("user32.dll")]
+    static extern uint GetWindowThreadProcessId(IntPtr handle, out uint process);
+    [DllImport("user32.dll")]
+    static extern bool PostMessage(IntPtr window, uint message, IntPtr wParam, IntPtr lParam);
+
     static void PackagedFolders(AE form, int appId)
     {
         var primary = Named(form, "Exportar carpetas de Outlook…");
         Check(primary?.Current.IsEnabled == true, "entrada a carpetas de Microsoft 365 en el ejecutable publicado");
-        var opening = Task.Run(() => Invoke(primary!));
-        AE? dialog = null;
+        // Post the button command to the application's UI loop. The native modal dialog
+        // then runs independently of the UI Automation COM call that located its button.
+        var b = primary!.Current.NativeWindowHandle;
+        if (b != 0) PostMessage((IntPtr)b, 0x00f5, 0, 0); else Invoke(primary);
+        IntPtr hwnd = 0;
         Check(Wait(() =>
         {
-            dialog = AE.RootElement.FindFirst(TreeScope.Children, new AndCondition(
-                new PropertyCondition(AE.ProcessIdProperty, appId),
-                new PropertyCondition(AE.NameProperty, "Exportar carpetas de Outlook")));
-            dialog ??= Named(form, "Exportar carpetas de Outlook");
-            return dialog != null;
+            hwnd = FindWindow(null, "Exportar carpetas de Outlook");
+            return hwnd != 0 && GetWindowThreadProcessId(hwnd, out uint owner) != 0 && owner == appId;
         }), "el ejecutable independiente abre la ventana de conexión por carpetas");
-        Check(Named(dialog!, "Conectar con Microsoft 365")?.Current.IsEnabled == true
-            && Named(dialog!, "Exportar carpetas")?.Current.IsEnabled == false, "la exportación espera una conexión y una selección válidas");
-        Invoke(Named(dialog!, "Copiar solicitud para Informática")!);
+        var dialog = AE.FromHandle(hwnd);
+        Check(Named(dialog, "Conectar con Microsoft 365")?.Current.IsEnabled == true
+            && Named(dialog, "Exportar carpetas")?.Current.IsEnabled == false, "la exportación espera una conexión y una selección válidas");
+        Invoke(Named(dialog, "Copiar solicitud para Informática")!);
         Check(Wait(() => Clipboard.GetText().Contains("Mail.Read") && Clipboard.GetText().Contains("http://localhost")), "el ejecutable copia la configuración necesaria para Informática");
-        ((WindowPattern)dialog!.GetCurrentPattern(WindowPattern.Pattern)).Close();
-        opening.WaitAsync(TimeSpan.FromSeconds(8)).GetAwaiter().GetResult();
-        Check(Wait(() => primary!.Current.IsEnabled), "se puede cerrar el modo de carpetas y volver al principal");
+        Invoke(Named(dialog, "Copiar diagnóstico")!);
+        Check(Wait(() => Clipboard.GetText().Contains("falta configuración de la organización")), "el diagnóstico de la primera conexión identifica que falta configuración");
+        PostMessage(hwnd, 0x0010, 0, 0);
+        Check(Wait(() => FindWindow(null, "Exportar carpetas de Outlook") == 0 && primary.Current.IsEnabled), "se puede cerrar el modo de carpetas y volver al principal");
     }
 
     static void NativeFolders(string destination, IntPtr other)

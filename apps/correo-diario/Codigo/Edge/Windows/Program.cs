@@ -104,7 +104,12 @@ internal sealed class MainWindow : Form
                 await Receive(() => MailTransfer.Read(ole));
             };
         }
-        cloud.Click += (_, _) => { using var window = new FolderWindow(diagnostics, target.Text); window.ShowDialog(this); };
+        cloud.Click += (_, _) => BeginInvoke(() =>
+        {
+            if (busy || !Enabled) return;
+            using var window = new FolderWindow(diagnostics, target.Text);
+            window.ShowDialog(this);
+        });
         paste.Click += async (_, _) => await Receive(() => Clipboard.GetDataObject() is OleData ole
             ? MailTransfer.Read(ole) : throw new TransferException("portapapeles vacío", "El portapapeles no contiene correos completos."));
         files.Click += async (_, _) =>

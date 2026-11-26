@@ -33,10 +33,11 @@ internal sealed record M365Settings(Guid ClientId, Guid? TenantId)
     }
 }
 
-internal sealed class MicrosoftMailbox(GraphMailbox graph, string key, IDisposable lifetime) : IDisposable
+internal sealed class MicrosoftMailbox(GraphMailbox graph, string key, IDisposable lifetime, string displayAccount = "") : IDisposable
 {
     internal GraphMailbox Graph { get; } = graph;
     internal string AccountKey { get; } = key;
+    internal string DisplayAccount { get; } = displayAccount;
     public void Dispose() => lifetime.Dispose();
     internal const string ITRequest = """
         Para exportar en segundo plano carpetas de mi propio buzón con CorreoDiario, ¿podéis autorizar esta aplicación para mi cuenta y confirmar que el destino local está permitido?
@@ -53,7 +54,7 @@ internal sealed class MicrosoftMailbox(GraphMailbox graph, string key, IDisposab
             .WithRedirectUri("http://localhost").Build();
         try
         {
-            var result = await app.AcquireTokenInteractive(Scopes).WithUseEmbeddedWebView(false).ExecuteAsync(ct).ConfigureAwait(false);
+            var result = await app.AcquireTokenInteractive(Scopes).WithUseEmbeddedWebView(false).WithPrompt(Prompt.SelectAccount).ExecuteAsync(ct).ConfigureAwait(false);
             if (result.Account?.HomeAccountId?.Identifier is not { Length: > 0 } identifier || string.IsNullOrWhiteSpace(result.TenantId))
                 throw new MailboxException("cuenta incompleta", "Microsoft no ha identificado el buzón. Vuelve a conectar.");
             var key = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(result.TenantId + "/" + identifier)));
@@ -63,7 +64,7 @@ internal sealed class MicrosoftMailbox(GraphMailbox graph, string key, IDisposab
                 catch (MsalException e) { throw Explain(e); }
             }
             var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromMinutes(3) };
-            return new(new GraphMailbox(client, Token, result.UniqueId), key, client);
+            return new(new GraphMailbox(client, Token, result.UniqueId), key, client, result.Account.Username ?? "");
         }
         catch (MsalException e) { ct.ThrowIfCancellationRequested(); throw Explain(e); }
     }

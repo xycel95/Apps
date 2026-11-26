@@ -16,7 +16,7 @@ internal sealed class FolderWindow : Form
     readonly TextBox appId = Input("ID de aplicación"), tenant = Input("ID del directorio"), target = Input("Destino en Windows");
     readonly CheckedListBox folders = new() { Dock = DockStyle.Fill, IntegralHeight = false, CheckOnClick = true,
         HorizontalScrollbar = true, AccessibleName = "Carpetas del buzón" };
-    readonly Label status = LabelOf(""), count = LabelOf("");
+    readonly Label status = LabelOf(""), count = LabelOf(""), account = LabelOf("");
     readonly TableLayoutPanel setup = Grid();
     MicrosoftMailbox? session;
     CancellationTokenSource? operation;
@@ -60,6 +60,8 @@ internal sealed class FolderWindow : Form
         Row(page, title);
         Row(page, LabelOf("Conecta tu cuenta de trabajo, marca las carpetas y pulsa Exportar carpetas. Después puedes minimizar la ventana y seguir trabajando."));
         Row(page, Line(login, configure, request));
+        account.Visible = false;
+        Row(page, account);
         Row(setup, LabelOf("ID de aplicación (cliente) que facilita Informática"));
         Row(setup, appId);
         Row(setup, LabelOf("ID del directorio de la organización (opcional para registros que admiten varias organizaciones)"));
@@ -83,6 +85,7 @@ internal sealed class FolderWindow : Form
         try
         {
             var settings = initial ?? (remember ? M365Settings.Load() : null);
+            log.Event("Abrir carpetas de Microsoft 365", settings == null ? "falta configuración de la organización" : "configuración disponible");
             if (settings != null) Apply(settings);
             else status.Text = "Primera conexión: si aún no tienes el ID de aplicación, copia la solicitud para Informática.";
         }
@@ -156,20 +159,22 @@ internal sealed class FolderWindow : Form
     async Task Login()
     {
         if (!Guid.TryParse(appId.Text, out var client) || client == Guid.Empty)
-        { setup.Visible = true; status.Text = "Introduce el ID de aplicación que facilita Informática. El botón Copiar solicitud prepara el texto."; return; }
+        { log.Event("Conectar con Microsoft 365", "ID de aplicación ausente o no válido"); setup.Visible = true; status.Text = "Introduce el ID de aplicación que facilita Informática. El botón Copiar solicitud prepara el texto."; return; }
         Guid? directory = null;
         if (!string.IsNullOrWhiteSpace(tenant.Text))
         {
             if (!Guid.TryParse(tenant.Text, out var tid) || tid == Guid.Empty)
-            { setup.Visible = true; status.Text = "El ID del directorio debe ser el identificador que facilita Informática."; return; }
+            { log.Event("Conectar con Microsoft 365", "ID de directorio no válido"); setup.Visible = true; status.Text = "El ID del directorio debe ser el identificador que facilita Informática."; return; }
             directory = tid;
         }
         var settings = new M365Settings(client, directory);
         await Operate("Conectar con Microsoft 365", async ct =>
         {
-            session?.Dispose(); session = null; folders.Items.Clear(); output = null;
+            session?.Dispose(); session = null; folders.Items.Clear(); output = null; account.Visible = false;
             status.Text = "Completa la identificación en el navegador de tu organización.";
             session = await connect(settings, ct);
+            account.Text = "Buzón conectado · " + session.DisplayAccount;
+            account.Visible = session.DisplayAccount.Length > 0;
             log.Event("Conectar con Microsoft 365", "cuenta conectada");
             if (remember) try { settings.Save(); } catch (Exception e) { log.Fault("Recordar configuración de Microsoft 365", e); }
             setup.Visible = false;
