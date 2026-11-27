@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.7.1
+
+El actualizador consulta app.json de la rama permanente. Publicar el ejecutable estable y verificar tamaño y SHA-256 antes de actualizar el manifiesto. La instalación requiere permiso de escritura en la carpeta del ejecutable. WindowsChecks comprueba el reemplazo de una copia en ejecución y su arranque.
+
 ## 0.7.0 para Edge
 
 En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 59 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.

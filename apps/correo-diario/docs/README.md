@@ -38,7 +38,7 @@ La ventana principal también permite añadir mensajes EML o MSG existentes y re
 
 ### Comprobaciones de la versión
 
-En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 59 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 61 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 
