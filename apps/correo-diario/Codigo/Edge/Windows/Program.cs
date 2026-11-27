@@ -15,7 +15,7 @@ static class Program
     }
 }
 
-internal sealed class MainWindow : Form
+internal sealed partial class MainWindow : Form
 {
     sealed record Row(Mail Message)
     {
@@ -25,7 +25,7 @@ internal sealed class MainWindow : Form
     readonly CheckedListBox rows = new() { Dock = DockStyle.Fill, CheckOnClick = true, IntegralHeight = false, HorizontalScrollbar = true, AccessibleName = "Correos recibidos" };
     readonly ComboBox windows = new() { Dock = DockStyle.Fill, DropDownStyle = ComboBoxStyle.DropDownList, AccessibleName = "Ventanas de Outlook en Edge" };
     readonly TextBox target = new() { Dock = DockStyle.Fill, ReadOnly = true, AccessibleName = "Carpeta de destino" };
-    readonly Label status = LabelOf("Para exportar un lote de Outlook web, pulsa Exportar carpetas de Outlook.");
+    readonly Label status = LabelOf("Para empezar, pulsa Abrir Outlook web y marca los correos en esa ventana de Edge.");
     readonly Label counter = LabelOf("");
     readonly Button update = Btn("Buscar actualizaciones");
     readonly Button cloud = Btn("Exportar carpetas de Outlook…");
@@ -61,13 +61,16 @@ internal sealed class MainWindow : Form
         return line;
     }
 
-    public MainWindow()
+    private readonly Func<Action<string>, CancellationToken, Task<EdgeSession>> startWeb;
+    public MainWindow() : this(EdgeSession.Open) { }
+    internal MainWindow(Func<Action<string>, CancellationToken, Task<EdgeSession>> startWeb)
     {
+        this.startWeb = startWeb;
         Text = "CorreoDiario para Edge";
         Font = new Font("Segoe UI", 10);
         AutoScaleMode = AutoScaleMode.Dpi;
-        Size = new(910, 685);
-        MinimumSize = new(700, 570);
+        Size = new(925, 735);
+        MinimumSize = new(730, 620);
         var page = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(18), ColumnCount = 1 };
         Controls.Add(page);
         void Add(Control control, bool expand = false)
@@ -79,6 +82,8 @@ internal sealed class MainWindow : Form
         var title = LabelOf("CorreoDiario");
         title.Font = new Font(Font.FontFamily, 20, FontStyle.Bold);
         Add(title);
+        Add(LabelOf("Marca los correos en la ventana de Edge que abre CorreoDiario. Al exportar podrás seguir trabajando."));
+        Add(Line(webOpen, webExport, webClose));
         Add(Line(cloud, update));
         Add(LabelOf("También puedes añadir mensajes completos que ya tengas en el ordenador."));
         Add(Line(paste, files));
@@ -105,6 +110,9 @@ internal sealed class MainWindow : Form
                 await Receive(() => MailTransfer.Read(ole));
             };
         }
+        webOpen.Click += async (_, _) => await OpenWeb();
+        webExport.Click += async (_, _) => await ExportWeb();
+        webClose.Click += async (_, _) => await CloseWeb();
         update.Click += async (_, _) => await UpdateApp();
         cloud.Click += (_, _) => BeginInvoke(() =>
         {
@@ -136,9 +144,10 @@ internal sealed class MainWindow : Form
         copy.Click += (_, _) => CopyReport();
         FormClosing += (_, e) =>
         {
-            if (!busy) return;
+            if (!busy && webSession == null) return;
             e.Cancel = true;
             closeRequested = true;
+            if (!busy) { BeginInvoke(async () => await CloseWeb()); return; }
             operation?.Cancel();
             status.Text = "Cerrando al terminar la operación en curso…";
         };
@@ -184,6 +193,10 @@ internal sealed class MainWindow : Form
     void RefreshControls()
     {
         foreach (var control in new Control[]{update, cloud, paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
+        webOpen.Enabled = !busy;
+        webOpen.Text = webSession == null ? "Abrir Outlook web" : "Mostrar Outlook web";
+        webExport.Enabled = !busy && webSession != null && target.Text.Length > 0;
+        webClose.Enabled = !busy && webSession != null;
         select.Enabled = !busy && rows.CheckedItems.Count < rows.Items.Count;
         clear.Enabled = !busy && rows.CheckedItems.Count > 0;
         countEdge.Enabled = !busy && windows.SelectedItem is EdgeWindow;
@@ -260,7 +273,7 @@ internal sealed class MainWindow : Form
             diagnostics.DetectionResult(found);
             windows.Items.AddRange(found.Windows.ToArray());
             if (found.Windows.Count > 0) windows.SelectedIndex = 0;
-            status.Text = found.Windows.Count > 0 ? "Outlook detectado. Para leer el contenido de una carpeta, pulsa Exportar carpetas de Outlook."
+            status.Text = found.Windows.Count > 0 ? "Outlook detectado. Para exportar una selección, pulsa Abrir Outlook web y márcala en esa ventana."
                 : "Deja la pestaña de Outlook seleccionada en su ventana y vuelve a pulsar Detectar Edge.";
         }
         catch (Exception e) { Error("Detectar Edge", e); }
@@ -285,7 +298,7 @@ internal sealed class MainWindow : Form
             lastSelectionCount = info.Total;
             var counts = $"filas visibles {info.Visible} · marcadas visibles {info.Marked} · contador de Outlook {info.Total?.ToString() ?? "sin dato"}";
             diagnostics.Event("Ver selección en Edge", counts);
-            status.Text = counts + ". Para exportar un lote desde la web, pulsa Exportar carpetas de Outlook.";
+            status.Text = counts + ". Para exportar esta selección, márcala en la ventana que abre Abrir Outlook web.";
         }
         catch (Exception e) { Error("Ver selección en Edge", e); }
         finally { End(); }
@@ -320,7 +333,7 @@ internal sealed class MainWindow : Form
     void Error(string phase, Exception e)
     {
         diagnostics.Fault(phase, e);
-        status.Text = e is TransferException ? e.Message + " Para un lote de Outlook web, pulsa Exportar carpetas de Outlook." : phase + " · " + e.Message;
+        status.Text = e is TransferException ? e.Message + " Para un lote de Outlook web, usa Abrir Outlook web." : phase + " · " + e.Message;
     }
 
     void CopyReport()

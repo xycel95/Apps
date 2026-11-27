@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.8.0 · 27/11/2026
+
+- **Abrir Outlook web** y **Exportar selección web** permiten archivar los mensajes marcados en una ventana de Edge que se minimiza durante el lote.
+- Una carpeta por correo con PDF comprobado y sus adjuntos. Los nombres repetidos se conservan por separado. Los mensajes pendientes se indican en el resultado.
+- El diagnóstico identifica la fase de lectura, impresión o descarga. Se mantiene el actualizador integrado.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0)
+
 ## 0.7.1 · 27/11/2026
 
 Botón **Buscar actualizaciones** para descargar, verificar y abrir la versión estable desde la aplicación.

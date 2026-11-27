@@ -1,6 +1,10 @@
 # Trabajar en CorreoDiario
 
-## Edición para Edge 0.7 y posteriores
+## Selección web desde 0.8
+
+La acción explícita Abrir Outlook web abre Microsoft Edge con una sesión temporal e independiente para el modo solicitado de segundo plano. El usuario se identifica directamente en Edge. Usar el controlador compatible firmado por Microsoft y una carpeta temporal propia para las descargas verificadas. Limitar las acciones al origen de correo admitido y a controles de Outlook exteriores al cuerpo. Respetar las restricciones del navegador y de la cuenta. El lector sigue únicamente controles y contenido presentados en la web. Conservar la ventana habitual, la entrada física, las credenciales del navegador habitual y los mensajes del buzón. No enviar ni descartar borradores automáticamente.
+
+## Edición por carpetas de Microsoft 365 desde 0.7
 
 El flujo por carpetas usa un registro propio delegado Mail.Read, el navegador del sistema y la cuenta elegida por el usuario. Respetar las decisiones del directorio y conservar en memoria las credenciales de sesión. Las preferencias locales contienen solo identificadores de configuración, carpetas y destino. El lector de Graph solo emite GET. Confirmar la copia de PDF y adjuntos antes de considerarla verificada, reanudar por identidad del mensaje y comprobar la privacidad de los diagnósticos. Mantener la compatibilidad con la entrada local descrita a continuación.
 
@@ -31,7 +35,7 @@ Aplicar las instrucciones del AGENTS.md de la raíz. Responder en español.
 
 - Requisito vigente: el usuario rechaza iniciar sesión dentro del programa.
   Para la detección visual utilizar su pestaña ya abierta. Para el modo por carpetas, usar el navegador corporativo y un registro autorizado. No reintroducir
-  autenticación integrada ni crear un perfil de navegador distinto.
+  autenticación integrada. La sesión temporal de selección web de la 0.8 se crea únicamente cuando se pulsa su botón.
 - No cambiar la opción de depuración/conexión ni aceptar sus permisos por el
   usuario. No copiar bases de cookies o contraseñas; no presentar el permiso
   del navegador como limitado técnicamente a una sola pestaña.

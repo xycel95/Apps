@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.8.0
+
+El modo de selección entra por Windows/Browser/WebButtons.cs y conserva los modos anteriores. El código en OutlookPage.js trabaja con la interfaz web de la ventana temporal de Edge. WindowsChecks/WebChecks.cs cubre el flujo con correo ficticio, PDF, adjuntos homónimos, una selección virtualizada y casos incompletos. La sesión y la autorización corporativas se comprueban en cada equipo. La publicación de app.json se realiza después de verificar los archivos públicos de la release.
+
 ## 0.7.1
 
 El actualizador consulta app.json de la rama permanente. Publicar el ejecutable estable y verificar tamaño y SHA-256 antes de actualizar el manifiesto. La instalación requiere permiso de escritura en la carpeta del ejecutable. WindowsChecks comprueba el reemplazo de una copia en ejecución y su arranque.

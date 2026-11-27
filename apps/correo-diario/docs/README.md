@@ -1,6 +1,20 @@
 # Cómo funciona y guía
 
-## Exportar carpetas de Outlook web
+## Exportar una selección desde Edge
+
+1. En CorreoDiario, elige la carpeta de destino y pulsa **Abrir Outlook web**. Si tu organización lo solicita, identifica tu cuenta en esa ventana de Microsoft Edge.
+2. En esa ventana de Edge, abre la carpeta y marca los mensajes que quieras. Para un solo correo también puedes abrirlo en el panel de lectura. Vuelve a CorreoDiario y pulsa **Exportar selección web**.
+3. Sigue trabajando en tu Edge habitual o en cualquier otra aplicación. La ventana de exportación se minimiza. Al terminar, pulsa **Abrir resultado**. Cada carpeta numerada contiene `Correo.pdf` y los adjuntos identificados para ese correo.
+
+Para varios correos, Outlook prepara un borrador sin destinatarios con los elementos seleccionados. La aplicación compara el contador con las tarjetas y recorre sus vistas previas. Si Outlook te pide preparar la selección manualmente, pulsa **Reenviar** una sola vez en esa ventana y repite **Exportar selección web** con el borrador abierto. Después de revisar los archivos puedes descartar el borrador en Outlook. Si agrupas por conversaciones, se archivan los elementos que Outlook adjunta al borrador. Para escoger mensajes individuales de un hilo, usa la vista por mensajes.
+
+**Mostrar Outlook web** recupera la ventana para otro lote. Puedes usar la misma sesión hasta pulsar **Cerrar ventana web** o salir de la aplicación. Cerrar la ventana termina la sesión temporal de exportación. La primera apertura puede descargar de Microsoft su controlador firmado y compatible con la versión instalada de Edge. Este modo requiere que el equipo permita dicho controlador y que la cuenta pueda iniciar sesión en esa ventana de Edge. Funciona sin extensiones ni registro de Microsoft Graph.
+
+El programa coteja el texto del PDF con el contenido mostrado, comprueba las imágenes rasterizadas que detecta y verifica los adjuntos copiados. Si el cuerpo, una imagen o un archivo no se puede comprobar, revisa `Pendientes.txt` en la carpeta del lote. Una captura incompleta no se publica como correo terminado. La selección web archiva lo que Outlook muestra y permite descargar. Los vínculos sin descarga y los correos que a su vez son adjuntos quedan pendientes de revisión. Para reintentar, marca los mensajes pendientes. Cada ejecución usa una carpeta de lote nueva.
+
+Pulsa **Copiar diagnóstico** para obtener la fase, los contadores y la causa técnica. El informe omite el contenido de los mensajes, los asuntos, las direcciones, las rutas del equipo y los datos de sesión.
+
+## Exportar carpetas con Microsoft 365
 
 1. Abre **CorreoDiario-Edge.exe** y pulsa **Exportar carpetas de Outlook…**. Si Informática ya te dio un archivo de configuración, pulsa **Configuración…** si los campos están ocultos y **Abrir configuración…**. Si te dio dos identificadores, introdúcelos en esos campos.
 2. Pulsa **Conectar con Microsoft 365**. Elige la cuenta de trabajo en el navegador y completa la identificación que pida la organización. Volverás a CorreoDiario con la lista de carpetas del buzón.

@@ -1,6 +1,6 @@
 # CorreoDiario para Edge
 
-Exporta en segundo plano las carpetas que marques en tu buzón Microsoft 365. Guarda un PDF y los adjuntos en una carpeta de Windows por correo.
+Exporta los mensajes que selecciones en Outlook web mientras trabajas en otra ventana. CorreoDiario guarda un PDF y los adjuntos en una carpeta de Windows por correo.
 
 1. **[Descripción del programa](DESCRIPCION.md)**
 2. **[Cómo funciona y guía](docs/README.md)**
