@@ -48,11 +48,11 @@ La exportación conserva los mensajes en el buzón. El espacio ocupado allí sol
 
 ## Archivos existentes
 
-La ventana principal también permite añadir mensajes EML o MSG existentes y recibir una entrega completa de Windows. **Detectar Edge** y **Ver selección en Edge** muestran los contadores visibles. Cuando el portapapeles solo ofrece texto o enlaces, usa **Exportar carpetas de Outlook…** para acceder a los mensajes completos mediante Microsoft 365.
+La ventana principal también permite añadir mensajes EML o MSG existentes y recibir una entrega completa de Windows. **Detectar Edge** y **Ver selección en Edge** muestran los contadores visibles. Para exportar los mensajes marcados en el navegador, utiliza **Abrir Outlook web**.
 
 ### Comprobaciones de la versión
 
-En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 61 de escritorio. Se verificaron un lote de 30 correos sintéticos con PDF y adjuntos, la reanudación, la interfaz nativa de carpetas y la conservación del foco y del cursor al exportar con la ventana minimizada. Queda pendiente la prueba con un buzón real de Outlook.
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 74 de escritorio. El modo web exportó 106 mensajes ficticios desde sus botones en Edge, conservando el foco de otra ventana y el cursor. Se verificaron los PDF con imágenes y tablas, adjuntos con el mismo nombre, un correo individual, la selección incompleta y la ausencia de una acción de descarga. La autorización y la exportación con un buzón corporativo real quedan pendientes de la prueba en ese equipo.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 

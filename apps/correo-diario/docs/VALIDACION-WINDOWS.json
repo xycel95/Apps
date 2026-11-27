@@ -1,11 +1,11 @@
 {
-  "version": "0.7.1",
-  "source_commit": "85971df1e48c55f4230acf7b00bd718879b636a8",
-  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/45945879242",
+  "version": "0.8.0",
+  "source_commit": "8f5978e70e785652089278829584a1cebde5e71c",
+  "workflow_url": "https://github.com/xycel95/Apps/actions/runs/46063555868",
   "windows": "Windows-2025Server-10.0.26100-SP0",
   "dotnet_sdk": "10.0.404",
   "core_tests_passed": 65,
-  "edge_diagnostic_tests_passed": 61,
+  "edge_diagnostic_tests_passed": 74,
   "stable_version_in_executable_and_diagnostic_verified": true,
   "native_startup_verified": true,
   "native_edge_window_detection_verified": true,
@@ -21,6 +21,13 @@
   "corporate_tenant_consent_verified": false,
   "real_outlook_export_verified": false,
   "user_mail_accessed": false,
-  "executable_sha256": "e72e4357e6181b69449dce2d203491ed911f3526d9f0726b50c0eee034f1e923",
-  "zip_sha256": "93aaa163ed04af1c9bd519ed826226e5b8876492cb371e1b1c1990fa01250b82"
+  "executable_sha256": "61924a1f0948fecb039031db97255e4e1d4f9f2b847ce9b9a515971d90e05303",
+  "zip_sha256": "0407542ff167e9d8cc67879440bd7e2766a8ec6af3d0d3fe7e9e32b484f41641",
+  "webdriver_outlook_selection_fixture_verified": true,
+  "web_selection_test_messages": 106,
+  "web_selection_single_message_verified": true,
+  "web_background_focus_cursor_verified": true,
+  "web_partial_selection_rejected": true,
+  "web_protected_attachment_reported": true,
+  "corporate_web_login_verified": false
 }
