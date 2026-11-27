@@ -1,4 +1,4 @@
-CORREODIARIO PARA EDGE 0.7.0
+CORREODIARIO PARA EDGE 0.7.1
 Windows 10 y 11 x64
 
 Exportar carpetas de Outlook web
@@ -34,3 +34,7 @@ La exportación conserva los mensajes en el buzón. El espacio ocupado allí sol
 Archivos existentes
 
 La ventana principal también permite añadir mensajes EML o MSG existentes y recibir una entrega completa de Windows. Detectar Edge y Ver selección en Edge muestran los contadores visibles. Cuando el portapapeles solo ofrece texto o enlaces, usa Exportar carpetas de Outlook… para acceder a los mensajes completos mediante Microsoft 365.
+
+Actualizar CorreoDiario
+
+Pulsa Buscar actualizaciones en la ventana principal. Si hay una versión estable posterior, confirma la descarga y el reinicio. La aplicación comprueba el tamaño y la huella SHA-256 publicados antes de reemplazar el ejecutable. La carpeta del programa debe permitir escritura. Las versiones hasta la 0.7.0 necesitan una primera descarga manual.

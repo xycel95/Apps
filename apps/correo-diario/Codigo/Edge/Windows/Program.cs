@@ -27,6 +27,7 @@ internal sealed class MainWindow : Form
     readonly TextBox target = new() { Dock = DockStyle.Fill, ReadOnly = true, AccessibleName = "Carpeta de destino" };
     readonly Label status = LabelOf("Para exportar un lote de Outlook web, pulsa Exportar carpetas de Outlook.");
     readonly Label counter = LabelOf("");
+    readonly Button update = Btn("Buscar actualizaciones");
     readonly Button cloud = Btn("Exportar carpetas de Outlook…");
     readonly Button paste = Btn("Pegar correos"), files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
         countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar selección"),
@@ -78,7 +79,7 @@ internal sealed class MainWindow : Form
         var title = LabelOf("CorreoDiario");
         title.Font = new Font(Font.FontFamily, 20, FontStyle.Bold);
         Add(title);
-        Add(Line(cloud));
+        Add(Line(cloud, update));
         Add(LabelOf("También puedes añadir mensajes completos que ya tengas en el ordenador."));
         Add(Line(paste, files));
         Add(rows, true);
@@ -104,6 +105,7 @@ internal sealed class MainWindow : Form
                 await Receive(() => MailTransfer.Read(ole));
             };
         }
+        update.Click += async (_, _) => await UpdateApp();
         cloud.Click += (_, _) => BeginInvoke(() =>
         {
             if (busy || !Enabled) return;
@@ -143,9 +145,45 @@ internal sealed class MainWindow : Form
         RefreshControls();
     }
 
+    async Task UpdateApp()
+    {
+        if (busy) return;
+        busy = true;
+        operation = new();
+        var ct = operation.Token;
+        RefreshControls();
+        string? staged = null;
+        try
+        {
+            status.Text = "Buscando la versión estable de CorreoDiario…";
+            var release = await Updates.Check(ct);
+            if (release == null) { status.Text = "Tienes la versión estable más reciente."; return; }
+            var question = $"¿Descargar CorreoDiario {release.Version} y reiniciar la aplicación?";
+            if (rows.Items.Count > 0) question += " Los correos de la lista que aún no hayas exportado tendrán que añadirse de nuevo.";
+            if (MessageBox.Show(this, question, "Actualizar CorreoDiario", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            { status.Text = "Actualización aplazada."; return; }
+            var target = Environment.ProcessPath!;
+            staged = target + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            status.Text = $"Descargando y verificando CorreoDiario {release.Version}…";
+            await Updates.Download(release, staged, ct);
+            ct.ThrowIfCancellationRequested();
+            using var next = Updates.Install(target, staged);
+            closeRequested = true;
+        }
+        catch (OperationCanceledException) { status.Text = "Actualización interrumpida."; }
+        catch (Exception e) { Error("Actualizar CorreoDiario", e); }
+        finally
+        {
+            try { if (staged != null && File.Exists(staged)) File.Delete(staged); }
+            catch (IOException e) { diagnostics.Fault("Limpiar descarga", e); }
+            catch (UnauthorizedAccessException e) { diagnostics.Fault("Limpiar descarga", e); }
+            End();
+        }
+    }
+
     void RefreshControls()
     {
-        foreach (var control in new Control[]{cloud, paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
+        foreach (var control in new Control[]{update, cloud, paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
         select.Enabled = !busy && rows.CheckedItems.Count < rows.Items.Count;
         clear.Enabled = !busy && rows.CheckedItems.Count > 0;
         countEdge.Enabled = !busy && windows.SelectedItem is EdgeWindow;

@@ -103,7 +103,7 @@ internal static partial class Program
                 Check(copy!=null && copy.Current.IsEnabled, "botón Copiar diagnóstico disponible");
                 Invoke(copy!);
                 string text="";
-                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.StartsWith("CorreoDiario para Edge 0.7.0 · Diagnóstico" + Environment.NewLine, StringComparison.Ordinal); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
+                Check(Wait(()=> { try { text=Clipboard.GetText(); return text.StartsWith("CorreoDiario para Edge 0.7.1 · Diagnóstico" + Environment.NewLine, StringComparison.Ordinal); } catch(ExternalException) { return false; } }), "el botón copia el informe real al portapapeles de Windows");
                 Console.WriteLine(text);
                 var picker = Named(form,"Ventanas de Outlook en Edge");
                 bool selectedInApp = picker != null && (
@@ -133,8 +133,26 @@ internal static partial class Program
     {
         if (args.Length!=2) { Console.Error.WriteLine("Indica las rutas del ejecutable de CorreoDiario y de Microsoft Edge."); return 2; }
         var version = FileVersionInfo.GetVersionInfo(args[0]);
-        Check(version.ProductVersion == "0.7.0" && !version.IsPreRelease,
-            "el ejecutable de Windows se identifica como versión estable 0.7.0");
+        Check(version.ProductVersion == "0.7.1" && !version.IsPreRelease,
+            "el ejecutable de Windows se identifica como versión estable 0.7.1");
+        var updateDir = Directory.CreateTempSubdirectory("CorreoDiario-update-").FullName;
+        try
+        {
+            var target = Path.Combine(updateDir, "CorreoDiario.exe");
+            File.Copy(args[0], target);
+            using var first = Process.Start(new ProcessStartInfo(target) { UseShellExecute = false })!;
+            try
+            {
+                Check(Wait(() => { first.Refresh(); return first.MainWindowHandle != 0; }), "la copia portátil que se actualizará está abierta");
+                var staged = target + ".tmp";
+                File.Copy(args[0], staged);
+                using var next = Updates.Install(target, staged);
+                try { Check(Wait(() => { next.Refresh(); return next.MainWindowHandle != 0; }) && File.Exists(target + ".anterior"), "el reemplazo del ejecutable abierto arranca la nueva copia"); }
+                finally { if (!next.HasExited) { next.Kill(); next.WaitForExit(); } }
+            }
+            finally { if (!first.HasExited) { first.Kill(); first.WaitForExit(); } }
+        }
+        finally { Directory.Delete(updateDir, true); }
         Rules();
         TransferRules();
         string dir=Directory.CreateTempSubdirectory("CorreoDiario-Edge-prueba-").FullName;

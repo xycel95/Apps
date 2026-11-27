@@ -1,5 +1,9 @@
 # Notas de parche
 
+## 0.7.1 · 27/11/2026
+
+Botón **Buscar actualizaciones** para descargar, verificar y abrir la versión estable desde la aplicación.
+
 ## 0.7.0 · 26/11/2026
 
 - Exportación por carpetas del buzón Microsoft 365 en segundo plano con autorización de lectura. Puedes elegir varias y seguir trabajando mientras se crean los PDF y sus adjuntos.
