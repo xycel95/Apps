@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.8.2 · 28/11/2026
+
+- Lectura del panel normal de Outlook con el asunto sobre el mensaje, los datos del remitente y los adjuntos presentados como tarjetas.
+- Una conversación se exporta en carpetas individuales cuando Outlook muestra todos sus mensajes con identidades comprobables.
+- Si un panel sigue mostrando el correo anterior o falta un adjunto, esa entrada queda pendiente y se procesan las demás. El diagnóstico identifica la causa y las cantidades.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.2)
+
 ## 0.8.1 · 28/11/2026
 
 - La selección web puede leerse directamente desde la carpeta aunque Outlook muestre solo parte de las filas. Antes de abrir un mensaje, el programa comprueba que ha identificado toda la selección. Mantiene Edge detrás de las demás ventanas para que Outlook pueda cargar cada tramo de filas.

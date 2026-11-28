@@ -70,6 +70,49 @@ if(mode==='direct'||mode==='stale') {
   }
   folder.onscroll=()=>requestAnimationFrame(render);folder.scrollTop=(limit-13)*32;render();
 }
+// Normal reading pane: a separate subject strip, a sender/recipient/date card and a file tile.
+// The second group advertises three children but only exposes two. A later row keeps the old panel.
+if(mode==='reader' || mode==='first-failure' || mode==='missing-file' || mode==='normal-single') {
+    const folder=get('folder'), article=get('message'), parents=mode==='reader'?[1,2,3,4,5]:[4,5];
+    folder.replaceChildren();folder.setAttribute('role','listbox');folder.setAttribute('aria-label','Lista de mensajes');
+    document.querySelector('main').append(article);article.setAttribute('aria-label','Panel de lectura');
+    get('count').textContent=parents.length+' conversaciones seleccionadas';
+    function subject(id){return id===11||id===12?'Revisión semanal':id===4?'Otro asunto':'Solicitud '+id;}
+    function read(id,row) {
+        for(const item of folder.querySelectorAll('[role="option"]'))item.setAttribute('aria-selected',String(item===row));
+        get('selection').hidden=true;
+        if(id===4 && mode!=='missing-file')return;
+        article.innerHTML='<div><span id="tit"></span><button>Resumir este correo electrónico</button></div><section><div><span>RP</span><span>Origen de muestra</span><span>Para: Destino de muestra</span><button aria-label="Responder">Responder</button><time>Lun 09/03/2026 09:24</time></div><div id="tile"></div><div id="body-name" hidden>Cuerpo del mensaje</div><div role="region" aria-labelledby="body-name"><p>Cuerpo normal '+id+'</p><button onclick="clickCount++">Descargar</button></div></section>';
+        get('tit').textContent=subject(id);
+        if(id===4 && mode==='missing-file')return;
+        const full='documento de muestra '+id+'.txt';
+        const tile=get('tile');
+        tile.innerHTML='<div title="'+full+'">documento de m…</div><small>36 KB</small><button aria-label="Más opciones para el archivo" aria-haspopup="menu">⌄</button>';
+        tile.querySelector('button').onclick=()=>menu('Descargar',()=>{
+            const a=document.createElement('a');a.download=full;a.href=URL.createObjectURL(new Blob(['Contenido '+id]));
+            document.body.append(a);a.click();a.remove();
+        });
+    }
+    function makeRow(id,child=false) {
+        const r=document.createElement('div');r.setAttribute('role','option');r.setAttribute('data-item-id','muestra-'+id);
+        r.setAttribute('aria-selected',String(!child));if(child)r.setAttribute('aria-setsize',id<20?'2':'3');
+        const title=document.createElement('span');title.textContent=subject(id);r.append(title);
+        if(id>2){const clip=document.createElement('span');clip.setAttribute('aria-label','Tiene archivos adjuntos');clip.textContent='·';r.append(clip);}
+        r.onclick=()=>read(id,r);return r;
+    }
+    for(const id of parents){
+        const row=makeRow(id);folder.append(row);
+        if(id>2)continue;
+        const count=id===1?2:3;
+        const tree=document.createElement('div');tree.id='miembros-muestra-'+id;tree.setAttribute('role','group');tree.hidden=true;folder.append(tree);
+        const exp=document.createElement('button');exp.setAttribute('aria-controls',tree.id);
+        const switchState=open=>{exp.setAttribute('aria-expanded',String(open));exp.setAttribute('aria-label',(open?'Contraer':'Expandir')+' conversación, '+count+' mensajes');tree.hidden=!open;};
+        exp.textContent='›';switchState(false);
+        exp.onclick=e=>{e.stopPropagation();switchState(tree.hidden);};row.append(exp);
+        for(let child=1;child<=2;child++)tree.append(makeRow(id*10+child,true));
+    }
+    if(mode==='normal-single')read(5,folder.lastElementChild);
+}
 if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1);const article=get('message');document.querySelector('main').append(article);get('preview').remove();}
 </script></body></html>
 """;
@@ -258,6 +301,34 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
             Navigate("stale");Go("Exportar selección web");
             Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),35) && Status().Contains("Verificados 0 de 2"),
                 "un panel que muestra otro asunto deja el lote pendiente sin publicar otro correo");
+            priorRoots=Directory.GetDirectories(destination);
+            Navigate("reader");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),68) && Status().Contains("Verificados 4 de 6"),
+                "el panel normal archiva cuatro mensajes y continúa tras un hilo incompleto y un panel anterior");
+            var readerRoot=Directory.GetDirectories(destination).Except(priorRoots).Single();
+            int[] readerIds=[11,12,3,5];
+            var readerDirs=Directory.GetDirectories(readerRoot).Order(StringComparer.Ordinal).ToArray();
+            for(int i=0;i<readerIds.Length;i++)
+            {
+                int id=readerIds[i];
+                using var pdf=PdfDocument.Open(Path.Combine(readerDirs[i],"Correo.pdf"));
+                var text=string.Join("",pdf.GetPages().Select(p=>p.Text));
+                Check(text.Contains("Cuerpo normal "+id) && text.Contains("Origen de muestra") && text.Contains("Destino de muestra") &&
+                    text.Contains("09:24") && !text.Contains("Resumir este") && File.ReadAllText(Path.Combine(readerDirs[i],$"documento de muestra {id}.txt"))=="Contenido "+id,
+                    $"PDF con cabecera y archivo completo del mensaje individual de prueba {i+1}");
+            }
+            Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("hilo-sin-desglose") && Clipboard.GetText().Contains("panel-anterior") &&
+                !Clipboard.GetText().Contains("Revisión semanal") && !Clipboard.GetText().Contains("Origen de muestra"),"el informe de pendientes distingue el hilo y el panel sin copiar contenido");
+            Navigate("normal-single");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),30) && Status().Contains("Verificados 1 de 1"),
+                "el correo ya abierto en el panel normal se lee con su adjunto desde el mismo botón");
+            Navigate("first-failure");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),38) && Status().Contains("Verificados 1 de 2"),
+                "un fallo en la primera apertura permite archivar el siguiente seleccionado");
+            Navigate("missing-file");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),35) && Status().Contains("Verificados 1 de 2"),
+                "una fila con clip y sin archivo identificable queda pendiente mientras se guarda el siguiente");
             Go("Cerrar ventana web");
             Check(Wait(()=>Ui(()=>Desc(form).OfType<Button>().Any(b=>b.Text=="Abrir Outlook web" && b.Enabled)
                 && !ButtonFor("Exportar selección web").Enabled && !ButtonFor("Cerrar ventana web").Enabled),20),"la sesión dedicada se cierra desde la aplicación");

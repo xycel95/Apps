@@ -68,7 +68,9 @@ internal sealed partial class MainWindow
             status.Text = "Leyendo la selección de tu ventana de Outlook…";
             var result = await Task.Run(() => reader.Export(folder,progress,diagnostics,ct),ct);
             last = result.Folder;
-            var counts = $"Verificados {result.Saved} de {result.Total} correos · {result.Attachments} adjuntos.";
+            var counts = result.UnresolvedGroups>0
+                ? $"Verificados {result.Saved} de {result.Total} elementos del lote · {result.Attachments} adjuntos."
+                : $"Verificados {result.Saved} de {result.Total} correos · {result.Attachments} adjuntos.";
             status.Text = (result.Cancelled ? "Exportación cancelada. " : "") + counts + " " +
                 (result.Problem ?? (result.Saved==result.Total ? "Pulsa Abrir resultado." : "Consulta Pendientes.txt."));
         }

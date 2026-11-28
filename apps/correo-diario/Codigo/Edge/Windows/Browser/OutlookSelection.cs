@@ -14,7 +14,7 @@ internal sealed record WebState(string Kind, int Count, string[] Keys)
 }
 internal sealed record WebFile(string Name, string Key, bool Mail);
 internal sealed record WebMessage(string Title, string[] Headers, string Body, WebFile[] Files, int Images);
-internal sealed record WebResult(string Folder, int Total, int Saved, int Attachments, bool Cancelled, string? Problem);
+internal sealed record WebResult(string Folder, int Total, int Saved, int Attachments, bool Cancelled, string? Problem, int UnresolvedGroups);
 
 internal sealed partial class OutlookSelection(EdgeSession session)
 {
@@ -40,8 +40,12 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         "borrador-vacío" => "Outlook abrió un borrador sin correos adjuntos. Vuelve a la pestaña de conversaciones seleccionadas que aparece al pie de Outlook.",
         "lista-cambiada" or "fila-cambiada" or "fila-ambigua" => "La lista de la carpeta cambió o contiene filas que no se pueden distinguir. Revisa la selección en Outlook.",
         "fila-ausente" => "Outlook ya no muestra esta fila en la carpeta.",
-        "panel-fila" => "No se pudo confirmar que el panel de lectura correspondiera al mensaje marcado. Comprueba que el panel de lectura de Outlook esté visible.",
-        "hilo-agrupado" => "Outlook agrupa varios mensajes en una conversación. Para archivarlos individualmente, elige la vista por mensajes de Outlook y marca los pendientes.",
+        "hilo-sin-desglose" or "panel-varios-cuerpos" => "Outlook no mostró todos los mensajes del hilo por separado. Puedes reintentar esos correos en la vista por mensajes.",
+        "panel-cuerpo-sin-identificar" => "Se abrió la fila, pero no se pudo identificar el cuerpo del mensaje.",
+        "panel-cabecera-sin-identificar" => "Se identificó el cuerpo, pero no se pudo verificar su cabecera.",
+        "panel-asunto-distinto" or "panel-identidad-distinta" => "El mensaje mostrado no coincide con la fila elegida.",
+        "panel-anterior" or "panel-cargando" => "Outlook conservó el panel anterior o dejó el mensaje en carga.",
+        "panel-fila-fuera-de-vista" or "panel-fila-sin-marca-activa" or "panel-seleccion-multiple" => "Outlook no confirmó cuál era la fila abierta.",
         "seleccion" => "Marca varios correos en la ventana de exportación de Edge o abre un único mensaje completo.",
         "borrador" => "El borrador debe contener la selección como elementos de Outlook. Vuelve a la carpeta, marca los correos y pulsa Exportar selección web.",
         "vista-abierta" => "Cierra la vista previa del adjunto hasta ver las tarjetas del borrador y vuelve a exportar.",
@@ -62,7 +66,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
 
     private async Task<JsonElement> Run(string operation, object args, CancellationToken ct)
     {
-        var result = await edge.Evaluate(Page, [origin, operation, args], ct);
+        var result = await edge.Evaluate(Page, [origin, operation, args, (object?)activeRow ?? new {}], ct);
         if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("error", out var code)) throw Fault(code.GetString()!);
         return result;
     }
@@ -264,6 +268,9 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         string runId=Guid.NewGuid().ToString("N");
         var probe=Path.Combine(destination,".CorreoDiario-"+runId+".tmp");
         using(var file=new FileStream(probe,FileMode.CreateNew,FileAccess.Write,FileShare.None,1,FileOptions.DeleteOnClose)) { }
+        activeRow=null;
+        expandedByUs=null;
+        selectionUntouched=true;
         var state=await Prepare(token,log.Event,progress,ct);
         bool direct=state.Kind=="rows";
         bool draft=state.Kind=="draft";
@@ -271,16 +278,19 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         Directory.CreateDirectory(root);
         var pending=new List<string>();
         int saved=0,attachments=0,processed=0;
-        bool firstDirect=true;
+        var queue=state.Rows.ToList();
+        int total=state.Count;
+        int unresolvedGroups=0;
+        var reasons=new Dictionary<string,int>();
         bool cancelled=false;
         string? problem=null;
         string phase="Preparar lote web";
         try
         {
-            for(int index=0;index<state.Count;index++)
+            for(int index=0;index<total;index++)
             {
                 ct.ThrowIfCancellationRequested();
-                progress.Report($"Exportando correo {index+1} de {state.Count} en segundo plano…");
+                progress.Report($"Exportando correo {index+1} de {total} en segundo plano…");
                 string staging=Path.Combine(root,".en-curso-"+Guid.NewGuid().ToString("N"));
                 string heading=$"Correo {index+1}";
                 bool opened=false;
@@ -289,8 +299,21 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     if(direct)
                     {
                         phase="Abrir correo de la lista";
-                        await OpenSelectedRow(token,state.Rows[index],state.Count,firstDirect,ct);
-                        firstDirect=false;
+                        var row=queue[index];
+                        if(expandedByUs!=null && expandedByUs.Key!=row.ParentKey) await CloseOwnGroup(token,ct);
+                        var context=await LocateRow(token,row,state.Count,ct);
+                        if(context.GetProperty("group").GetBoolean())
+                        {
+                            phase="Leer mensajes de la conversación";
+                            var members=await ReadMembers(token,row,context,ct);
+                            queue.RemoveAt(index);
+                            queue.InsertRange(index,members);
+                            total=queue.Count;
+                            log.Event(phase,$"mensajes identificados {members.Length}");
+                            index--;
+                            continue;
+                        }
+                        await OpenSelectedRow(token,row,state.Count,context,ct);
                     }
                     if(draft)
                     {
@@ -308,7 +331,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     phase="Descargar adjunto web";
                     for(int a=0;a<mail.Files.Length;a++) await SaveFile(mail.Files[a],a,draft,staging,ct);
                     if(!Same(mail,await Info(draft,ct))) throw Fault("cambio-mensaje");
-                    if(direct && !(await Run("rows-ready",new {token,state.Rows[index].Key,before=(string?)null},ct)).GetBoolean()) throw Fault("cambio-mensaje");
+                    if(direct && (await Run("rows-ready",new {token,queue[index].Key,queue[index].ParentKey,before=(string?)null},ct)).GetString()!="listo") throw Fault("cambio-mensaje");
                     ct.ThrowIfCancellationRequested();
                     Directory.Move(staging,Path.Combine(root,$"{index+1:D3} - "+MailReader.SafeName(mail.Title,75)));
                     attachments+=mail.Files.Length;
@@ -317,12 +340,22 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                 catch(OperationCanceledException) when(ct.IsCancellationRequested) { throw; }
                 catch(Exception error)
                 {
-                    if(direct && firstDirect && error is WebExportException {Code:"hilo-agrupado"})
-                        firstDirect=(await State(ct)).Kind=="selection";
                     log.Fault(phase,error);
                     problem=error is WebExportException ? error.Message : "Comprueba el diagnóstico de la operación.";
                     pending.Add($"{index+1}. {heading} · {problem}");
-                    if((!direct && !opened) || edge.Invalid || error is not WebExportException || ((WebExportException)error).Code is "origen" or "cambio-lote" or "cambio-mensaje" or "lista-cambiada" or "cambio-seleccion" or "fila-cambiada" or "fila-ambigua" or "panel-fila") {processed=index+1;break;}
+                    if(error is WebExportException web)
+                    {
+                        if(direct && !edge.Invalid && !reasons.ContainsKey(web.Code) && web.Code.StartsWith("panel-",StringComparison.Ordinal))
+                        {
+                            var evidence=await Run("rows-diagnostic",new {token},ct);
+                            log.Event("Estructura del panel",$"cuerpos {evidence.GetProperty("bodies")} · documentos {evidence.GetProperty("documents")} · asuntos posibles {evidence.GetProperty("headings")} · acciones de respuesta {evidence.GetProperty("replies")} · tamaños de archivo {evidence.GetProperty("sizes")}");
+                        }
+                        reasons[web.Code]=reasons.GetValueOrDefault(web.Code)+1;
+                        if(web.Code is "hilo-sin-desglose" or "panel-varios-cuerpos") unresolvedGroups++;
+                    }
+                    if((!direct && !opened) || edge.Invalid || error is not WebExportException ||
+                        ((WebExportException)error).Code is "origen" or "cambio-lote" or "lista-cambiada" or "cambio-seleccion")
+                    { processed=index+1; break; }
                 }
                 finally
                 {
@@ -339,13 +372,21 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         }
         catch(OperationCanceledException) when(ct.IsCancellationRequested) { cancelled=true; }
         catch(Exception error) { log.Fault(phase,error); problem=error is WebExportException ? error.Message : "Revisa el diagnóstico de la operación."; }
-        if(saved!=state.Count || cancelled || problem!=null)
+        if(!ct.IsCancellationRequested && !edge.Invalid && expandedByUs!=null)
         {
-            for(int i=processed;i<state.Count;i++) pending.Add($"{i+1}. Pendiente");
-            File.WriteAllLines(Path.Combine(root,"Pendientes.txt"),new[] {$"Correos verificados: {saved} de {state.Count}.",problem??(cancelled?"Exportación cancelada.":"")}.Concat(pending));
+            try { await CloseOwnGroup(token,ct); }
+            catch(Exception error) { log.Fault("Cerrar desglose de la lista",error); }
         }
-        if(saved==state.Count && problem==null) expectedDraft=0;
-        log.Event("Lote de Outlook web",$"verificados {saved}/{state.Count} · adjuntos {attachments} · cancelado {(cancelled?"sí":"no")}");
-        return new(root,state.Count,saved,attachments,cancelled,problem);
+        if(saved!=total || cancelled || problem!=null)
+        {
+            for(int i=processed;i<total;i++) pending.Add($"{i+1}. Pendiente");
+            File.WriteAllLines(Path.Combine(root,"Pendientes.txt"),new[] {$"Correos verificados: {saved} de {total}. Conversaciones pendientes de desglosar: {unresolvedGroups}.",problem??(cancelled?"Exportación cancelada.":"")}.Concat(pending));
+        }
+        if(saved==total && problem==null) expectedDraft=0;
+        if(reasons.Count>0) log.Event("Pendientes del lote",string.Join(" · ",reasons.Select(p=>$"{p.Key} {p.Value}")));
+        log.Event("Lote de Outlook web",$"verificados {saved}/{total} · adjuntos {attachments} · cancelado {(cancelled?"sí":"no")}");
+        if(unresolvedGroups>0) problem=$"Quedan {unresolvedGroups} conversaciones por desglosar. Consulta Pendientes.txt.";
+        else if(problem!=null && processed==total && total>1) problem="Consulta los mensajes pendientes en Pendientes.txt.";
+        return new(root,total,saved,attachments,cancelled,problem,unresolvedGroups);
     }
 }

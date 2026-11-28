@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.8.2
+
+El lector web admite el panel normal con asunto separado de la tarjeta de lectura, cabeceras de texto y adjuntos con menú y tamaño. Compara cada mensaje con la fila elegida y comprueba el contenido antes de publicar su carpeta. Las conversaciones se desglosan solo cuando el número esperado, las identidades y dos lecturas de sus miembros coinciden. Una incidencia local queda en Pendientes.txt y el lote continúa. Un cambio de origen o de lista interrumpe el lote. Los diagnósticos del panel contienen únicamente contadores y motivos fijos.
+
 ## 0.8.1
 
 La selección múltiple se coteja con las filas marcadas del listado. SelectedRows.cs y OutlookRows.js se limitan a la interfaz visible del buzón. Las identidades de las filas se mantienen en memoria durante el lote. Las filas no verificables y los hilos agrupados quedan pendientes. El borrador se conserva como alternativa cuando la lista no expone todas las identidades. El diagnóstico distingue una entrega vacía de un recuento parcial. Consultar los informes de Windows y de publicación de esta versión para las comprobaciones realizadas.
