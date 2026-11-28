@@ -178,14 +178,36 @@ internal static partial class Program
                 return window!=0 && GetWindowThreadProcessId(window,out uint pid)!=0 && pid==processId;
             }),"Añadir archivos abre el selector nativo en Windows");
             var dialog=AE.FromHandle(window);
-            var combo=dialog.FindFirst(TreeScope.Descendants,new PropertyCondition(AE.AutomationIdProperty,"1148"));
-            var field=(combo??dialog).FindFirst(TreeScope.Descendants,new PropertyCondition(AE.ControlTypeProperty,ControlType.Edit))??combo;
-            if(field==null || !field.TryGetCurrentPattern(ValuePattern.Pattern,out var value)) throw new Exception("Falta el campo de nombre del archivo.");
-            ((ValuePattern)value).SetValue(string.Join(" ",paths.Select(path=>"\""+path+"\"")));
+            string selected=string.Join(" ",paths.Select(path=>"\""+path+"\""));
+            var editCondition=new PropertyCondition(AE.ControlTypeProperty,ControlType.Edit);
+            bool filled=Wait(()=>
+            {
+                var host=dialog.FindFirst(TreeScope.Descendants,new OrCondition(
+                    new PropertyCondition(AE.AutomationIdProperty,"1148"),new PropertyCondition(AE.AutomationIdProperty,"FileNameControlHost")));
+                if(host==null) return false;
+                var fields=host.FindAll(TreeScope.Subtree,editCondition).Cast<AE>().Append(host);
+                foreach(var field in fields)
+                    if(field.TryGetCurrentPattern(ValuePattern.Pattern,out var value) && !((ValuePattern)value).Current.IsReadOnly)
+                    {
+                        ((ValuePattern)value).SetValue(selected);
+                        return true;
+                    }
+                return false;
+            },7);
+            if(!filled)
+            {
+                // The modern common item dialog can expose its filename edit only when focused.
+                SetForegroundWindow(window);
+                dialog.SetFocus();
+                System.Windows.Forms.SendKeys.SendWait("%n");
+                System.Windows.Forms.SendKeys.SendWait("^a");
+                Clipboard.SetText(selected);
+                System.Windows.Forms.SendKeys.SendWait("^v");
+            }
             var accept=dialog.FindFirst(TreeScope.Descendants,new AndCondition(new PropertyCondition(AE.AutomationIdProperty,"1"),
                 new PropertyCondition(AE.ControlTypeProperty,ControlType.Button)));
-            if(accept==null) throw new Exception("Falta el botón de apertura.");
-            Invoke(accept);
+            if(accept!=null && accept.TryGetCurrentPattern(InvokePattern.Pattern,out var invoke)) ((InvokePattern)invoke).Invoke();
+            else System.Windows.Forms.SendKeys.SendWait("{ENTER}");
             Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable carga los dos archivos seleccionados");
             // Start a normal export, then switch to the browser while the worker is running.
             // UI Automation itself may focus the control it invokes, just like a user click.
