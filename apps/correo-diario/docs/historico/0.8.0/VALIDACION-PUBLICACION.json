@@ -1,0 +1,48 @@
+{
+  "release_tag": "correo-diario-v0.8.0",
+  "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0",
+  "source_commit": "8f5978e70e785652089278829584a1cebde5e71c",
+  "published_downloads_verified": true,
+  "files": [
+    {
+      "filename": "CorreoDiario-Edge.exe",
+      "size_bytes": 86491431,
+      "sha256": "61924a1f0948fecb039031db97255e4e1d4f9f2b847ce9b9a515971d90e05303",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario-Edge.exe",
+      "public_download_verified": true,
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_Edge_0.8.0.zip",
+      "size_bytes": 82251757,
+      "sha256": "0407542ff167e9d8cc67879440bd7e2766a8ec6af3d0d3fe7e9e32b484f41641",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario_Edge_0.8.0.zip",
+      "public_download_verified": true,
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "CorreoDiario_Edge_0.8.0_fuentes.zip",
+      "size_bytes": 1627494,
+      "sha256": "21979a59e0989ee5814a6a00874abe04750993307a82acbaf83175cb045ad8c4",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario_Edge_0.8.0_fuentes.zip",
+      "public_download_verified": true,
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "SHA256SUMS.txt",
+      "size_bytes": 374,
+      "sha256": "e3d503f1ab69cabcda01d67dd5617a2d913cd84bc25012b6e2d30576704c8900",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/SHA256SUMS.txt",
+      "public_download_verified": true,
+      "github_asset_digest_verified": true
+    },
+    {
+      "filename": "VALIDACION-WINDOWS.json",
+      "size_bytes": 1497,
+      "sha256": "e694eada71eede4d88b15e63a12aa8c92a9ef6d4634ebf91b80b925a35c49b2e",
+      "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/VALIDACION-WINDOWS.json",
+      "public_download_verified": true,
+      "github_asset_digest_verified": true
+    }
+  ]
+}

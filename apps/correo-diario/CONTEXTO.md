@@ -4,6 +4,8 @@
 
 La selección múltiple se coteja con las filas marcadas del listado. SelectedRows.cs y OutlookRows.js se limitan a la interfaz visible del buzón. Las identidades de las filas se mantienen en memoria durante el lote. Las filas no verificables y los hilos agrupados quedan pendientes. El borrador se conserva como alternativa cuando la lista no expone todas las identidades. El diagnóstico distingue una entrega vacía de un recuento parcial. Consultar los informes de Windows y de publicación de esta versión para las comprobaciones realizadas.
 
+Se verificaron las cinco descargas públicas y sus huellas SHA-256. El ejecutable pasó 65 comprobaciones de lectura y archivo y 85 de escritorio en Windows. Se comprobó la correspondencia de cada PDF y adjunto con las 106 filas ficticias seleccionadas entre 123.
+
 ## 0.8.0
 
 El modo de selección entra por Windows/Browser/WebButtons.cs y conserva los modos anteriores. El código en OutlookPage.js trabaja con la interfaz web de la ventana temporal de Edge. WindowsChecks/WebChecks.cs cubre el flujo con correo ficticio, PDF, adjuntos homónimos, una selección virtualizada y casos incompletos. La sesión y la autorización corporativas se comprueban en cada equipo. La publicación de app.json se realiza después de verificar los archivos públicos de la release.

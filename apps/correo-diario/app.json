@@ -7,8 +7,8 @@
   "description_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/DESCRIPCION.md",
   "guide_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/docs/README.md",
   "changelog_url": "https://github.com/xycel95/Apps/blob/correo-diario/apps/correo-diario/notas-de-parche/README.md",
-  "version": "0.8.0",
-  "release_date": "2026-11-27",
+  "version": "0.8.1",
+  "release_date": "2026-11-28",
   "summary": "Exporta en segundo plano los mensajes seleccionados en una ventana de Outlook web. Guarda un PDF y los adjuntos en una carpeta por correo.",
   "platforms": [
     "Windows 10/11 x64"
@@ -22,47 +22,47 @@
   "source_url": "https://github.com/xycel95/Apps/tree/correo-diario/apps/correo-diario/Codigo/Edge",
   "download": {
     "available": true,
-    "filename": "CorreoDiario_Edge_0.8.0.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario_Edge_0.8.0.zip",
+    "filename": "CorreoDiario_Edge_0.8.1.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/CorreoDiario_Edge_0.8.1.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.8.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/SHA256SUMS.txt",
-    "size_bytes": 82251757,
-    "sha256": "0407542ff167e9d8cc67879440bd7e2766a8ec6af3d0d3fe7e9e32b484f41641"
+    "release_tag": "correo-diario-v0.8.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/SHA256SUMS.txt",
+    "size_bytes": 82272477,
+    "sha256": "e61d8c89def42f2dbea9a6b228f4e6b7f4d58fd71e4e1b805ed4cfb5770326d4"
   },
   "zip_download": {
     "available": true,
-    "filename": "CorreoDiario_Edge_0.8.0.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario_Edge_0.8.0.zip",
+    "filename": "CorreoDiario_Edge_0.8.1.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/CorreoDiario_Edge_0.8.1.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.8.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/SHA256SUMS.txt",
-    "size_bytes": 82251757,
-    "sha256": "0407542ff167e9d8cc67879440bd7e2766a8ec6af3d0d3fe7e9e32b484f41641"
+    "release_tag": "correo-diario-v0.8.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/SHA256SUMS.txt",
+    "size_bytes": 82272477,
+    "sha256": "e61d8c89def42f2dbea9a6b228f4e6b7f4d58fd71e4e1b805ed4cfb5770326d4"
   },
   "executable": {
     "available": true,
     "filename": "CorreoDiario-Edge.exe",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario-Edge.exe",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/CorreoDiario-Edge.exe",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.8.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/SHA256SUMS.txt",
-    "size_bytes": 86491431,
-    "sha256": "61924a1f0948fecb039031db97255e4e1d4f9f2b847ce9b9a515971d90e05303"
+    "release_tag": "correo-diario-v0.8.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/SHA256SUMS.txt",
+    "size_bytes": 86502652,
+    "sha256": "603fd28e79782ddf85b3473b0a539d421cadf1d86c8a6b79e196eb956343c0fd"
   },
   "source_download": {
     "available": true,
-    "filename": "CorreoDiario_Edge_0.8.0_fuentes.zip",
-    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/CorreoDiario_Edge_0.8.0_fuentes.zip",
+    "filename": "CorreoDiario_Edge_0.8.1_fuentes.zip",
+    "url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/CorreoDiario_Edge_0.8.1_fuentes.zip",
     "hosting": "github-release",
-    "release_tag": "correo-diario-v0.8.0",
-    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.0",
-    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/SHA256SUMS.txt",
-    "size_bytes": 1627494,
-    "sha256": "21979a59e0989ee5814a6a00874abe04750993307a82acbaf83175cb045ad8c4"
+    "release_tag": "correo-diario-v0.8.1",
+    "release_url": "https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.1",
+    "integrity_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/SHA256SUMS.txt",
+    "size_bytes": 1636459,
+    "sha256": "ab6387493ffbafb1726af8b669f74ec3f8352c0a1f324ae01094c96f3811b691"
   },
   "distribution": {
     "type": "portable-single-executable",
@@ -75,15 +75,15 @@
   "validation": {
     "real_outlook_export_verified": false,
     "user_mail_accessed": false,
-    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.0/VALIDACION-WINDOWS.json",
-    "source_commit": "8f5978e70e785652089278829584a1cebde5e71c",
-    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/46063555868",
+    "windows_report_url": "https://github.com/xycel95/Apps/releases/download/correo-diario-v0.8.1/VALIDACION-WINDOWS.json",
+    "source_commit": "99862d984fa845fefb7719d1c7d58cbfba211e0d",
+    "workflow_url": "https://github.com/xycel95/Apps/actions/runs/46133721608",
     "stable_version_in_executable_and_diagnostic_verified": true,
     "native_startup_verified": true,
     "native_edge_window_detection_verified": true,
     "diagnostics_clipboard_verified": true,
     "core_tests_passed": 65,
-    "edge_diagnostic_tests_passed": 74,
+    "edge_diagnostic_tests_passed": 85,
     "local_imitation_rejected": true,
     "native_multi_message_clipboard_verified": true,
     "background_focus_and_cursor_verified": true,
@@ -101,7 +101,15 @@
     "web_background_focus_cursor_verified": true,
     "web_partial_selection_rejected": true,
     "web_protected_attachment_reported": true,
-    "corporate_web_login_verified": false
+    "corporate_web_login_verified": false,
+    "direct_selection_fixture_verified": true,
+    "direct_selection_marked": 106,
+    "direct_selection_folder_size": 123,
+    "direct_selection_rendered_rows": 13,
+    "direct_selection_focus_cursor_verified": true,
+    "direct_no_bulk_draft_verified": true,
+    "mismatching_reading_pane_rejected": true,
+    "empty_draft_diagnostics_verified": true
   },
   "prerelease": false,
   "online_updates_configured": true,
@@ -132,5 +140,6 @@
   "resumable_folder_export": true,
   "web_selection_export": true,
   "physical_mouse_or_keyboard_used": false,
-  "automates_dedicated_edge_controls": true
+  "automates_dedicated_edge_controls": true,
+  "web_direct_selected_rows": true
 }

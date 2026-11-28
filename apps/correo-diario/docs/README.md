@@ -54,7 +54,7 @@ La ventana principal también permite añadir mensajes EML o MSG existentes y re
 
 ### Comprobaciones de la versión
 
-En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 74 de escritorio. El modo web exportó 106 mensajes ficticios desde sus botones en Edge, conservando el foco de otra ventana y el cursor. Se verificaron los PDF con imágenes y tablas, adjuntos con el mismo nombre, un correo individual, la selección incompleta y la ausencia de una acción de descarga. La autorización y la exportación con un buzón corporativo real quedan pendientes de la prueba en ese equipo.
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 85 de escritorio. En la prueba de lectura directa se archivaron los 106 mensajes marcados de una carpeta ficticia con 123 filas y 13 visibles. Se comprobaron los PDF, sus adjuntos y el foco y el cursor de otra ventana. Para este lote la aplicación no abrió ningún borrador. También se probaron un panel con un mensaje equivocado y un borrador vacío. La prueba con el buzón de trabajo real queda pendiente.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 
