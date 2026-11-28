@@ -21,7 +21,7 @@ internal static partial class Program
     sealed class TestMailObject(bool truncated = false, bool atEnd = true, bool compound = false) : OleData
     {
         readonly short descriptor = F("FileGroupDescriptorW"), contents = F("FileContents");
-        static byte[] Message(int n)
+        public static byte[] Message(int n)
         {
             var text = "From: Test <a@example.test>\r\nTo: b@example.test\r\nSubject: " + PrivateMarker + n
                 + "\r\nDate: Thu, 26 Nov 2026 13:45:00 +0100\r\nMessage-ID: <test-" + n + "@example.test>\r\n"
@@ -125,7 +125,9 @@ internal static partial class Program
 
     [DllImport("ole32.dll")] static extern int StgOpenStorageOnILockBytes(nint backing, nint priority, uint flags, nint exclude, uint reserved, out INativeStorage storage);
     [DllImport("ole32.dll")] static extern int CreateStreamOnHGlobal(nint h, bool delete, out IStream stream);
-    [DllImport("ole32.dll")] static extern int OleSetClipboard([MarshalAs(UnmanagedType.Interface)] OleData? data);
+    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr FindWindow(string className,string title);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr handle,out uint process);
+    [DllImport("user32.dll")] static extern bool PostMessage(IntPtr window,uint message,IntPtr wParam,IntPtr lParam);
     [DllImport("kernel32.dll")] static extern nint GlobalAlloc(uint flags, UIntPtr size);
     [DllImport("kernel32.dll")] static extern nint GlobalLock(nint h);
     [DllImport("kernel32.dll")] static extern bool GlobalUnlock(nint h);
@@ -157,33 +159,34 @@ internal static partial class Program
         catch (TransferException e) { Check(e.Reason == "solo texto o enlace", "una URL no se convierte en correo"); }
     }
 
-    static void NativeExport(AE form, string folder, IntPtr other)
+    static void NativeExport(AE form,string folder,IntPtr other,int processId)
     {
-        var ready = new TaskCompletionSource();
-        using var finish = new ManualResetEventSlim();
-        var owner = new Thread(() =>
-        {
-            try
-            {
-                Application.OleRequired();
-                var provider = new TestMailObject();
-                Marshal.ThrowExceptionForHR(OleSetClipboard(provider));
-                ready.SetResult();
-                using var timer = new System.Windows.Forms.Timer { Interval = 75 };
-                timer.Tick += (_, _) => { if (finish.IsSet) Application.ExitThread(); };
-                timer.Start();
-                Application.Run();
-                GC.KeepAlive(provider);
-            }
-            catch (Exception e) { ready.TrySetException(e); }
-        }) { IsBackground = true };
-        owner.SetApartmentState(ApartmentState.STA);
-        owner.Start();
+        Invoke(Named(form,"Archivos locales")!);
+        Check(Wait(()=>Named(form,"Añadir archivos…") is { } button && !button.Current.IsOffscreen),
+            "Archivos locales despliega la selección de archivos en el ejecutable");
+        string samples=Directory.CreateTempSubdirectory("CorreoDiario-muestras-").FullName;
         try
         {
-            ready.Task.WaitAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
-            Invoke(Named(form,"Pegar correos")!);
-            Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable recibe dos mensajes virtuales del portapapeles de Windows");
+            var paths=Enumerable.Range(0,2).Select(i=>Path.Combine(samples,$"muestra {i}.eml")).ToArray();
+            for(int i=0;i<paths.Length;i++) File.WriteAllBytes(paths[i],TestMailObject.Message(i));
+            var open=Named(form,"Añadir archivos…")!;
+            PostMessage((IntPtr)open.Current.NativeWindowHandle,0x00F5,0,0);
+            IntPtr window=0;
+            Check(Wait(()=>
+            {
+                window=FindWindow("#32770","Añadir correos existentes");
+                return window!=0 && GetWindowThreadProcessId(window,out uint pid)!=0 && pid==processId;
+            }),"Añadir archivos abre el selector nativo en Windows");
+            var dialog=AE.FromHandle(window);
+            var combo=dialog.FindFirst(TreeScope.Descendants,new PropertyCondition(AE.AutomationIdProperty,"1148"));
+            var field=(combo??dialog).FindFirst(TreeScope.Descendants,new PropertyCondition(AE.ControlTypeProperty,ControlType.Edit))??combo;
+            if(field==null || !field.TryGetCurrentPattern(ValuePattern.Pattern,out var value)) throw new Exception("Falta el campo de nombre del archivo.");
+            ((ValuePattern)value).SetValue(string.Join(" ",paths.Select(path=>"\""+path+"\"")));
+            var accept=dialog.FindFirst(TreeScope.Descendants,new AndCondition(new PropertyCondition(AE.AutomationIdProperty,"1"),
+                new PropertyCondition(AE.ControlTypeProperty,ControlType.Button)));
+            if(accept==null) throw new Exception("Falta el botón de apertura.");
+            Invoke(accept);
+            Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable carga los dos archivos seleccionados");
             // Start a normal export, then switch to the browser while the worker is running.
             // UI Automation itself may focus the control it invokes, just like a user click.
             Invoke(Named(form, "Exportar archivos añadidos")!);
@@ -207,12 +210,12 @@ internal static partial class Program
             var parts = Directory.GetFiles(folder,"test.bin",SearchOption.AllDirectories);
             Check(parts.Length == 2 && parts.All(p => File.ReadAllBytes(p).SequenceEqual(new byte[]{1,2,3,4})), "ambos adjuntos se recuperan íntegros en la exportación real");
             Check(!Directory.GetFiles(folder,"*",SearchOption.AllDirectories).Any(f => Path.GetExtension(f) is ".msg" or ".eml"), "el lote del ejecutable carece de copias de mensajes originales");
-            Clipboard.SetText("https://example.test/" + PrivateMarker);
-            Invoke(Named(form,"Pegar correos")!);
-            Check(Wait(() => Named(form,"Outlook entregó texto o un enlace. Faltan el cuerpo y los adjuntos del correo. No se ha añadido ningún mensaje. Para un lote de Outlook web, usa Abrir Outlook web.") != null), "la interfaz comunica que un enlace es insuficiente");
             Invoke(Named(form,"Copiar diagnóstico")!);
-            Check(Wait(() => Clipboard.GetText().Contains("solo texto o enlace") && !Clipboard.GetText().Contains(PrivateMarker)), "el diagnóstico copiado incluye el motivo y excluye los asuntos y el enlace");
+            Check(Wait(() => Clipboard.GetText().Contains("Guardados 2 de 2") && !Clipboard.GetText().Contains(PrivateMarker)),
+                "el diagnóstico local recoge los contadores sin incluir asuntos");
+            Invoke(Named(form,"Ocultar archivos locales")!);
+            Check(Wait(()=>Named(form,"Archivos locales")!=null),"el usuario puede volver a plegar los archivos locales");
         }
-        finally { finish.Set(); owner.Join(TimeSpan.FromSeconds(5)); }
+        finally { Directory.Delete(samples,true); }
     }
 }

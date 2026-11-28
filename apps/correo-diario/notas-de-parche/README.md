@@ -1,5 +1,12 @@
 # Notas de parche
 
+## 0.8.4 · 28/11/2026
+
+- La pantalla principal abre directamente con la selección desde Edge, el destino y los resultados. Se han retirado la conexión adicional a Microsoft 365 para exportar carpetas y el botón de pegar correos.
+- **Archivos locales** está plegado al iniciar. Se puede desplegar para añadir EML o MSG existentes.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.4)
+
 ## 0.8.3 · 28/11/2026
 
 - Cada correo queda directamente en el destino elegido, en una carpeta con la fecha y hora del mensaje, el correo del remitente y el asunto. Dentro se guardan `Correo.pdf` y sus adjuntos.

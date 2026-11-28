@@ -28,8 +28,8 @@ internal sealed partial class MainWindow : Form
     readonly Label status = LabelOf("Para empezar, pulsa Abrir Outlook web y marca los correos en esa ventana de Edge.");
     readonly Label counter = LabelOf("");
     readonly Button update = Btn("Buscar actualizaciones");
-    readonly Button cloud = Btn("Exportar carpetas de Outlook…");
-    readonly Button paste = Btn("Pegar correos"), files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
+    readonly Button localFiles = Btn("Archivos locales");
+    readonly Button files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
         countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar archivos añadidos"),
         clear = Btn("Quitar marcados"), select = Btn("Marcar todos"), open = Btn("Abrir resultado"),
         stop = Btn("Cancelar"), copy = Btn("Copiar diagnóstico");
@@ -69,14 +69,14 @@ internal sealed partial class MainWindow : Form
         Text = "CorreoDiario para Edge";
         Font = new Font("Segoe UI", 10);
         AutoScaleMode = AutoScaleMode.Dpi;
-        Size = new(925, 735);
-        MinimumSize = new(730, 620);
-        var page = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(18), ColumnCount = 1 };
+        Size = new(900, 495);
+        MinimumSize = new(720, 455);
+        var page = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(18), ColumnCount = 1, AutoScroll = true };
         Controls.Add(page);
-        void Add(Control control, bool expand = false)
+        void Add(Control control)
         {
             int i = page.RowCount++;
-            page.RowStyles.Add(new(expand ? SizeType.Percent : SizeType.AutoSize, expand ? 100 : 0));
+            page.RowStyles.Add(new(SizeType.AutoSize));
             page.Controls.Add(control, 0, i);
         }
         var title = LabelOf("CorreoDiario");
@@ -84,21 +84,40 @@ internal sealed partial class MainWindow : Form
         Add(title);
         Add(LabelOf("Marca los correos en la ventana de Edge que abre CorreoDiario. Al exportar podrás seguir trabajando."));
         Add(Line(webOpen, webExport, webClose));
-        Add(Line(cloud, update));
-        Add(LabelOf("También puedes añadir mensajes completos que ya tengas en el ordenador."));
-        Add(Line(paste, files));
-        Add(rows, true);
-        Add(Line(select, clear, counter));
-        Add(LabelOf("Comprobar la pestaña de Outlook (opcional)"));
-        Add(Field(windows, detect, countEdge));
         Add(LabelOf("Carpeta de destino"));
         Add(Field(target, choose));
-        Add(Line(export, stop, open, showPending, copy));
-        showPending.Click+=(_,_)=>ShowPending();
+        Add(Line(stop, open, showPending, copy));
         status.ForeColor = Color.FromArgb(21, 61, 91);
+        status.AccessibleName = "Estado de la exportación";
         Add(status);
+        Add(LabelOf("Comprobar la pestaña de Outlook (opcional)"));
+        Add(Field(windows, detect, countEdge));
+        Add(Line(update, localFiles));
+
+        var localPanel = new TableLayoutPanel
+        {
+            ColumnCount = 1, RowCount = 3, Dock = DockStyle.Top, AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink, Margin = Padding.Empty, Visible = false
+        };
+        localPanel.ColumnStyles.Add(new(SizeType.Percent, 100));
+        localPanel.RowStyles.Add(new(SizeType.AutoSize));
+        localPanel.RowStyles.Add(new(SizeType.Absolute, 118));
+        localPanel.RowStyles.Add(new(SizeType.AutoSize));
+        localPanel.Controls.Add(Line(files, select, clear), 0, 0);
+        localPanel.Controls.Add(rows, 0, 1);
+        localPanel.Controls.Add(Line(export, counter), 0, 2);
+        Add(localPanel);
+        localFiles.Click += (_, _) =>
+        {
+            bool show = !localPanel.Visible;
+            localPanel.Visible = show;
+            localFiles.Text = show ? "Ocultar archivos locales" : "Archivos locales";
+            if (show) page.ScrollControlIntoView(localPanel);
+            else page.AutoScrollPosition = Point.Empty;
+        };
+        showPending.Click+=(_,_)=>ShowPending();
         LoadFolder();
-        foreach (Control surface in new Control[] { this, rows, page, title })
+        foreach (Control surface in new Control[] { localPanel, rows })
         {
             surface.AllowDrop = true;
             surface.DragEnter += (_, e) =>
@@ -115,14 +134,6 @@ internal sealed partial class MainWindow : Form
         webExport.Click += async (_, _) => await ExportWeb();
         webClose.Click += async (_, _) => await CloseWeb();
         update.Click += async (_, _) => await UpdateApp();
-        cloud.Click += (_, _) => BeginInvoke(() =>
-        {
-            if (busy || !Enabled) return;
-            using var window = new FolderWindow(diagnostics, target.Text);
-            window.ShowDialog(this);
-        });
-        paste.Click += async (_, _) => await Receive(() => Clipboard.GetDataObject() is OleData ole
-            ? MailTransfer.Read(ole) : throw new TransferException("portapapeles vacío", "El portapapeles no contiene correos completos."));
         files.Click += async (_, _) =>
         {
             using var dialog = new OpenFileDialog { Multiselect = true, Filter = "Correos (*.eml;*.msg)|*.eml;*.msg", Title = "Añadir correos existentes" };
@@ -193,7 +204,7 @@ internal sealed partial class MainWindow : Form
 
     void RefreshControls()
     {
-        foreach (var control in new Control[]{update, cloud, paste, files, detect, windows, choose, rows}) control.Enabled = !busy;
+        foreach (var control in new Control[]{update, localFiles, files, detect, windows, choose, rows}) control.Enabled = !busy;
         webOpen.Enabled = !busy;
         webOpen.Text = webSession == null ? "Abrir Outlook web" : "Mostrar Outlook web";
         webExport.Enabled = !busy && webSession != null && target.Text.Length > 0;
@@ -228,7 +239,7 @@ internal sealed partial class MainWindow : Form
         try
         {
             status.Text = "Recibiendo los mensajes…";
-            // Capture the offered OLE data during the user's paste/drop on its owning STA.
+            // Complete a file drop on the UI thread while Windows still owns the transfer.
             var delivery = take();
             diagnostics.Event(phase, $"{delivery.Method} · recibidos {delivery.Inputs.Count}");
             phase = "Validar correos recibidos";

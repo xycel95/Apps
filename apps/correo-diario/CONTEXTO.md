@@ -1,5 +1,9 @@
 # Continuar CorreoDiario
 
+## 0.8.4
+
+La aplicación de escritorio utiliza la sesión de Edge de la ventana de exportación. Se retiraron el diálogo de carpetas de Microsoft 365, el cliente de autenticación de la aplicación y la entrada de correos mediante portapapeles. Archivos locales se abre a petición del usuario y permite elegir EML o MSG. Copiar diagnóstico sigue disponible.
+
 ## 0.8.3
 
 Las exportaciones de la interfaz nativa publican cada carpeta terminada directamente en el destino. MessageFolders aplica el formato de fecha y hora, remitente y asunto, reserva nombres ante colisiones y publica mediante cambio de nombre. Las incidencias web quedan en memoria para Ver pendientes. FolderArchive guarda su estado de reanudación fuera del destino.

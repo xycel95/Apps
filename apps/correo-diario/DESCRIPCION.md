@@ -6,6 +6,6 @@ El modo de selección utiliza una ventana propia de Microsoft Edge. Te identific
 
 El programa coteja las filas marcadas con el contador de Outlook y las lee en la ventana en segundo plano. Los correos que requieren revisión se consultan con **Ver pendientes**.
 
-También puedes convertir archivos EML o MSG existentes y, en organizaciones que lo tengan configurado, exportar carpetas mediante Microsoft 365.
+El apartado **Archivos locales** permite convertir archivos EML o MSG que ya tengas. Puedes dejarlo plegado para trabajar desde Edge.
 
 [Guía de uso](docs/README.md) · [Descargas](descargas/README.md) · [Historial de versiones](notas-de-parche/README.md)

@@ -1,5 +1,9 @@
 # Trabajar en CorreoDiario
 
+## Interfaz desde 0.8.4
+
+La entrada principal es la selección web de Edge. Se retiraron la conexión de cuenta adicional para carpetas Microsoft 365 y el pegado de correos. La conversión opcional de archivos existentes se abre desde Archivos locales. El portapapeles sirve para copiar el diagnóstico.
+
 ## Selección web desde 0.8
 
 La acción explícita Abrir Outlook web abre Microsoft Edge con una sesión temporal e independiente para el modo solicitado de segundo plano. El usuario se identifica directamente en Edge. Usar el controlador compatible firmado por Microsoft y una carpeta temporal propia para las descargas verificadas. Limitar las acciones al origen de correo admitido y a controles de Outlook exteriores al cuerpo. Respetar las restricciones del navegador y de la cuenta. El lector sigue únicamente controles y contenido presentados en la web. Conservar la ventana habitual, la entrada física, las credenciales del navegador habitual y los mensajes del buzón. No enviar ni descartar borradores automáticamente.

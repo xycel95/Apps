@@ -41,7 +41,7 @@ internal sealed class DiagnosticLog
     {
         var method = new StackTrace(e, false).GetFrames()?.Select(frame => frame.GetMethod())
             .FirstOrDefault(m => m?.DeclaringType?.Namespace?.StartsWith("CorreoDiario", StringComparison.Ordinal) == true);
-        var reason = e is TransferException t ? " · " + t.Reason : e is MailboxException m ? " · " + m.Reason : e is WebExportException w ? " · " + w.Code : "";
+        var reason = e is TransferException t ? " · " + t.Reason : e is WebExportException w ? " · " + w.Code : "";
         var where = method == null ? "" : $" · {method.DeclaringType!.Name}.{method.Name}";
         lock (gate)
         {

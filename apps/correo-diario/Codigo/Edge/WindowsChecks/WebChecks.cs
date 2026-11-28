@@ -259,7 +259,7 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
         static IEnumerable<Control> Desc(Control w) => w.Controls.Cast<Control>().SelectMany(c=>new[] { c }.Concat(Desc(c)));
         Button ButtonFor(string caption)=>Desc(form).OfType<Button>().Single(b=>b.Text==caption);
         bool Ui(Func<bool> test)=>(bool)form.Invoke(test);
-        string Status()=>(string)form.Invoke(()=>Desc(form).OfType<Label>().Last().Text);
+        string Status()=>(string)form.Invoke(()=>Desc(form).OfType<Label>().Single(x=>x.AccessibleName=="Estado de la exportación").Text);
         void Go(string caption)=>form.Invoke(()=>ButtonFor(caption).PerformClick());
         try
         {

@@ -1,4 +1,4 @@
-CORREODIARIO PARA EDGE 0.8.3 · WINDOWS X64
+CORREODIARIO PARA EDGE 0.8.4 · WINDOWS X64
 
 Exportar una selección desde Edge
 
@@ -18,37 +18,11 @@ Mostrar Outlook web recupera la ventana para otro lote. Cerrar ventana web termi
 
 Copiar diagnóstico recoge las fases, los contadores y los motivos técnicos. Los asuntos y direcciones solo se muestran localmente.
 
-Exportar carpetas con Microsoft 365
+Archivos locales
 
-1. Abre CorreoDiario-Edge.exe y pulsa Exportar carpetas de Outlook…. Si Informática ya te dio un archivo de configuración, pulsa Configuración… si los campos están ocultos y Abrir configuración…. Si te dio dos identificadores, introdúcelos en esos campos.
-2. Pulsa Conectar con Microsoft 365. Elige la cuenta de trabajo en el navegador y completa la identificación que pida la organización. Volverás a CorreoDiario con la lista de carpetas del buzón.
-3. Marca todas las carpetas que quieras exportar. Para incluir una subcarpeta, márcala también. El programa recuerda tu elección al exportar. Elige el destino en Windows y pulsa Exportar carpetas. Puedes minimizar la app, cambiar de pestaña o cerrar Edge después de identificarte. Mantén CorreoDiario abierto.
-4. Pulsa Abrir resultado. Las carpetas de todos los correos verificados quedan juntas en el destino que hayas elegido.
+Para convertir mensajes EML o MSG que ya tengas en el ordenador, despliega Archivos locales, pulsa Añadir archivos… y después Exportar archivos añadidos. La salida tiene la misma estructura que la exportación desde Edge.
 
-Primera conexión en un equipo de trabajo
-
-Pulsa Copiar solicitud para Informática si aún no tienes una configuración. El botón prepara el texto para que puedas enviarlo tú. Informática puede registrar o habilitar un cliente público de escritorio en Microsoft Entra, asignar el acceso que corresponda a tu cuenta, y confirmar el destino permitido para el archivo. La aplicación pide el permiso delegado de Microsoft Graph Mail.Read, que permite leer tu buzón. La selección de carpetas se aplica en CorreoDiario. El servicio de identidad gestiona la identificación y el consentimiento en el navegador predeterminado.
-
-Configura la plataforma Aplicaciones móviles y de escritorio, con la redirección http://localhost. Facilita al usuario el ID de aplicación y el ID de directorio, sobre todo si el registro es de un único inquilino. También se pueden entregar como CorreoDiario.M365.json junto al ejecutable usando los nombres de campos siguientes.
-
-{
-  "ClientId": "<ID de aplicación>",
-  "TenantId": "<ID de directorio>"
-}
-
-Si el acceso requiere aprobación o la política del dispositivo impide la conexión, Copiar diagnóstico recoge la fase y el código disponibles para Informática. El mensaje de solicitud contiene los datos del registro necesarios. Introduce tus credenciales únicamente en la página de Microsoft o de tu organización que abra el navegador.
-
-[Registro de aplicaciones de escritorio](https://learn.microsoft.com/entra/identity-platform/scenario-desktop-app-registration) · [Permiso delegado de lectura de correo](https://learn.microsoft.com/graph/permissions-reference#mailread)
-
-Resultado, reintentos y espacio del buzón
-
-En el modo de carpetas de Microsoft 365, el programa verifica los PDF y las huellas de los adjuntos. Si repites la exportación con la misma cuenta y destino, comprueba las copias previas. Los registros de verificación y reanudación se guardan en los datos locales de CorreoDiario, fuera de la carpeta de destino.
-
-La exportación conserva los mensajes en el buzón. En la exportación web, puedes consultar los fallos del último lote con Ver pendientes y volver a seleccionar esos mensajes cuando se resuelva la causa.
-
-Archivos existentes
-
-La ventana principal también permite añadir mensajes EML o MSG existentes y recibir una entrega completa de Windows. Detectar Edge y Ver selección en Edge muestran los contadores visibles. Para exportar los mensajes marcados en el navegador, utiliza Abrir Outlook web.
+Detectar Edge y Ver selección en Edge permiten comprobar los contadores de una pestaña de Outlook. Para exportar, marca los correos en la ventana que abre Abrir Outlook web.
 
 Actualizar CorreoDiario
 
