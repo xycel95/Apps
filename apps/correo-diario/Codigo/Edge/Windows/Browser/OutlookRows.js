@@ -6,7 +6,7 @@ function folderRows() {
     const mark='data-correo-lista', scrollMark='data-correo-scroll', prior='data-correo-antes';
     const tag=attribute=>'['+attribute+'="'+token+'"]';
     if (operation==="rows-clear") {
-        for (const attribute of [mark,scrollMark,prior]) for (const el of all(document,tag(attribute))) el.removeAttribute(attribute);
+        for (const attribute of [mark,scrollMark,prior,'data-correo-conversaciones']) for (const el of all(document,tag(attribute))) el.removeAttribute(attribute);
         return true;
     }
     const rowSelector='[role="option"],[role="listitem"],[role="row"],[role="treeitem"]';
@@ -46,6 +46,8 @@ function folderRows() {
         const list=preferred.length===1?preferred[0]:groups.size===1?[...groups][0]:null;
         if(!list) return {available:false};
         list.setAttribute(mark,token);
+        if(all(document,'span,div,p,[role="status"]').some(e=>e.childElementCount<=1 && display(e) && !withinContent(e) &&
+            /^(?:[\d., ]+ conversaciones? seleccionad[ao]s?|[\d., ]+ conversations? selected)$/i.test(clean(e.textContent)))) list.setAttribute('data-correo-conversaciones',token);
         const box=scroller(list,rowsOf(list)[0]);
         box.setAttribute(scrollMark,token);
         const saved=box.scrollTop;
@@ -128,14 +130,24 @@ function folderRows() {
     const matches=arg.parentKey ? (parent?members(parent).filter(r=>memberKey(r)===arg.key):[]) : rows.filter(r=>identity(r)===arg.key);
     if(matches.length>1) return fail("fila-ambigua");
     const row=matches[0];
-    if(operation==="rows-before") { const pane=view(); return pane?panelStamp(pane):null; }
+    function screenStamp() {
+        const groups=readingLayout().groups;
+        if(groups.length>1) return "hilo|"+stamp(groups.map(g=>g.key+"#"+g.parts.map(b=>b.innerText).join("\n")).join("\n"));
+        const pane=view();return pane?panelStamp(pane):null;
+    }
+    if(operation==="rows-before") return screenStamp();
+    if(operation==="rows-plan") return visibleMemberPlan();
+    if(operation==="rows-expand-card") return selectedCard()?.trigger || null;
     if(operation==="rows-metrics") return {top:box.scrollTop,height:box.clientHeight,end:box.scrollTop+box.clientHeight>=box.scrollHeight-3};
     if(operation==="rows-inspect") {
         if(!row) return null;
         if(witness(row)!==arg.text) return fail("fila-cambiada");
         if(arg.first && (selectionCount()!==arg.count || !checked(parent || row))) return fail("cambio-seleccion");
         const b=toggle(row);
-        return {group:!arg.parentKey && (!!b || row.hasAttribute('aria-expanded')),expanded:!!b && isExpanded(row,b),
+        const count=(accessibleName(row)+" "+(b?label(b):"")).match(/\b(\d+)\s+(?:mensajes?|messages?|correos?)\b/i);
+        return {itemId:itemId(row) || null,child:!!arg.parentKey,memberCount:count?Number(count[1]):null,
+            conversation:!arg.parentKey && (!!b || list.hasAttribute('data-correo-conversaciones') || row.hasAttribute('data-convid')),
+            group:!arg.parentKey && (!!b || row.hasAttribute('aria-expanded')),expanded:!!b && isExpanded(row,b),
             titles:[...new Set([...parts(row),...(arg.parentTitles || [])])], hasFile:fileHint(row) || all(row,'[aria-label],[title],[data-icon-name]').some(e=>
                 e.closest(rowSelector)===row && (fileHint(e) || /^(?:attach|paperclip)$/i.test(e.getAttribute('data-icon-name') || '')))};
     }
@@ -176,14 +188,18 @@ function folderRows() {
     if(operation==="rows-ready") {
         if(!row) return "fila-fuera-de-vista";
         if(selectionCount()>1) return "seleccion-multiple";
-        if(bodies.length>1) return "varios-cuerpos";
-        if(!bodies.length) return "cuerpo-sin-identificar";
-        if(arg.before && bodies[0].getAttribute(prior)===token && stamp(bodies[0].innerText)===arg.before.split("|")[0]) return "anterior";
-        const pane=view();
-        if(!pane) return "cabecera-sin-identificar";
+        const layout=readingLayout(), chosen=selectedCard();
+        if(layout.scope?.closest('[aria-busy="true"]') || layout.scope && all(layout.scope,'[aria-busy="true"],[role="progressbar"]').some(display)) return "cargando";
+        if(!layout.groups.length) return "cuerpo-sin-identificar";
+        const thread=!chosen && layout.groups.length>1 && !paneMember;
+        if(chosen?.ambiguous || !chosen && !thread) return "regiones-ambiguas";
+        if(arg.before && screenStamp()===arg.before) return "anterior";
+        if(chosen?.parts.length && arg.before && chosen.parts[0].getAttribute(prior)===token && stamp(chosen.parts[0].innerText)===arg.before.split("|")[0]) return "anterior";
+        if(paneMember && chosen?.trigger && !chosen.parts.length) return "tarjeta-cerrada";
+        const first=thread ? layout.groups.find(g=>g.parts.length && !g.ambiguous) : chosen;
+        const pane=first?cardView(first):null;
+        if(!pane) return thread?"hilo-incompleto":"cabecera-sin-identificar";
         if(pane.body.closest('[aria-busy="true"]') || pane.area.closest('[aria-busy="true"]')) return "cargando";
-        if(buttons(pane.area).some(b=>b.getAttribute('aria-expanded')==='false' &&
-            /^(?:expandir|expand|mostrar|show) (?:el |the )?(?:mensaje|message)\b/i.test(label(b)))) return "varios-cuerpos";
         // An Outlook message ID can be used as evidence only when Outlook itself
         // exposes the same value on the row and the open message or the current URL.
         const id=itemId(row);
@@ -191,7 +207,7 @@ function folderRows() {
         try { const tail=/\/id\/([^/]+)\/?$/i.exec(location.pathname); if(tail) urlId=decodeURIComponent(tail[1]); } catch {}
         let node=pane.body.parentElement, paneId=null;
         for(;node && pane.area.contains(node);node=node.parentElement) {paneId=itemId(node);if(paneId || node===pane.area) break;}
-        if(paneId && id && id!==paneId) return "identidad-distinta";
+        if(!thread && !paneMember && paneId && id && id!==paneId) return "identidad-distinta";
         const agrees=!!id && (id===paneId || id===urlId);
         const current=checked(row) || row.contains(document.activeElement) || ['true','page'].includes(row.getAttribute('aria-current')) ||
             (!!row.id && list.getAttribute('aria-activedescendant')===row.id) ||
@@ -201,6 +217,10 @@ function folderRows() {
         const wording=lower(row.getAttribute('aria-label'));
         const candidates=activeRow?.titles || parts(row);
         if(!agrees && (!subject || !(candidates.some(t=>subjectKey(t)===subject) || (' '+wording+' ').includes(' '+subject+' ')))) return "asunto-distinto";
+        if(thread) {
+            if(!activeRow?.conversation) return "regiones-ambiguas";
+            return visibleMemberPlan()?"desglosar-panel":"hilo-incompleto";
+        }
         if(arg.before && (panelStamp(pane)===arg.before ||
             (pane.body.getAttribute(prior)===token && stamp(pane.body.innerText)===arg.before.split("|")[0]))) return "anterior";
         return "listo";

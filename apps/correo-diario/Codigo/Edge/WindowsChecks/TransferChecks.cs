@@ -197,7 +197,7 @@ internal static partial class Program
                 {
                     keptFocus &= GetForegroundWindow() == fg;
                     keptPointer &= Cursor.Position == pos;
-                    return Directory.EnumerateFiles(folder, "Origen.json", SearchOption.AllDirectories).Any()
+                    return Directory.EnumerateFiles(folder, "Correo.pdf", SearchOption.AllDirectories).Count()==2
                         && Named(form,"Abrir resultado")?.Current.IsEnabled == true;
                 }), "exportación finalizada desde el ejecutable publicado");
             Check(keptPointer && Cursor.Position == pos, "el ratón permanece en su posición durante la exportación");

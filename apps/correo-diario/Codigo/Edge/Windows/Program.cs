@@ -93,7 +93,8 @@ internal sealed partial class MainWindow : Form
         Add(Field(windows, detect, countEdge));
         Add(LabelOf("Carpeta de destino"));
         Add(Field(target, choose));
-        Add(Line(export, stop, open, copy));
+        Add(Line(export, stop, open, showPending, copy));
+        showPending.Click+=(_,_)=>ShowPending();
         status.ForeColor = Color.FromArgb(21, 61, 91);
         Add(status);
         LoadFolder();
@@ -202,6 +203,7 @@ internal sealed partial class MainWindow : Form
         countEdge.Enabled = !busy && windows.SelectedItem is EdgeWindow;
         export.Enabled = !busy && rows.CheckedItems.Count > 0 && target.Text.Length > 0;
         open.Enabled = !busy && last != null;
+        showPending.Enabled = !busy && lastPending.Length>0;
         stop.Enabled = operation != null && !operation.IsCancellationRequested;
         counter.Text = $"{rows.CheckedItems.Count} marcados de {rows.Items.Count} correos recibidos";
     }
@@ -318,12 +320,13 @@ internal sealed partial class MainWindow : Form
         var progress = new Progress<string>(s => { if (!IsDisposed && busy) status.Text = s; });
         try
         {
-            var result = await Task.Run(() => Archive.WriteAsync(items, folder, new MailPrinter(), [], progress, token, diagnostics.Fault), token);
-            last = result.Folder;
-            var resultText = $"PDF de correo {result.Pdfs}/{items.Length} · PDF de hilo {result.Combined} · avisos {result.Warnings}";
-            diagnostics.Event("Exportación terminada", resultText);
-            status.Text = resultText + ". " + (result.Warnings > 0 ? "Consulta Resumen.txt en la carpeta del lote." : "Puedes abrir la carpeta del lote.");
-            if (result.Pdfs == items.Length && result.Warnings == 0)
+            var result=await Task.Run(()=>Archive.WriteToFolders(items,folder,new MailPrinter(),progress,token,diagnostics.Fault),token);
+            last=folder;
+            lastPending=result.Pending;
+            var resultText=$"Guardados {result.Saved} de {items.Length} correos · incidencias {lastPending.Length}";
+            diagnostics.Event("Exportación terminada",resultText);
+            status.Text="Lote terminado. "+resultText+". "+(lastPending.Length>0?"Pulsa Ver pendientes.":"Pulsa Abrir resultado.");
+            if(result.Saved==items.Length && result.Pending.Length==0)
                 foreach (int i in rows.CheckedIndices.Cast<int>().Reverse().ToArray()) rows.Items.RemoveAt(i);
         }
         catch (OperationCanceledException) { diagnostics.Event("Exportar", "cancelado por el usuario"); status.Text = "Exportación cancelada. Los archivos ya terminados están en la carpeta de destino."; }

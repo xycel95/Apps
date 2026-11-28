@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CorreoDiario.EdgeApp;
 
-internal sealed record WebRow(string Key, string Text, double Y, double Top, string? ParentKey=null, string[]? ParentTitles=null);
+internal sealed record WebRow(string Key, string Text, double Y, double Top, string? ParentKey=null, string[]? ParentTitles=null, string? PanelKey=null);
 internal sealed record FolderPage(double Top, double Height, bool End, WebRow[] Rows);
 
 internal sealed partial class OutlookSelection
@@ -148,23 +148,52 @@ internal sealed partial class OutlookSelection
         if(button.ValueKind==JsonValueKind.Object) await edge.Click(button.GetProperty("element-6066-11e4-a52e-4f735466cecf").GetString()!,ct);
     }
 
-    private async Task OpenSelectedRow(string token, WebRow row, int count, JsonElement context, CancellationToken ct)
+    private async Task<string[]?> OpenSelectedRow(string token, WebRow row, int count, JsonElement context, CancellationToken ct)
     {
         var args=RowArgs(token,row,count);
         var before=(await Run("rows-before",args,ct)).GetString();
+        paneMember=null;
         var element=await Run("rows-open",args,ct);
         await edge.Click(element.GetProperty("element-6066-11e4-a52e-4f735466cecf").GetString()!,ct);
         selectionUntouched=false;
         activeRow=context;
+        return await WaitForRow(token,row,before,ct);
+    }
+
+    private async Task<string[]?> WaitForRow(string token, WebRow row, string? before, CancellationToken ct)
+    {
         var timer=Stopwatch.StartNew();
-        string reason="cargando";
+        var stable=Stopwatch.StartNew();
+        string reason="cargando",last="";
+        string[]? previous=null;
         while(timer.Elapsed<TimeSpan.FromSeconds(10))
         {
             ct.ThrowIfCancellationRequested();
             reason=(await Run("rows-ready",new {token,row.Key,row.ParentKey,before},ct)).GetString()!;
-            if(reason=="listo") return;
+            if(reason=="listo") return null;
+            if(reason!=last) { stable.Restart(); last=reason; previous=null; }
+            if(reason=="desglosar-panel")
+            {
+                var plan=await Run("rows-plan",new {token},ct);
+                var keys=plan.ValueKind==JsonValueKind.Array ? plan.Deserialize<string[]>(Json) : null;
+                if(keys is {Length:>1} && previous!=null && previous.SequenceEqual(keys)) return keys;
+                previous=keys;
+            }
+            if(stable.Elapsed.TotalSeconds>=1.5 && reason is ("regiones-ambiguas" or "hilo-incompleto")) break;
             await Task.Delay(180,ct);
         }
         throw Fault("panel-"+reason);
+    }
+
+    private async Task UsePaneMember(string token, WebRow row, string[] expected, CancellationToken ct)
+    {
+        var args=new {token,row.Key,row.ParentKey};
+        var plan=await Run("rows-plan",args,ct);
+        if(plan.ValueKind!=JsonValueKind.Array || !expected.SequenceEqual(plan.Deserialize<string[]>(Json)!)) throw Fault("cambio-hilo");
+        paneMember=row.PanelKey;
+        var trigger=await Run("rows-expand-card",args,ct);
+        if(trigger.ValueKind==JsonValueKind.Object)
+            await edge.Click(trigger.GetProperty("element-6066-11e4-a52e-4f735466cecf").GetString()!,ct);
+        await WaitForRow(token,row,null,ct);
     }
 }

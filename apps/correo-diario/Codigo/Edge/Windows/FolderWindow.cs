@@ -232,7 +232,7 @@ internal sealed class FolderWindow : Form
         {
             var progress = new Progress<string>(s => { if (!IsDisposed && operation != null) status.Text = s; });
             log.Event("Exportar carpetas de Microsoft 365", $"carpetas elegidas {selected.Length}");
-            var result = await Task.Run(() => FolderArchive.WriteAsync(active.Graph, active.AccountKey, selected, destination, progress, ct, log.Fault), ct);
+            var result = await Task.Run(() => FolderArchive.WriteAsync(active.Graph, active.AccountKey, selected, destination, progress, ct, log.Fault,flatDestination:true), ct);
             output = result.Directory;
             var summary = $"verificados {result.Saved + result.Reused}/{result.Listed} · nuevos o actualizados {result.Saved} · ya guardados {result.Reused} · revisar {result.Review} · pendientes {result.Pending} · carpetas incompletas {result.IncompleteFolders} · errores de hilo {result.ThreadErrors}";
             log.Event("Resultado de carpetas", (result.Cancelled ? "cancelado · " : "") + summary);

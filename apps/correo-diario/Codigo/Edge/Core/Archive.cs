@@ -37,9 +37,9 @@ public static class Archive
             + (ext.Length == 0 ? "" : "." + MailReader.SafeName(ext[1..], 11));
     }
 
-    static string AttachmentPath(string folder, string original, HashSet<string> occupied)
+    static string AttachmentPath(string folder, string original, HashSet<string> occupied, bool preserveName)
     {
-        var name = ArtifactName(original, 86);
+        var name = preserveName ? ArtifactName(original, 226) : ArtifactName(original, 86);
         var stem = Path.GetFileNameWithoutExtension(name);
         var ext = Path.GetExtension(name);
         var chosen = name;
@@ -50,14 +50,14 @@ public static class Archive
     }
 
     internal static async Task<int> WriteFiles(Mail mail, Content content, string folder, MailPrinter printer,
-        List<string> notes, List<SavedAttachment> files, CancellationToken ct)
+        List<string> notes, List<SavedAttachment> files, CancellationToken ct, bool preserveNames=false)
     {
         notes.AddRange(content.Notices);
         var occupied = new HashSet<string>(["Correo.pdf"], StringComparer.OrdinalIgnoreCase);
         foreach (var part in content.Parts)
         {
             ct.ThrowIfCancellationRequested();
-            var path = AttachmentPath(folder, part.Name, occupied);
+            var path = AttachmentPath(folder, part.Name, occupied,preserveNames);
             using (var stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                 stream.Write(part.Bytes);
             var hash = Convert.ToHexStringLower(SHA256.HashData(part.Bytes));
@@ -69,6 +69,37 @@ public static class Archive
         var pdf = Path.Combine(folder, "Correo.pdf");
         notes.AddRange(await printer.PrintAsync(html, pdf, mail.Key, ct));
         return MailPrinter.VerifyPdf(pdf, mail.Key);
+    }
+
+    public static async Task<(int Saved,string[] Pending)> WriteToFolders(IEnumerable<Mail> items, string destination,
+        MailPrinter printer, IProgress<string>? progress, CancellationToken ct, Action<string,Exception>? error=null)
+    {
+        var messages=items.DistinctBy(m=>m.Hash).ToArray();
+        var pending=new List<string>();
+        int saved=0;
+        for(int i=0;i<messages.Length;i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var mail=messages[i];
+            progress?.Report($"Guardando {i+1} de {messages.Length}…");
+            var stage=MessageFolders.CreateStage(destination);
+            try
+            {
+                var stem=MessageFolders.Name(mail);
+                var notes=new List<string>();
+                await WriteFiles(mail,MailReader.ReadContent(mail),stage,printer,notes,[],ct,true);
+                MessageFolders.Publish(stage,destination,stem,ct);
+                saved++;
+                if(notes.Count>0) pending.Add(mail.Subject+" · "+string.Join(" · ",notes));
+            }
+            catch(Exception e) when(e is not OperationCanceledException)
+            {
+                error?.Invoke("Guardar correo",e);
+                pending.Add(mail.Subject+" · "+e.Message);
+            }
+            finally { if(Directory.Exists(stage)) Directory.Delete(stage,true); }
+        }
+        return (saved,pending.ToArray());
     }
 
     public static async Task<ArchiveResult> WriteAsync(

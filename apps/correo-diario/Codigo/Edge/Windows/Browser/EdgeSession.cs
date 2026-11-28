@@ -135,6 +135,9 @@ internal sealed class EdgeSession : IAsyncDisposable
     }
     internal Task<JsonElement> Evaluate(string code, object[] args, CancellationToken ct) => Command(HttpMethod.Post,"/execute/sync",new { script = code, args },ct);
     internal Task Click(string id, CancellationToken ct) => Command(HttpMethod.Post, "/element/" + Uri.EscapeDataString(id) + "/click", new { }, ct);
+    internal Task Escape(CancellationToken ct) => Command(HttpMethod.Post,"/actions",new {
+        actions=new[] {new {type="key",id="correo-teclado",actions=new[] {new {type="keyDown",value="\uE00C"},new {type="keyUp",value="\uE00C"}}}}
+    },ct);
     internal void SendToBackground(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

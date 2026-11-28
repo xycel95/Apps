@@ -1,5 +1,11 @@
 # Continuar CorreoDiario
 
+## 0.8.3
+
+Las exportaciones de la interfaz nativa publican cada carpeta terminada directamente en el destino. MessageFolders aplica el formato de fecha y hora, remitente y asunto, reserva nombres ante colisiones y publica mediante cambio de nombre. Las incidencias web quedan en memoria para Ver pendientes. FolderArchive guarda su estado de reanudación fuera del destino.
+
+El lector web asocia los cuerpos, citas y adjuntos a la tarjeta del mensaje. Cuando Outlook permite desglosar una conversación por el panel de lectura, coteja dos lecturas de las identidades antes de abrir sus miembros. Los datos del remitente y hora proceden de la cabecera, de la ficha del remitente o de los detalles oficiales del propio mensaje. El diagnóstico registra contadores y motivos técnicos.
+
 ## 0.8.2
 
 El lector web admite el panel normal con asunto separado de la tarjeta de lectura, cabeceras de texto y adjuntos con menú y tamaño. Compara cada mensaje con la fila elegida y comprueba el contenido antes de publicar su carpeta. Las conversaciones se desglosan solo cuando el número esperado, las identidades y dos lecturas de sus miembros coinciden. Una incidencia local queda en Pendientes.txt y el lote continúa. Un cambio de origen o de lista interrumpe el lote. Los diagnósticos del panel contienen únicamente contadores y motivos fijos.

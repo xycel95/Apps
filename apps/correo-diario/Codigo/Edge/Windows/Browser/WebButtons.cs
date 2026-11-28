@@ -5,6 +5,16 @@ internal sealed partial class MainWindow
     private readonly Button webOpen = Btn("Abrir Outlook web");
     private readonly Button webExport = Btn("Exportar selección web");
     private readonly Button webClose = Btn("Cerrar ventana web");
+    private readonly Button showPending = Btn("Ver pendientes");
+    private string[] lastPending=[];
+    private void ShowPending()
+    {
+        using var dialog=new Form {Text="Correos pendientes",StartPosition=FormStartPosition.CenterParent,
+            ClientSize=new Size(680,380),MinimizeBox=false,ShowInTaskbar=false};
+        dialog.Controls.Add(new TextBox {Dock=DockStyle.Fill,Multiline=true,ReadOnly=true,
+            ScrollBars=ScrollBars.Vertical,WordWrap=true,Lines=lastPending});
+        dialog.ShowDialog(this);
+    }
     private EdgeSession? webSession;
     private OutlookSelection? webReader;
 
@@ -64,15 +74,19 @@ internal sealed partial class MainWindow
         RefreshControls();
         try
         {
+            diagnostics.BeginWebBatch();
             diagnostics.Event("Exportar selección web","inicio");
             status.Text = "Leyendo la selección de tu ventana de Outlook…";
             var result = await Task.Run(() => reader.Export(folder,progress,diagnostics,ct),ct);
             last = result.Folder;
+            lastPending=result.Pending;
             var counts = result.UnresolvedGroups>0
                 ? $"Verificados {result.Saved} de {result.Total} elementos del lote · {result.Attachments} adjuntos."
                 : $"Verificados {result.Saved} de {result.Total} correos · {result.Attachments} adjuntos.";
-            status.Text = (result.Cancelled ? "Exportación cancelada. " : "") + counts + " " +
-                (result.Problem ?? (result.Saved==result.Total ? "Pulsa Abrir resultado." : "Consulta Pendientes.txt."));
+            var finish=result.Cancelled ? "Lote cancelado" : "Lote terminado";
+            status.Text = $"{finish} a las {DateTime.Now:HH:mm}. {counts} Pendientes: {lastPending.Length}. " +
+                (lastPending.Length>0 ? "Pulsa Ver pendientes." : "Pulsa Abrir resultado.");
+
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { status.Text = "Exportación interrumpida."; }
         catch (Exception e) { Error("Exportar selección web",e); }

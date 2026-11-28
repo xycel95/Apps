@@ -1,11 +1,11 @@
 // W3C Execute Script on the explicitly selected Outlook origin. No network calls or session storage.
-const [origin, operation, arg, activeRow] = arguments;
+const [origin, operation, arg, activeRow, paneMember] = arguments;
 const fail = code => ({error:code});
 if (location.origin !== origin) return fail("origen");
 const all = (root, selector) => Array.from(root.querySelectorAll(selector));
 const clean = value => (value || "").replace(/[\u200e\u200f\u202a-\u202e]/g,"").replace(/\s+/g," ").trim();
 const lower = value => clean(value).toLocaleLowerCase();
-const display = e => !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== "hidden";
+const display = e => !!e && !e.closest('[hidden],[inert],[aria-hidden="true"]') && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== "hidden";
 const label = e => clean(e.getAttribute("aria-label") || e.getAttribute("title") || e.innerText);
 const lines = e => (e.innerText || "").split(/\r?\n/).map(clean).filter(Boolean);
 const editorSelector = '[contenteditable="true"],[role="textbox"]';
@@ -27,8 +27,13 @@ const possibleBodies=all(document,bodySelector+',.allowTextSelection').filter(e=
     return e.matches('[role="document"]') && !accessibleName(e) ||
         e.matches('.allowTextSelection') && !e.querySelector('[role="toolbar"],[aria-haspopup],button') && !!e.querySelector('p,table,[dir]');
 });
-const bodies=possibleBodies.filter(e=>!possibleBodies.some(parent=>parent!==e && parent.contains(e)));
-const withinContent = e => !!e && (!!e.closest(editorSelector+',[role="document"],[id^="UniqueMessageBody" i]') || bodies.some(b=>b.contains(e)));
+const semantic=possibleBodies.filter(e=>isBody(e) || e.matches('[role="document"]'));
+const nativeContainer='[data-item-id],[data-itemid],[data-message-id],[role="listitem"],article,'+mailRegion;
+const admitted=possibleBodies.filter(e=>semantic.includes(e) || !semantic.some(b=>
+    b.contains(e) || e.contains(b) || e.closest(nativeContainer) && e.closest(nativeContainer)===b.closest(nativeContainer)));
+const bodies=admitted.filter(e=>!admitted.some(parent=>parent!==e && parent.contains(e)));
+let layoutCache;
+const withinContent = e => !!e && (!!e.closest(editorSelector+',[role="document"],[id^="UniqueMessageBody" i]') || possibleBodies.some(b=>b.contains(e)));
 const buttons = root => all(root,'button,[role="button"]').filter(e=>!withinContent(e) && display(e) && !e.disabled && e.getAttribute("aria-disabled")!=="true");
 const named = (items,pattern) => items.find(e=>pattern.test(label(e))) || null;
 const dialogs = all(document,'[role="dialog"]').filter(e=>!withinContent(e) && display(e));
@@ -78,9 +83,11 @@ function normalCard(body) {
 }
 function visibleHeader(card,body) {
     // Only consider the region before the body, outside attachments and action bars.
+    const attachmentLists=lists(card);
     const before=e=>display(e) && !e.contains(body) && !withinContent(e) &&
         !!(e.compareDocumentPosition(body)&Node.DOCUMENT_POSITION_FOLLOWING) &&
-        !e.closest('[role="toolbar"],[role="list"],[role="listbox"],[role="option"],[role="menu"],[role="menuitem"],[role="listitem"]');
+        !e.closest('[role="toolbar"],[role="menu"],[role="menuitem"],[data-correo-lista]') &&
+        !attachmentLists.some(l=>l.contains(e));
     const values=[];
     for(const e of all(card,'span,div,button,a,'+headerSelector)) {
         if(!before(e) || e.childElementCount || e.closest(subjectSelector) || e.closest('[aria-haspopup="menu"]')) continue;
@@ -100,9 +107,13 @@ function visibleHeader(card,body) {
     return hasDate && hasSender || values.some(recipient) && rich.length ? [...new Set([...details,...rich])] : rich;
 }
 function view() {
-    const candidates=preview?bodies.filter(e=>preview.contains(e)):bodies;
-    if(candidates.length!==1) return null;
-    const body=candidates[0];
+    const g=selectedCard();
+    return g && !g.ambiguous && g.parts.length ? cardView(g) : null;
+}
+function cardView(g) {
+    const body=g.parts[0];
+    if(!body) return null;
+    const multiple=readingLayout().groups.length>1;
     let titlesFromRow=activeRow?.titles;
     if(!titlesFromRow && !preview) {
         const selected=all(document,'[role="option"][aria-selected="true"],[role="row"][aria-selected="true"],[role="treeitem"][aria-selected="true"]').filter(e=>display(e) && !withinContent(e) && !e.closest('[role="dialog"]'));
@@ -113,18 +124,21 @@ function view() {
     for(let p=body.parentElement;p && p!==document.body;p=p.parentElement) {
         if(!preview && (all(p,'[data-correo-lista],nav,[role="tree"]').some(e=>!withinContent(e)) || p.matches('[data-correo-lista]'))) break;
         let titles=all(p,preview?heading2:subjectSelector).filter(e=>!withinContent(e) && display(e) && !e.closest('button,[role="button"],[role="toolbar"]'));
+        if(multiple) titles=titles.filter(e=>!readingLayout().groups.some(other=>other!==g && other.area?.contains(e)));
         if(titles.length>1 && wanted.length) titles=titles.filter(e=>wanted.includes(subjectKey(titleOf(e))));
         if(!titles.length && card && p!==card && p.contains(card) && wanted.length) {
             // Outlook can put a plain-text subject in a strip above the message card.
-            titles=all(p,'span,div').filter(e=>!e.childElementCount && !card.contains(e) && display(e) &&
+            titles=all(p,'span,div').filter(e=>!e.childElementCount && !card.contains(e) && !readingLayout().groups.some(other=>other!==g && other.area?.contains(e)) && display(e) &&
                 !e.closest('button,[role="button"],[role="toolbar"],[role="listbox"]') && wanted.includes(subjectKey(titleOf(e))));
         }
         if(titles.length===1) {
             const title=titleOf(titles[0]);
-            const headerNodes=all(p,heading3).filter(e=>!withinContent(e) && display(e) && !e.contains(body));
+            const area=multiple ? g.area : p;
+            if(!area) return null;
+            const headerNodes=all(area,heading3).filter(e=>!withinContent(e) && display(e) && !e.contains(body));
             const headers=headerNodes.map(e=>clean(e.innerText || label(e))).filter(Boolean);
             if(!headers.length && card && p.contains(card)) headers.push(...visibleHeader(card,body));
-            if((preview || headers.length) && (title || headers.length)) return {area:p,body,title:title || "(Sin asunto)",headers};
+            if((preview || headers.length) && (title || headers.length)) return {area,body,parts:g.parts,card:g.area,title:title || "(Sin asunto)",headers};
         }
         if(p===preview) break;
     }
@@ -161,21 +175,21 @@ function attachmentCards(v) {
     }
     const unresolved=all(v.area,'[aria-label],[title]').some(e=>outside(e) && display(e) &&
         !result.some(c=>e.contains(c)) && (fileHint(e) || fileMenu.test(label(e)) && /(?:archivo|adjunto|attachment|file)/i.test(label(e))));
-    if(unresolved || (activeRow?.hasFile && !result.length)) return null;
+    if(unresolved || !result.length && (fileHint(v.area) || activeRow?.hasFile && !paneMember)) return null;
     return result;
 }
 function contents(v) {
     const cards=attachmentCards(v);
     if(!cards) return fail("lista-adjuntos");
-    const images=all(v.body,"img").filter(display);
+    const images=v.parts.flatMap(part=>all(part,"img")).filter(display);
     if(images.some(i=>!i.complete || !i.naturalWidth || !i.naturalHeight)) return fail("imagen");
-    if(all(v.body,"iframe,embed,object").some(display)) return fail("cuerpo-incrustado");
+    if(v.parts.some(part=>all(part,"iframe,embed,object").some(display))) return fail("cuerpo-incrustado");
     const denied=buttons(v.area).some(e=>/^(?:no reenviar|do not forward)$/i.test(label(e))) ||
         all(v.area,'[role="alert"],[role="status"]').some(e=>!withinContent(e) && display(e) && /(?:no (?:se )?pued[eas]* (?:imprimir|descargar)|printing is (?:disabled|not allowed)|cannot print|rights.protected)/i.test(clean(e.innerText)));
     if(denied) return fail("protegido");
     const files=cards.map(c=>({name:attachmentName(c),key:cardKey(c),mail:mailCard(c)}));
     if(files.some(f=>!f.name)) return fail("nombre-adjunto");
-    return {title:v.title,headers:v.headers,body:v.body.innerText || "",files,
+    return {title:v.title,headers:v.headers,body:v.parts.map(p=>p.innerText || "").join("\n"),files,
         images:new Set(images.map(i=>i.currentSrc || i.src).filter(s=>!/^data:image\/svg\+xml/i.test(s) && !/\.svg(?:$|[?#])/i.test(s))).size};
 }
 function clearPrint(token) {
@@ -185,6 +199,7 @@ function clearPrint(token) {
     for(const attr of ["data-cd-path","data-cd-part"])
         for(const el of all(document,"["+attr+'="'+token+'"]')) el.removeAttribute(attr);
 }
+if(operation.startsWith("details-") || operation.startsWith("file-") || operation.startsWith("sender-") || operation==="metadata" || operation==="control-clear") return outlookControls();
 if(operation.startsWith("rows-")) return folderRows();
 if(operation==="clear") { clearPrint(arg.token); return true; }
 if(operation==="state") {
@@ -234,8 +249,10 @@ if(operation==="print") {
         const el=document.createElement(i===0?"h1":"p"); el.textContent=t;head.append(el);
     }
     document.body.prepend(head);
-    v.body.setAttribute("data-cd-part",token);
-    for(let p=v.body.parentElement;p;p=p.parentElement) p.setAttribute("data-cd-path",token);
+    for(const part of v.parts) {
+        part.setAttribute("data-cd-part",token);
+        for(let p=part.parentElement;p;p=p.parentElement) p.setAttribute("data-cd-path",token);
+    }
     const path='[data-cd-path="'+token+'"]', part='[data-cd-part="'+token+'"]';
     const style=document.createElement("style");
     style.id="cd-style-"+token;

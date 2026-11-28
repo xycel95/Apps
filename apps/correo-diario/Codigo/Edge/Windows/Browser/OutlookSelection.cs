@@ -14,14 +14,15 @@ internal sealed record WebState(string Kind, int Count, string[] Keys)
 }
 internal sealed record WebFile(string Name, string Key, bool Mail);
 internal sealed record WebMessage(string Title, string[] Headers, string Body, WebFile[] Files, int Images);
-internal sealed record WebResult(string Folder, int Total, int Saved, int Attachments, bool Cancelled, string? Problem, int UnresolvedGroups);
+internal sealed record WebResult(string Folder, int Total, int Saved, int Attachments, bool Cancelled, string? Problem, int UnresolvedGroups, string[] Pending);
 
 internal sealed partial class OutlookSelection(EdgeSession session)
 {
     private readonly EdgeSession edge = session;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-    private static readonly string Page = LoadScript("OutlookPage.js") + "\n" + LoadScript("OutlookRows.js");
+    private static readonly string Page = LoadScript("OutlookPage.js") + "\n" + LoadScript("OutlookRows.js") + "\n" + LoadScript("OutlookReading.js") + "\n" + LoadScript("OutlookControls.js");
     private int expectedDraft;
+    private string? paneMember;
     private string origin = "";
 
     private static string LoadScript(string name)
@@ -40,7 +41,12 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         "borrador-vacío" => "Outlook abrió un borrador sin correos adjuntos. Vuelve a la pestaña de conversaciones seleccionadas que aparece al pie de Outlook.",
         "lista-cambiada" or "fila-cambiada" or "fila-ambigua" => "La lista de la carpeta cambió o contiene filas que no se pueden distinguir. Revisa la selección en Outlook.",
         "fila-ausente" => "Outlook ya no muestra esta fila en la carpeta.",
-        "hilo-sin-desglose" or "panel-varios-cuerpos" => "Outlook no mostró todos los mensajes del hilo por separado. Puedes reintentar esos correos en la vista por mensajes.",
+        "panel-regiones-ambiguas" => "Outlook muestra zonas de lectura que no se han podido atribuir a un solo correo.",
+        "direccion-del-remitente" => "La cabecera y la ficha del remitente no muestran una dirección verificable.",
+        "fecha-del-correo" => "La cabecera no muestra una fecha con hora inequívoca.",
+        "descarga-bloqueada" or "descarga-ambigua" => "El menú del adjunto no tiene una descarga local habilitada e inequívoca.",
+        "cambio-hilo" => "Las tarjetas de la conversación cambiaron durante la lectura.",
+        "hilo-sin-desglose" or "panel-hilo-incompleto" or "panel-varios-cuerpos" => "Outlook no mostró todos los mensajes del hilo por separado. Puedes reintentar esos correos en la vista por mensajes.",
         "panel-cuerpo-sin-identificar" => "Se abrió la fila, pero no se pudo identificar el cuerpo del mensaje.",
         "panel-cabecera-sin-identificar" => "Se identificó el cuerpo, pero no se pudo verificar su cabecera.",
         "panel-asunto-distinto" or "panel-identidad-distinta" => "El mensaje mostrado no coincide con la fila elegida.",
@@ -66,7 +72,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
 
     private async Task<JsonElement> Run(string operation, object args, CancellationToken ct)
     {
-        var result = await edge.Evaluate(Page, [origin, operation, args, (object?)activeRow ?? new {}], ct);
+        var result = await edge.Evaluate(Page, [origin, operation, args, (object?)activeRow ?? new {}, (object?)paneMember ?? ""], ct);
         if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("error", out var code)) throw Fault(code.GetString()!);
         return result;
     }
@@ -201,8 +207,8 @@ internal sealed partial class OutlookSelection(EdgeSession session)
     private static string FileName(string name)
     {
         var ext = Path.GetExtension(name);
-        if (ext.Length is 0 or > 16) return MailReader.SafeName(name,100);
-        return MailReader.SafeName(name[..^ext.Length],85) + "." + MailReader.SafeName(ext[1..],15);
+        if (ext.Length is 0 or > 16) return MailReader.SafeName(name,240);
+        return MailReader.SafeName(name[..^ext.Length],226) + "." + MailReader.SafeName(ext[1..],15);
     }
     private static bool BrowserName(string actual, string suggested)
     {
@@ -216,12 +222,25 @@ internal sealed partial class OutlookSelection(EdgeSession session)
     {
         if(file.Mail || SourceMail(file.Name)) throw Fault("adjunto-correo");
         if(Directory.EnumerateFileSystemEntries(edge.Downloads).Any()) { edge.Invalid=true; throw Fault("descarga-incierta"); }
-        await Click("attachment",new {index,key=file.Key,dialog},"acciones-adjunto",ct);
+        var token=Guid.NewGuid().ToString("N");
+        var args=new {token,index,key=file.Key,name=file.Name,dialog};
+        var action=await Run("file-start",args,ct);
+        bool direct=action.GetProperty("mode").GetString()=="direct";
         bool awaitingFile=false;
         try
         {
-            await Click("menu",new {type="download"},"descarga",ct);
-            awaitingFile=true;
+            awaitingFile=direct;
+            await edge.Click(action.GetProperty("element").GetProperty("element-6066-11e4-a52e-4f735466cecf").GetString()!,ct);
+            if(!direct)
+            {
+                var element=await Wait(async ()=>
+                {
+                    var candidate=await Run("file-action",args,ct);
+                    return candidate.ValueKind==JsonValueKind.Object ? candidate.GetProperty("element-6066-11e4-a52e-4f735466cecf").GetString() : null;
+                },"descarga",5,ct);
+                awaitingFile=true;
+                await edge.Click(element,ct);
+            }
             string? received=null;
             var timer=Stopwatch.StartNew();
             while(timer.Elapsed.TotalMinutes<3 && received==null)
@@ -246,7 +265,16 @@ internal sealed partial class OutlookSelection(EdgeSession session)
             File.Delete(received);
             awaitingFile=false;
         }
-        finally { if(awaitingFile) edge.Invalid=true; }
+        finally
+        {
+            if(awaitingFile) edge.Invalid=true;
+            else
+            {
+                using var reset=new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                if(!direct && (await Run("file-menu-visible",args,reset.Token)).ValueKind==JsonValueKind.True) await edge.Escape(reset.Token);
+                await Run("control-clear",args,reset.Token);
+            }
+        }
     }
 
     internal async Task<WebResult> Export(string destination, IProgress<string> progress, DiagnosticLog log, CancellationToken ct)
@@ -269,13 +297,14 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         var probe=Path.Combine(destination,".CorreoDiario-"+runId+".tmp");
         using(var file=new FileStream(probe,FileMode.CreateNew,FileAccess.Write,FileShare.None,1,FileOptions.DeleteOnClose)) { }
         activeRow=null;
+        paneMember=null;
         expandedByUs=null;
         selectionUntouched=true;
         var state=await Prepare(token,log.Event,progress,ct);
         bool direct=state.Kind=="rows";
         bool draft=state.Kind=="draft";
-        string root=Path.Combine(destination,"CorreoDiario_"+DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss")+"_"+runId[..8]);
-        Directory.CreateDirectory(root);
+        string root=Path.GetFullPath(destination);
+        string[] panePlan=[];
         var pending=new List<string>();
         int saved=0,attachments=0,processed=0;
         var queue=state.Rows.ToList();
@@ -290,8 +319,8 @@ internal sealed partial class OutlookSelection(EdgeSession session)
             for(int index=0;index<total;index++)
             {
                 ct.ThrowIfCancellationRequested();
-                progress.Report($"Exportando correo {index+1} de {total} en segundo plano…");
-                string staging=Path.Combine(root,".en-curso-"+Guid.NewGuid().ToString("N"));
+                progress.Report($"En curso · elemento {index+1} de {total} · guardados {saved} · pendientes {pending.Count}");
+                string? staging=null;
                 string heading=$"Correo {index+1}";
                 bool opened=false;
                 try
@@ -300,20 +329,43 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     {
                         phase="Abrir correo de la lista";
                         var row=queue[index];
-                        if(expandedByUs!=null && expandedByUs.Key!=row.ParentKey) await CloseOwnGroup(token,ct);
-                        var context=await LocateRow(token,row,state.Count,ct);
-                        if(context.GetProperty("group").GetBoolean())
+                        heading=row.Text;
+                        if(row.PanelKey!=null) await UsePaneMember(token,row,panePlan,ct);
+                        else
                         {
-                            phase="Leer mensajes de la conversación";
-                            var members=await ReadMembers(token,row,context,ct);
-                            queue.RemoveAt(index);
-                            queue.InsertRange(index,members);
-                            total=queue.Count;
-                            log.Event(phase,$"mensajes identificados {members.Length}");
-                            index--;
-                            continue;
+                            if(expandedByUs!=null && expandedByUs.Key!=row.ParentKey) await CloseOwnGroup(token,ct);
+                            var context=await LocateRow(token,row,state.Count,ct);
+                            bool group=context.GetProperty("group").GetBoolean();
+                            if(group)
+                            {
+                                phase="Leer mensajes de la conversación";
+                                try
+                                {
+                                    var members=await ReadMembers(token,row,context,ct);
+                                    queue.RemoveAt(index);queue.InsertRange(index,members);
+                                    total=queue.Count;
+                                    log.Event(phase,$"mensajes identificados {members.Length}");
+                                    index--;
+                                    continue;
+                                }
+                                catch(WebExportException error) when(error.Code=="hilo-sin-desglose")
+                                {
+                                    await CloseOwnGroup(token,ct);
+                                }
+                            }
+                            phase="Abrir correo de la lista";
+                            var membersInPane=await OpenSelectedRow(token,row,state.Count,context,ct);
+                            if(membersInPane!=null)
+                            {
+                                panePlan=membersInPane;
+                                queue.RemoveAt(index);
+                                queue.InsertRange(index,panePlan.Select(k=>row with { PanelKey=k }));
+                                total=queue.Count;index--;
+                                log.Event("Desglosar panel",$"mensajes identificados {panePlan.Length}");
+                                continue;
+                            }
+                            if(group) throw Fault("hilo-sin-desglose");
                         }
-                        await OpenSelectedRow(token,row,state.Count,context,ct);
                     }
                     if(draft)
                     {
@@ -325,15 +377,22 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     phase="Leer cuerpo y adjuntos en Outlook";
                     var mail=await Info(draft,ct);
                     heading=mail.Title;
-                    Directory.CreateDirectory(staging);
+                    phase="Identificar remitente y fecha";
+                    string stem=await FolderName(mail.Title,ct);
+                    staging=MessageFolders.CreateStage(root);
                     phase="Imprimir y comprobar PDF web";
                     await WritePdf(mail,Path.Combine(staging,"Correo.pdf"),draft,ct);
                     phase="Descargar adjunto web";
                     for(int a=0;a<mail.Files.Length;a++) await SaveFile(mail.Files[a],a,draft,staging,ct);
                     if(!Same(mail,await Info(draft,ct))) throw Fault("cambio-mensaje");
                     if(direct && (await Run("rows-ready",new {token,queue[index].Key,queue[index].ParentKey,before=(string?)null},ct)).GetString()!="listo") throw Fault("cambio-mensaje");
+                    if(direct && queue[index].PanelKey!=null)
+                    {
+                        var finalPlan=await Run("rows-plan",new {token},ct);
+                        if(finalPlan.ValueKind!=JsonValueKind.Array || !panePlan.SequenceEqual(finalPlan.Deserialize<string[]>(Json)!)) throw Fault("cambio-hilo");
+                    }
                     ct.ThrowIfCancellationRequested();
-                    Directory.Move(staging,Path.Combine(root,$"{index+1:D3} - "+MailReader.SafeName(mail.Title,75)));
+                    MessageFolders.Publish(staging,root,stem,ct);
                     attachments+=mail.Files.Length;
                     saved++;
                 }
@@ -351,7 +410,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                             log.Event("Estructura del panel",$"cuerpos {evidence.GetProperty("bodies")} · documentos {evidence.GetProperty("documents")} · asuntos posibles {evidence.GetProperty("headings")} · acciones de respuesta {evidence.GetProperty("replies")} · tamaños de archivo {evidence.GetProperty("sizes")}");
                         }
                         reasons[web.Code]=reasons.GetValueOrDefault(web.Code)+1;
-                        if(web.Code is "hilo-sin-desglose" or "panel-varios-cuerpos") unresolvedGroups++;
+                        if(web.Code is "hilo-sin-desglose" or "panel-hilo-incompleto") unresolvedGroups++;
                     }
                     if((!direct && !opened) || edge.Invalid || error is not WebExportException ||
                         ((WebExportException)error).Code is "origen" or "cambio-lote" or "lista-cambiada" or "cambio-seleccion")
@@ -359,7 +418,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                 }
                 finally
                 {
-                    if(Directory.Exists(staging)) Directory.Delete(staging,true);
+                    if(staging!=null && Directory.Exists(staging)) Directory.Delete(staging,true);
                 }
                 processed=index+1;
                 if(opened)
@@ -380,13 +439,13 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         if(saved!=total || cancelled || problem!=null)
         {
             for(int i=processed;i<total;i++) pending.Add($"{i+1}. Pendiente");
-            File.WriteAllLines(Path.Combine(root,"Pendientes.txt"),new[] {$"Correos verificados: {saved} de {total}. Conversaciones pendientes de desglosar: {unresolvedGroups}.",problem??(cancelled?"Exportación cancelada.":"")}.Concat(pending));
+
         }
         if(saved==total && problem==null) expectedDraft=0;
         if(reasons.Count>0) log.Event("Pendientes del lote",string.Join(" · ",reasons.Select(p=>$"{p.Key} {p.Value}")));
         log.Event("Lote de Outlook web",$"verificados {saved}/{total} · adjuntos {attachments} · cancelado {(cancelled?"sí":"no")}");
-        if(unresolvedGroups>0) problem=$"Quedan {unresolvedGroups} conversaciones por desglosar. Consulta Pendientes.txt.";
-        else if(problem!=null && processed==total && total>1) problem="Consulta los mensajes pendientes en Pendientes.txt.";
-        return new(root,total,saved,attachments,cancelled,problem,unresolvedGroups);
+        if(unresolvedGroups>0) problem=$"Quedan {unresolvedGroups} conversaciones por desglosar. Pulsa Ver pendientes.";
+        else if(problem!=null && processed==total && total>1) problem="Pulsa Ver pendientes.";
+        return new(root,total,saved,attachments,cancelled,problem,unresolvedGroups,pending.ToArray());
     }
 }

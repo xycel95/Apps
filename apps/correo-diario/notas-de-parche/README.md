@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.8.3 · 28/11/2026
+
+- Cada correo queda directamente en el destino elegido, en una carpeta con la fecha y hora del mensaje, el correo del remitente y el asunto. Dentro se guardan `Correo.pdf` y sus adjuntos.
+- El lector distingue las citas dentro de un correo y los mensajes individuales de una conversación. Reconoce la opción **Descargar** del menú del adjunto.
+- La ventana indica cuándo termina el lote y permite consultar las incidencias con **Ver pendientes**.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.3)
+
 ## 0.8.2 · 28/11/2026
 
 - Lectura del panel normal de Outlook con el asunto sobre el mensaje, los datos del remitente y los adjuntos presentados como tarjetas.

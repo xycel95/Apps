@@ -4,24 +4,26 @@
 
 1. En CorreoDiario, elige la carpeta de destino y pulsa **Abrir Outlook web**. Si tu organización lo solicita, identifica tu cuenta en esa ventana de Microsoft Edge.
 2. En esa ventana de Edge, abre la carpeta y marca los mensajes que quieras. Para un solo correo también puedes abrirlo en el panel de lectura. Vuelve a CorreoDiario y pulsa **Exportar selección web**.
-3. Sigue trabajando en tu Edge habitual o en cualquier otra aplicación. La ventana de exportación pasa detrás de las demás aplicaciones para que Outlook siga cargando los mensajes. Déjala abierta mientras trabajas. Al terminar, pulsa **Abrir resultado**. Cada carpeta numerada contiene `Correo.pdf` y los adjuntos identificados para ese correo.
+3. Deja abierta la ventana de exportación. Puedes seguir trabajando en otra pestaña o aplicación mientras CorreoDiario procesa los mensajes en segundo plano. Al terminar, pulsa **Abrir resultado**.
 
-Para varios correos, CorreoDiario recorre primero las filas marcadas en la carpeta. Cuando la cantidad coincide con el contador de Outlook, abre cada fila en la ventana en segundo plano, comprueba el asunto del panel y guarda el PDF y los adjuntos de ese correo. Puedes seleccionar mensajes que no caben en pantalla. Deja visible el panel de lectura dentro de esa ventana. Outlook puede marcar un mensaje como leído al abrirlo, según la configuración del buzón.
+Cada correo verificado tiene una carpeta directamente en el destino elegido, por ejemplo `2026-11-28_09.35_remitente@example.test_Solicitud`. El nombre usa el día y la hora del correo, la dirección del remitente y el asunto. Dentro están `Correo.pdf` y los adjuntos con sus nombres. Si dos nombres coinciden, se añade un número entre paréntesis para conservar ambos archivos o carpetas.
 
-Si la carpeta no permite identificar toda la selección, la aplicación intenta la vista de borrador con elementos adjuntos. Un borrador que solo muestre tu firma es una entrega vacía. Puedes volver a la selección desde la pestaña de conversaciones al pie de Outlook. El diagnóstico indica los contadores de la lista y del borrador. Cuando Outlook identifica todos los miembros de un hilo, cada mensaje obtiene su propia carpeta. Si el desglose es incompleto, la conversación figura en Pendientes.txt. Un fallo al reconocer una cabecera, un cuerpo o un adjunto deja esa entrada pendiente y la aplicación continúa con las demás. Si lo necesitas, puedes volver a marcar solo los pendientes en la vista por mensajes.
+Puedes marcar más filas de las que caben en pantalla. CorreoDiario coteja la selección con el contador de Outlook, abre cada correo en su propia ventana y comprueba la correspondencia entre el PDF, los adjuntos y el mensaje. Usa la opción **Descargar** del propio adjunto. Outlook puede marcar el correo como leído al abrirlo según la configuración del buzón.
 
-**Mostrar Outlook web** recupera la ventana para otro lote. Puedes usar la misma sesión hasta pulsar **Cerrar ventana web** o salir de la aplicación. Cerrar la ventana termina la sesión temporal de exportación. La primera apertura puede descargar de Microsoft su controlador firmado y compatible con la versión instalada de Edge. Este modo requiere que el equipo permita dicho controlador y que la cuenta pueda iniciar sesión en esa ventana de Edge. Funciona sin extensiones ni registro de Microsoft Graph.
+En una conversación, la aplicación identifica los mensajes por separado. Un correo anterior citado en el cuerpo queda dentro del PDF del mensaje que lo cita. Si Outlook solo muestra el nombre del remitente, CorreoDiario intenta obtener su dirección de la ficha del remitente o de los detalles del mensaje. Un correo cuya identidad, fecha, contenido o adjuntos no se puedan verificar queda en **Ver pendientes**. La ventana principal indica la hora de finalización y las cantidades. Consulta los pendientes del último lote antes de cerrar la aplicación.
 
-El programa coteja el texto del PDF con el contenido mostrado, comprueba las imágenes rasterizadas que detecta y verifica los adjuntos copiados. Si el cuerpo, una imagen o un archivo no se puede comprobar, revisa `Pendientes.txt` en la carpeta del lote. Una captura incompleta no se publica como correo terminado. La selección web archiva lo que Outlook muestra y permite descargar. Los vínculos sin descarga y los correos que a su vez son adjuntos quedan pendientes de revisión. Para reintentar, marca los mensajes pendientes. Cada ejecución usa una carpeta de lote nueva.
+Si Outlook no expone todas las filas marcadas, la aplicación puede usar una vista de borrador con los mensajes adjuntos. El diagnóstico indica cuántos elementos ha entregado Outlook. Puedes volver a la selección desde la pestaña de conversaciones al pie de Outlook.
 
-Pulsa **Copiar diagnóstico** para obtener la fase, los contadores y la causa técnica. El informe omite el contenido de los mensajes, los asuntos, las direcciones, las rutas del equipo y los datos de sesión.
+**Mostrar Outlook web** recupera la ventana para otro lote. **Cerrar ventana web** termina esa sesión. La primera apertura puede descargar de Microsoft el controlador firmado correspondiente al Edge instalado. Para este modo basta con que el equipo permita el controlador y que puedas acceder al buzón en esa ventana.
+
+**Copiar diagnóstico** recoge las fases, los contadores y los motivos técnicos. Los asuntos y direcciones solo se muestran localmente.
 
 ## Exportar carpetas con Microsoft 365
 
 1. Abre **CorreoDiario-Edge.exe** y pulsa **Exportar carpetas de Outlook…**. Si Informática ya te dio un archivo de configuración, pulsa **Configuración…** si los campos están ocultos y **Abrir configuración…**. Si te dio dos identificadores, introdúcelos en esos campos.
 2. Pulsa **Conectar con Microsoft 365**. Elige la cuenta de trabajo en el navegador y completa la identificación que pida la organización. Volverás a CorreoDiario con la lista de carpetas del buzón.
 3. Marca todas las carpetas que quieras exportar. Para incluir una subcarpeta, márcala también. El programa recuerda tu elección al exportar. Elige el destino en Windows y pulsa **Exportar carpetas**. Puedes minimizar la app, cambiar de pestaña o cerrar Edge después de identificarte. Mantén CorreoDiario abierto.
-4. Pulsa **Abrir resultado** al terminar. Dentro de `CorreoDiario_365` encontrarás una carpeta por correo con `Correo.pdf` y sus adjuntos. Si marcas varias carpetas, el informe conserva el origen de cada mensaje. `Hilos` reúne los mensajes del mismo hilo incluidos en el lote.
+4. Pulsa **Abrir resultado**. Las carpetas de todos los correos verificados quedan juntas en el destino que hayas elegido.
 
 ## Primera conexión en un equipo de trabajo
 
@@ -42,11 +44,9 @@ Si el acceso requiere aprobación o la política del dispositivo impide la conex
 
 ## Resultado, reintentos y espacio del buzón
 
-El programa lee el cuerpo y los adjuntos en memoria. Comprueba el PDF generado y las huellas de los archivos escritos. Un adjunto que ya se llame `Correo.pdf` recibe un nombre independiente. Al repetir el lote con la misma cuenta y destino, se comprueban las copias previas. Una copia que hayas cambiado se conserva y se genera otra verificada.
+En el modo de carpetas de Microsoft 365, el programa verifica los PDF y las huellas de los adjuntos. Si repites la exportación con la misma cuenta y destino, comprueba las copias previas. Los registros de verificación y reanudación se guardan en los datos locales de CorreoDiario, fuera de la carpeta de destino.
 
-`Ultimo-lote.txt` muestra cuántos mensajes se verificaron y cuántos quedan pendientes. Su informe detallado, en `_registro/Lotes`, identifica el correo afectado. Una carpeta que no se pudo leer, un vínculo a un archivo, un mensaje protegido o un archivo sin verificar quedan señalados. Puedes corregir el problema y volver a pulsar **Exportar carpetas**. El listado corresponde a los mensajes encontrados durante esa ejecución. Los mensajes que lleguen después se recogen al repetirla.
-
-La exportación conserva los mensajes en el buzón. El espacio ocupado allí solo cambia si después se retiran mensajes según el procedimiento de tu organización. El diagnóstico que se copia incluye fases, errores y contadores. Los detalles del contenido se quedan en los archivos locales del lote.
+La exportación conserva los mensajes en el buzón. En la exportación web, puedes consultar los fallos del último lote con **Ver pendientes** y volver a seleccionar esos mensajes cuando se resuelva la causa.
 
 ## Archivos existentes
 
@@ -54,7 +54,7 @@ La ventana principal también permite añadir mensajes EML o MSG existentes y re
 
 ### Comprobaciones de la versión
 
-En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 94 de escritorio. Se verificaron 106 mensajes marcados de una lista ficticia con 13 filas visibles, los PDF, los adjuntos y que otra ventana conservaba el foco y el cursor. Otra prueba reprodujo un panel normal con el asunto separado, dos mensajes en el mismo hilo, una conversación incompleta y un correo anterior que seguía en pantalla. Se comprobó que se guardaban únicamente los mensajes que correspondían y que el lote llegaba al último. Queda pendiente la confirmación con el buzón de trabajo.
+Las pruebas usan un buzón ficticio, una selección de 106 elementos, mensajes citados, conversaciones y descargas con nombres coincidentes. El informe de Windows identifica la versión comprobada.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 

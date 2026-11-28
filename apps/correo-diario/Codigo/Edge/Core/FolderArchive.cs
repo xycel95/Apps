@@ -32,13 +32,6 @@ public static class FolderArchive
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }
     }
-    static string UniqueDirectory(string parent, string stem)
-    {
-        var name = stem;
-        for (int n = 2; Directory.Exists(Path.Combine(parent, name)) || File.Exists(Path.Combine(parent, name)); n++)
-            name = stem + " (" + n + ")";
-        return name;
-    }
     static bool LocalName(string s) => !string.IsNullOrWhiteSpace(s) && s is not ("." or "..")
         && !Path.IsPathRooted(s) && s.IndexOfAny(['/', '\\', ':']) < 0 && Path.GetFileName(s) == s;
 
@@ -67,17 +60,17 @@ public static class FolderArchive
     }
 
     static async Task<Receipt> SaveMessage(GraphMailbox mailbox, CloudMessage message, string key, string root,
-        string state, string receiptPath, Receipt? previous, MailPrinter printer, CancellationToken ct)
+        string state, string receiptPath, Receipt? previous, MailPrinter printer, CancellationToken ct, bool flat)
     {
         var current = await mailbox.Read(message, ct).ConfigureAwait(false);
         var mail = current.Mail;
-        var stage = Path.Combine(state, "trabajo-" + Guid.NewGuid().ToString("N"));
+        var stage = flat ? MessageFolders.CreateStage(root) : Path.Combine(state, "trabajo-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(stage);
         try
         {
             var notes = new List<string>();
             var attachments = new List<SavedAttachment>();
-            int pages = await Archive.WriteFiles(mail, current.Content, stage, printer, notes, attachments, ct).ConfigureAwait(false);
+            int pages = await Archive.WriteFiles(mail, current.Content, stage, printer, notes, attachments, ct,flat).ConfigureAwait(false);
             var files = attachments.Select(a => new Artifact(a.File, a.Hash)).ToList();
             files.Add(new("Correo.pdf", MailReader.FileHash(Path.Combine(stage, "Correo.pdf"))));
             var warnings = notes.Distinct().ToArray();
@@ -89,27 +82,28 @@ public static class FolderArchive
                 return reused;
             }
             ct.ThrowIfCancellationRequested();
-            var dir = UniqueDirectory(root, mail.FolderStem + " (" + key[..12] + ")");
-            var receipt = new Receipt(message.Revision, dir, mail.Hash, mail.Date ?? message.Date, mail.Subject,
-                mail.Key, pages, files, warnings);
-            // Recover an interruption between publishing the directory and replacing its receipt.
+            var stem = flat ? MessageFolders.Name(mail) : mail.FolderStem + " (" + key[..12] + ")";
+            Receipt? receipt=null;
             var intent = receiptPath + ".pendiente";
-            Store(intent, receipt);
-            Directory.Move(stage, Path.Combine(root, dir));
-            File.Move(intent, receiptPath, true);
-            return receipt;
+            MessageFolders.Publish(stage,root,stem,ct,dir=>
+            {
+                receipt=new(message.Revision,dir,mail.Hash,mail.Date ?? message.Date,mail.Subject,mail.Key,pages,files,warnings);
+                Store(intent,receipt);
+            });
+            File.Move(intent,receiptPath,true);
+            return receipt!;
         }
         finally { if (Directory.Exists(stage)) Directory.Delete(stage, true); }
     }
 
     public static async Task<FolderResult> WriteAsync(GraphMailbox mailbox, string accountKey, IReadOnlyList<CloudFolder> folders,
-        string destination, IProgress<string>? progress, CancellationToken ct, Action<string, Exception>? error = null)
+        string destination, IProgress<string>? progress, CancellationToken ct, Action<string, Exception>? error = null, bool flatDestination=false)
     {
         if (folders.Count == 0 || string.IsNullOrWhiteSpace(accountKey) || string.IsNullOrWhiteSpace(destination))
             throw new ArgumentException("Elige al menos una carpeta del buzón y una carpeta de destino.");
         ct.ThrowIfCancellationRequested();
-        string root = Directory.CreateDirectory(Path.Combine(destination, "CorreoDiario_365")).FullName;
-        string state = Directory.CreateDirectory(Path.Combine(root, "_registro")).FullName;
+        string root = Directory.CreateDirectory(flatDestination ? destination : Path.Combine(destination, "CorreoDiario_365")).FullName;
+        string state = Directory.CreateDirectory(flatDestination ? MessageFolders.StateDirectory(root) : Path.Combine(root, "_registro")).FullName;
         string reports = Directory.CreateDirectory(Path.Combine(state, "Lotes")).FullName;
         var run = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss") + "_" + Guid.NewGuid().ToString("N")[..8];
         var report = Path.Combine(reports, run + ".json");
@@ -157,7 +151,7 @@ public static class FolderArchive
                         results.Add(new(message, key, "Ya verificado", prior, null));
                         continue;
                     }
-                    var receipt = await SaveMessage(mailbox, message, key, root, state, receiptPath, prior, printer, ct).ConfigureAwait(false);
+                    var receipt = await SaveMessage(mailbox, message, key, root, state, receiptPath, prior, printer, ct,flatDestination).ConfigureAwait(false);
                     bool valid = receipt.Notes.Length == 0;
                     if (valid) saved++; else review++;
                     results.Add(new(message, key, valid ? "Verificado" : "Revisar", receipt, null));
@@ -168,7 +162,7 @@ public static class FolderArchive
                     error?.Invoke("Exportar mensaje de Microsoft 365", e);
                 }
             }
-            foreach (var group in results.Where(x => x.Message.Conversation.Length > 0).GroupBy(x => x.Message.Conversation))
+            if(!flatDestination) foreach (var group in results.Where(x => x.Message.Conversation.Length > 0).GroupBy(x => x.Message.Conversation))
             {
                 ct.ThrowIfCancellationRequested();
                 if (group.Count() < 2 || group.Any(x => x.Saved == null || x.Saved.Notes.Length > 0)) continue;
@@ -194,7 +188,7 @@ public static class FolderArchive
             }),
             incidencias = errors,
         });
-        File.WriteAllText(Path.Combine(root, "Ultimo-lote.txt"), string.Join(Environment.NewLine, new[]
+        File.WriteAllText(Path.Combine(flatDestination?state:root, "Ultimo-lote.txt"), string.Join(Environment.NewLine, new[]
         {
             summary.Cancelled ? "Exportación cancelada." : summary.Complete ? "Exportación verificada." : "Exportación con incidencias.",
             $"Correos en el listado: {summary.Listed}. Guardados y verificados: {saved}. Ya verificados: {reused}.",

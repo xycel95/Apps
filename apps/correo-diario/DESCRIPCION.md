@@ -1,10 +1,10 @@
 # Descripción del programa
 
-Exporta los mensajes que selecciones en Outlook web mientras trabajas en otra ventana. CorreoDiario guarda un PDF y los adjuntos en una carpeta de Windows por correo.
+Exporta los mensajes que selecciones en Outlook web mientras trabajas en otra ventana. Dentro del destino elegido, CorreoDiario crea una carpeta por correo con la fecha, hora, dirección del remitente y asunto. En cada carpeta guarda `Correo.pdf` y los adjuntos.
 
 El modo de selección utiliza una ventana propia de Microsoft Edge. Te identificas en la web de tu organización si Microsoft lo solicita. CorreoDiario coloca esa ventana detrás de las demás al exportar y comprueba el texto del PDF y la escritura de cada adjunto. Conserva los mensajes en el buzón.
 
-El programa coteja las filas marcadas con el contador de Outlook y las lee en la ventana en segundo plano. Los correos que requieren revisión quedan en la lista de pendientes.
+El programa coteja las filas marcadas con el contador de Outlook y las lee en la ventana en segundo plano. Los correos que requieren revisión se consultan con **Ver pendientes**.
 
 También puedes convertir archivos EML o MSG existentes y, en organizaciones que lo tengan configurado, exportar carpetas mediante Microsoft 365.
 
