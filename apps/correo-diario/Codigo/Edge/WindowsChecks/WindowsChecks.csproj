@@ -11,5 +11,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WPF" />
     <ProjectReference Include="../Windows/Windows.csproj" />
+    <EmbeddedResource Include="PanelSamples.html" LogicalName="CorreoDiario.PanelSamples.html" />
   </ItemGroup>
 </Project>

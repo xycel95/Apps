@@ -35,7 +35,7 @@ function outlookControls() {
     if(operation==="file-start" || operation==="file-action") {
         const v=view();if(!v || arg.dialog && !preview) return fail("cambio-mensaje");
         const card=attachmentCards(v)?.[arg.index];
-        if(!card || cardKey(card)!==arg.key || mailCard(card)) return fail("cambio-adjunto");
+        if(!card || fileIdentity(card)!==arg.key || mailCard(card)) return fail("cambio-adjunto");
         if(operation==="file-start") {
             const direct=unique(choices(card).filter(enabled));
             if(direct) return {mode:"direct",element:direct};
@@ -73,7 +73,8 @@ function outlookControls() {
             const tiles=attachmentCards(v) || [];
             const choices=buttons(v.card || v.area).filter(b=>!tiles.some(c=>c.contains(b)) &&
                 !!(b.compareDocumentPosition(v.body)&Node.DOCUMENT_POSITION_FOLLOWING) &&
-                /^(?:más (?:acciones|opciones)|more (?:actions|options)|otras acciones)(?:$| (?:para|del|for|on) )/i.test(label(b)));
+                (words(b).some(t=>/^(?:más (?:acciones|opciones)|more (?:actions|options)|otras acciones)(?:$| (?:para|de|del|for|on) )/i.test(t)) ||
+                 b.getAttribute('aria-haspopup')==='menu' && ['…','...'].includes(label(b))));
             const button=unique(choices);if(!button) return null;
             for(const e of all(document,nativePopup+',[role="menuitem"]').filter(trusted)) e.setAttribute(old,token);
             button.setAttribute(mark,token);return button;
@@ -120,7 +121,8 @@ function outlookControls() {
     const before=e=>trusted(e) && !e.contains(v.body) && !!(e.compareDocumentPosition(v.body)&Node.DOCUMENT_POSITION_FOLLOWING) &&
         !tiles.some(c=>c.contains(e)) && !e.closest('[role="toolbar"],[role="listbox"],[role="menu"]');
     const fields=all(area,'span,div,button,a,time,address,h3,[role="heading"],[datetime]').filter(before);
-    const recipientNode=fields.find(e=>/^(?:para|to|cc)\s*:/i.test(clean(e.innerText)) && (!e.childElementCount || clean(e.innerText).length<100));
+    const recipientNode=fields.find(e=>!e.childElementCount && /^(?:para|to|cc)\s*:/i.test(clean(e.innerText))) ||
+        fields.find(e=>/^(?:para|to|cc)\s*:/i.test(clean(e.innerText)) && (!e.childElementCount || clean(e.innerText).length<100));
     const explicit=fields.filter(e=>e.matches('[data-app-section="Sender" i],[data-testid="sender" i]') ||
         /^(?:de|from|remitente|sender)\s*:/i.test(accessibleName(e) || (!e.childElementCount?clean(e.innerText):'')));
     const inSender=e=>explicit.some(s=>s===e || s.contains(e)) ||
@@ -134,11 +136,50 @@ function outlookControls() {
         .flatMap(e=>[e.getAttribute('datetime'),e.getAttribute('title'),e.getAttribute('aria-label'),e.innerText].map(clean))
         .filter(t=>t.length<110 && dateText(t) && !/seguimiento|completad|follow.up|completed/i.test(t));
     const dates=[...new Set(dated)];
+    // Outlook can expose the person's name as a button or focusable persona before “Para”.
+    // Only use a unique named control from the sender area, outside recipient and action controls.
+    const personControl=e=>{
+        const text=clean(e.innerText || e.title || accessibleName(e));
+        return text.length>2 && text.length<200 && /\p{L}{2}/u.test(text) && !replyAction.test(text) &&
+            !e.matches('a[href],time') && !e.closest('[role="toolbar"],[data-app-section="Recipients" i]') &&
+            !/^(?:más acciones|more actions|resumir|summarize|para\s*:|cc\s*:|to\s*:)/i.test(text);
+    };
+    const personas=outer(senders.filter(e=>personControl(e) &&
+        (e.matches('button,[role="button"],[data-lpc-hover-target-id],[data-lpc-hover-target],[aria-haspopup="dialog"]') ||
+         e.matches('[tabindex]') && !e.matches('[tabindex="-1"]'))));
     const contact=senders.find(e=>e.matches('[aria-haspopup="dialog"],[data-app-section="Sender" i] [role="button"],[data-app-section="Sender" i] button') ||
         e.matches('button,[role="button"],[tabindex]') && /perfil|contacto|profile|contact card/i.test(accessibleName(e) || e.title)) ||
-        unique(senders.filter(e=>e.matches('button,[role="button"]') && !e.closest('a[href]') && !e.querySelector('button,[role="button"]') && explicit.some(s=>s===e || s.contains(e)) && !replyAction.test(label(e)) && clean(e.innerText).length>2));
+        unique(senders.filter(e=>e.matches('button,[role="button"]') && !e.closest('a[href]') && !e.querySelector('button,[role="button"]') && explicit.some(s=>s===e || s.contains(e)) && !replyAction.test(label(e)) && clean(e.innerText).length>2)) || unique(personas);
     const person=contact?clean(contact.innerText) || clean(contact.getAttribute('title')):"";
-    if(operation==="metadata") return {language:document.documentElement.lang || "es",sender:addresses.size===1?[...addresses][0]:"",dates,person};
+    if(operation==="metadata" || operation==="probe-panel") return {senderControls:personas.length,recipientMarker:!!recipientNode,explicitSenders:explicit.length,language:document.documentElement.lang || "es",sender:addresses.size===1?[...addresses][0]:"",dates,person};
+    if(operation==="sender-details") {
+        const controls=fields.filter(e=>enabled(e) && e.matches('button,[role="button"]') && e.getAttribute('aria-expanded')!=='true' &&
+            words(e).some(t=>/^(?:mostrar|ver|expandir|show|view|expand) (?:más |los |el |more |the )?(?:detalles(?: (?:del (?:mensaje|remitente)|de los (?:destinatarios|participantes)))?|(?:message |sender |recipient )?details)$/i.test(t)));
+        const b=unique(controls);
+        if(b) b.setAttribute(mark,token);
+        return b;
+    }
+    if(operation==="sender-details-value" || operation==="sender-details-close") {
+        const b=document.querySelector(tagged(mark));
+        if(!b || !area.contains(b)) return null;
+        if(operation==="sender-details-close") return b.getAttribute('aria-expanded')==='true'?b:null;
+        const related=b.getAttribute('aria-controls')?.split(/\s+/).map(id=>document.getElementById(id)).filter(e=>e && trusted(e)) || [];
+        // Only the explicitly labelled From field is authoritative in a recipient disclosure.
+        const sources=related.length?related:[area];
+        const found=new Set();
+        for(const panel of sources) {
+            for(const label of all(panel,'dt,th,span,div,label').filter(e=>!e.childElementCount && trusted(e) && /^(?:de|from|remitente|sender)\s*:?$/i.test(clean(e.innerText)))) {
+                let value=label.nextElementSibling;
+                if(!value && label.parentElement?.childElementCount===1) value=label.parentElement.nextElementSibling;
+                if(!value || !panel.contains(value) || !trusted(value) || /(?:^|\n)\s*(?:para|to|cc|asunto|subject)\s*:/i.test(value.innerText)) continue;
+                for(const node of [value,...all(value,'a,span,[title],[aria-label]')].filter(trusted)) {
+                    const data=[node.innerText,node.title,accessibleName(node),node.matches('a[href^="mailto:" i]')?node.getAttribute('href').split('?')[0]:''];
+                    for(const addr of email(data.join(' '))) found.add(addr.toLowerCase());
+                }
+            }
+        }
+        return found.size===1?[...found][0]:null;
+    }
     if(operation==="sender-open" && contact && enabled(contact) && !contact.closest('a[href]') && person===arg.person) {
         for(const p of all(document,nativePopup).filter(trusted)) p.setAttribute(old,token);
         contact.setAttribute(mark,token); return contact;

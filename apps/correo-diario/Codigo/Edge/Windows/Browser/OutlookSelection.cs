@@ -76,6 +76,31 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         if (result.ValueKind == JsonValueKind.Object && result.TryGetProperty("error", out var code)) throw Fault(code.GetString()!);
         return result;
     }
+    internal Task InspectOpenPanel(DiagnosticLog log,CancellationToken ct) =>
+        RecordPanel("lectura directa",Guid.NewGuid().ToString("N"),log,ct,true);
+
+    private async Task RecordPanel(string reason,string token,DiagnosticLog log,CancellationToken ct,bool current=false)
+    {
+        try
+        {
+            JsonElement p;
+            if(current)
+            {
+                var url=await edge.Current(ct);
+                p=await edge.Evaluate(Page,[url.IsFile?"null":url.GetLeftPart(UriPartial.Authority),"probe-panel",new {token},new {},""],ct);
+            }
+            else p=await Run("probe-panel",new {token},ct);
+            string N(string field)=>p.GetProperty(field).GetInt32().ToString();
+            string B(string field)=>p.GetProperty(field).GetBoolean()?"sí":"no";
+            log.Event(current?"Panel abierto ahora":"Estructura del panel",reason+" · cuerpos "+N("bodies")+" · documentos "+N("documents")+
+                " · tarjetas "+N("groups")+" · cabeceras propias "+N("ownHeaders")+" · identidades "+N("withIds")+
+                " · secciones citadas "+N("quoted")+" · plegadas "+N("closed")+" · cantidad anunciada "+N("expected")+
+                " · panel delimitado "+B("scope")+" · desglose "+p.GetProperty("reason").GetString()+
+                " · marca Para "+B("recipient")+" · campos De "+N("nativeSenders")+" · controles de remitente "+N("senderControls")+
+                " · dirección visible "+B("address")+" · fecha visible "+B("date"));
+        }
+        catch(Exception) when(!ct.IsCancellationRequested) { log.Event(current?"Panel abierto ahora":"Estructura del panel","medición no disponible"); }
+    }
     private async Task<WebState> State(CancellationToken ct) => (await Run("state",new {},ct)).Deserialize<WebState>(Json)!;
     private static async Task<T> Wait<T>(Func<Task<T?>> get, string failure, int seconds, CancellationToken ct) where T : class
     {
@@ -105,7 +130,15 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         origin = url.IsFile ? "null" : url.GetLeftPart(UriPartial.Authority);
         var state = await State(ct);
         log("Reconocer vista de Outlook",$"vista {state.Kind} · contador {state.Count} · tarjetas {state.Keys.Length}");
-        if (state.Kind is "selection" or "draft" or "single") edge.SendToBackground(ct);
+        if (state.Kind is "selection" or "draft" or "single" or "open-row") edge.SendToBackground(ct);
+        if (state.Kind=="open-row")
+        {
+            var current=await Run("rows-current",new {token},ct);
+            if(!current.GetProperty("available").GetBoolean()) throw Fault("panel-regiones-ambiguas");
+            selectionUntouched=false;
+            expectedDraft=0;
+            return state with {Kind="rows",Count=1,Rows=[current.GetProperty("row").Deserialize<WebRow>(Json)!]};
+        }
         if (state.Kind == "selection")
         {
             var rows = await ReadSelectedRows(token,state.Count,log,progress,ct);
@@ -172,6 +205,16 @@ internal sealed partial class OutlookSelection(EdgeSession session)
     }
 
     private static string Normalize(string text) => Regex.Replace(text.Normalize(NormalizationForm.FormKC).Replace("\uFE0E","").Replace("\uFE0F","").ToLowerInvariant(), @"[^\p{L}\p{M}\p{N}]", "");
+    private async Task<bool> MatchesReading(WebMessage expected,bool dialog,CancellationToken ct)
+    {
+        for(int pass=0;pass<3;pass++)
+        {
+            if(pass>0) await Task.Delay(220,ct);
+            if(Same(expected,await Info(dialog,ct))) return true;
+        }
+        return false;
+    }
+
     private static bool Same(WebMessage a, WebMessage b) =>
         a.Title==b.Title && a.Body==b.Body && a.Images==b.Images && a.Headers.SequenceEqual(b.Headers) && a.Files.SequenceEqual(b.Files);
 
@@ -191,7 +234,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
             await Run("clear",new { token },reset.Token);
         }
         ct.ThrowIfCancellationRequested();
-        if (!Same(message,await Info(dialog,ct))) throw Fault("cambio-mensaje");
+        if (!await MatchesReading(message,dialog,ct)) throw Fault("cambio-mensaje");
         await File.WriteAllBytesAsync(path,bytes,ct);
         if (!CryptographicOperations.FixedTimeEquals(SHA256.HashData(bytes), Convert.FromHexString(MailReader.FileHash(path)))) throw new IOException("No se ha podido comprobar el PDF en el destino.");
         using var pdf = PdfDocument.Open(path);
@@ -300,7 +343,13 @@ internal sealed partial class OutlookSelection(EdgeSession session)
         paneMember=null;
         expandedByUs=null;
         selectionUntouched=true;
-        var state=await Prepare(token,log.Event,progress,ct);
+        WebState state;
+        try { state=await Prepare(token,log.Event,progress,ct); }
+        catch(WebExportException error) when(!edge.Invalid)
+        {
+            await RecordPanel(error.Code,token,log,ct);
+            throw;
+        }
         bool direct=state.Kind=="rows";
         bool draft=state.Kind=="draft";
         string root=Path.GetFullPath(destination);
@@ -364,7 +413,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                                 log.Event("Desglosar panel",$"mensajes identificados {panePlan.Length}");
                                 continue;
                             }
-                            if(group) throw Fault("hilo-sin-desglose");
+                            if(group && !(context.GetProperty("memberCount") is {ValueKind:JsonValueKind.Number} count && count.GetInt32()==1)) throw Fault("hilo-sin-desglose");
                         }
                     }
                     if(draft)
@@ -384,7 +433,7 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     await WritePdf(mail,Path.Combine(staging,"Correo.pdf"),draft,ct);
                     phase="Descargar adjunto web";
                     for(int a=0;a<mail.Files.Length;a++) await SaveFile(mail.Files[a],a,draft,staging,ct);
-                    if(!Same(mail,await Info(draft,ct))) throw Fault("cambio-mensaje");
+                    if(!await MatchesReading(mail,draft,ct)) throw Fault("cambio-mensaje");
                     if(direct && (await Run("rows-ready",new {token,queue[index].Key,queue[index].ParentKey,before=(string?)null},ct)).GetString()!="listo") throw Fault("cambio-mensaje");
                     if(direct && queue[index].PanelKey!=null)
                     {
@@ -404,10 +453,18 @@ internal sealed partial class OutlookSelection(EdgeSession session)
                     pending.Add($"{index+1}. {heading} · {problem}");
                     if(error is WebExportException web)
                     {
-                        if(direct && !edge.Invalid && !reasons.ContainsKey(web.Code) && web.Code.StartsWith("panel-",StringComparison.Ordinal))
+                        if(!edge.Invalid && !reasons.ContainsKey(web.Code) && reasons.Count<8)
                         {
-                            var evidence=await Run("rows-diagnostic",new {token},ct);
-                            log.Event("Estructura del panel",$"cuerpos {evidence.GetProperty("bodies")} · documentos {evidence.GetProperty("documents")} · asuntos posibles {evidence.GetProperty("headings")} · acciones de respuesta {evidence.GetProperty("replies")} · tamaños de archivo {evidence.GetProperty("sizes")}");
+                            if(direct && web.Code=="fila-cambiada")
+                            {
+                                try
+                                {
+                                    var r=await Run("rows-probe",RowArgs(token,queue[index],state.Count),ct);
+                                    log.Event("Estructura de fila",$"identificada {r.GetProperty("found")} · identificador de Outlook {r.GetProperty("strong")} · texto idéntico {r.GetProperty("same")} · campos originales {r.GetProperty("snapshot")} · coincidentes {r.GetProperty("common")}");
+                                }
+                                catch(Exception) when(!ct.IsCancellationRequested) { log.Event("Estructura de fila","medición no disponible"); }
+                            }
+                            else await RecordPanel(web.Code,token,log,ct);
                         }
                         reasons[web.Code]=reasons.GetValueOrDefault(web.Code)+1;
                         if(web.Code is "hilo-sin-desglose" or "panel-hilo-incompleto") unresolvedGroups++;

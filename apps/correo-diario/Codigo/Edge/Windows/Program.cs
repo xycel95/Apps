@@ -153,7 +153,7 @@ internal sealed partial class MainWindow : Form
             try { if (last != null) Process.Start(new ProcessStartInfo(last) { UseShellExecute = true }); }
             catch (Exception e) { Error("Abrir resultado", e); }
         };
-        copy.Click += (_, _) => CopyReport();
+        copy.Click += async (_, _) => await CopyReport();
         FormClosing += (_, e) =>
         {
             if (!busy && webSession == null) return;
@@ -351,8 +351,22 @@ internal sealed partial class MainWindow : Form
         status.Text = e is TransferException ? e.Message + " Para un lote de Outlook web, usa Abrir Outlook web." : phase + " · " + e.Message;
     }
 
-    void CopyReport()
+    async Task CopyReport()
     {
+        if(!busy && webReader is { } reader && webSession?.Invalid==false)
+        {
+            busy=true;
+            copy.Enabled=false;
+            RefreshControls();
+            try
+            {
+                using var limit=new CancellationTokenSource(TimeSpan.FromSeconds(4));
+                await reader.InspectOpenPanel(diagnostics,limit.Token);
+            }
+            catch(OperationCanceledException) { diagnostics.Event("Panel abierto ahora","se agotó el tiempo de lectura"); }
+            finally { copy.Enabled=true; End(); }
+            if(IsDisposed || closeRequested) return;
+        }
         var report = diagnostics.Report();
         try { Clipboard.SetDataObject(report, true, 5, 80); status.Text = "Diagnóstico copiado. Ya puedes pegarlo en tu consulta."; }
         catch (ExternalException)

@@ -12,10 +12,11 @@ internal sealed class DiagnosticLog
     string detection = "Todavía no se ha completado la detección de Edge.";
     string? lastError;
     string? lastBatch;
+    string? currentPanel;
     readonly List<string> samples=new();
     public void BeginWebBatch()
     {
-        lock(gate) { lastBatch=null;samples.Clear();lastError=null; }
+        lock(gate) { lastBatch=null;currentPanel=null;samples.Clear();lastError=null; }
     }
 
     public static string ErrorCode(Exception e) => $"{e.GetType().Name} · 0x{e.HResult:X8}";
@@ -25,7 +26,8 @@ internal sealed class DiagnosticLog
     {
         lock (gate)
         {
-            if(stage is "Estructura del panel" or "Pendientes del lote" && samples.Count<10) samples.Add(stage+" — "+detail);
+            if(stage=="Panel abierto ahora") {currentPanel=stage+" — "+detail;return;}
+            if(stage is "Estructura del panel" or "Estructura de fila" or "Pendientes del lote" && samples.Count<10) samples.Add(stage+" — "+detail);
             if(stage=="Lote de Outlook web") lastBatch=$"Último lote terminado a las {DateTimeOffset.Now:HH:mm:ss} · {detail}";
             Append($"{stage} — {detail}");
         }
@@ -72,6 +74,7 @@ internal sealed class DiagnosticLog
                 .AppendLine($"Windows {Environment.OSVersion.Version} · {RuntimeInformation.ProcessArchitecture} · .NET {Environment.Version}")
                 .AppendLine().AppendLine(detection).AppendLine();
             if(lastBatch!=null) report.AppendLine(lastBatch);
+            if(currentPanel!=null) report.AppendLine(currentPanel);
             foreach(string line in samples) report.AppendLine(line);
             if (lastError != null) report.AppendLine("Último error — " + lastError);
             foreach (var entry in events) report.AppendLine(entry);

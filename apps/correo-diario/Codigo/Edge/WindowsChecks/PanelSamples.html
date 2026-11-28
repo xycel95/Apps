@@ -1,0 +1,87 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><title>Lectura de prueba</title>
+<main><div role="listbox" aria-label="Lista de mensajes" id="rows"></div>
+<div id="selection">6 conversaciones seleccionadas</div>
+<div id="ReadingPaneContainerId"></div></main>
+<script>
+const folder=document.getElementById('rows'), pane=document.getElementById('ReadingPaneContainerId');
+const selection=document.getElementById('selection'), scenario=new URLSearchParams(location.search).get('case');
+function node(tag,parent,attrs={},text='') {
+    const el=document.createElement(tag);
+    for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
+    el.textContent=text; parent.append(el);return el;
+}
+function makeFile(card,n,body) {
+    const tile=node('div',card), name='informe de prueba.txt';
+    node('div',tile,{title:name},name);node('small',tile,{},'1 KB');
+    let control=node('button',tile,{'aria-haspopup':'menu','aria-label':'Opciones del archivo'},'⌄');
+    control.onclick=()=>{
+        const pop=node('div',document.body,{role:'menu'});
+        const cmd=node('button',pop,{role:'menuitem'},'Descargar');
+        cmd.onclick=()=>{
+            pop.remove();
+            const a=node('a',document.body,{download:name,href:URL.createObjectURL(new Blob(['Archivo verificado '+n]))});
+            a.click();a.remove();
+            node('span',tile,{role:'status'},'Descargado');
+            if(n===6) body.textContent='Cuerpo distinto después de abrir el archivo.';
+        };
+    };
+}
+function read(n) {
+    selection.hidden=true;
+    for(const r of folder.children) {
+        const ch=r===folder.children[n-1];
+        r.setAttribute('aria-selected',String(ch));r.querySelector('button').textContent=ch?'Marcar como no leído':'Abrir';
+    }
+    folder.children[3].querySelector('[data-app-section="MailSubject"]').textContent='Otro asunto posterior';
+    const title=folder.children[n-1].querySelector('[data-app-section="MailSubject"]').textContent;
+    pane.replaceChildren();node('h2',pane,{},title);
+    const thread=n===2||n===5;
+    const container=node('div',pane,thread?{role:'list','aria-label':n===2?'Mensajes (2 mensajes)':'Mensajes (3 mensajes)'}:{});
+    function message(i) {
+        const wrap=node('div',container);
+        const card=node('article',wrap); if(thread) card.setAttribute('data-app-section','MailReadCompose');
+        const header=node('header',card);
+        let sender;
+        if(n===1) {
+            sender=node('button',header,{},'Persona de ejemplo');
+            sender.onclick=()=>{
+                let p=node('div',document.body,{role:'dialog','aria-label':'Ficha de Persona de ejemplo'});
+                node('h2',p,{},'Persona de ejemplo');
+                node('a',p,{href:'mailto:ficha@example.test'},'Enviar un correo');
+                node('button',p,{},'Cerrar').onclick=()=>p.remove();
+            };
+        } else sender=node('span',header,{},'Persona de ejemplo');
+        if(n!==1 && n!==3) sender.title='origen'+i+'@example.test';
+        node('span',header,{},'Para:');node('span',header,{title:'destino@example.test'},'Destinatario de ejemplo');
+        node('time',header,{},'Sáb 28/11/2026 09:'+String(i).padStart(2,'0'));
+        if(n===3) {
+            const button=node('button',header,{'aria-controls':'datos-desplegados','aria-expanded':'false','aria-label':'Mostrar detalles del mensaje'},'Ver');
+            const details=node('dl',header,{id:'datos-desplegados'});details.hidden=true;
+            if(scenario!=='estructura-solo-para') {node('dt',details,{},'De:');node('dd',details,{},'Persona de ejemplo <cabecera-detallada@example.test>');}
+            node('dt',details,{},'Para:');node('dd',details,{},'destino@example.test');
+            button.onclick=()=>{details.hidden=!details.hidden;button.setAttribute('aria-expanded',String(!details.hidden));};
+        }
+        for(const name of ['Responder','Responder a todos','Reenviar']) node('button',header,{'aria-label':name},name);
+        const inner=node('section',card);
+        const body=node('div',inner,{role:'document','aria-label':'Cuerpo del mensaje'});
+        body.textContent='Contenido propio número '+i+'.';
+        if(n===1 || n===6 || n===2 && i===12) makeFile(card,n===2?i:n,body);
+        for(const name of ['Responder','Reenviar']) node('button',inner,{},name);
+        if(n===1) {
+            const quote=node('article',wrap);
+            const chunk=node('div',quote,{role:'document','aria-label':'Cuerpo del mensaje'});
+            chunk.innerHTML='<b>De:</b> Persona anterior &lt;anterior@example.test&gt;<br>Enviado el: viernes, 27 de noviembre de 2026 10:30<br>Para: Destino anterior<br>Asunto: Anterior<br>Cita completa conservada.';
+        }
+        if(thread && i===12) body.innerHTML='De: Persona citada<br>Enviado el: 01/03/2026<br>Para: Otro<br>Asunto: Otro<br>Contenido propio número 12.';
+    }
+    if(thread) {message(11);message(12);} else message(n);
+}
+for(let n=1;n<=6;n++) {
+    let r=node('div',folder,{role:'option','data-convid':'c-'+n,'aria-selected':'true'});
+    node('span',r,{},'Persona de ejemplo');node('span',r,{'data-app-section':'MailSubject'},'Caso de prueba '+n);
+    node('button',r,{},'Marcado en la lista');r.onclick=()=>read(n);
+}
+if(scenario==='estructura-abierto') read(2);
+if(scenario==='estructura-cita') read(1);
+if(scenario==='estructura-solo-para') read(3);
+</script></html>

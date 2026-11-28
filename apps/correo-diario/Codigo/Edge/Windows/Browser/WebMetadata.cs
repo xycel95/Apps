@@ -29,7 +29,7 @@ internal sealed partial class OutlookSelection
             .Select(t=>new DateTime(t.Year,t.Month,t.Day,t.Hour,t.Minute,0)).Distinct().ToArray();
 
         string sender=meta.GetProperty("sender").GetString() ?? "";
-        if(sender.Length==0 && times.Length==1)
+        if(sender.Length==0)
         {
             string person=meta.GetProperty("person").GetString() ?? "";
             if(person.Length>0)
@@ -48,12 +48,28 @@ internal sealed partial class OutlookSelection
                 }
             }
         }
+        if(sender.Length==0)
+        {
+            var args=new {token};
+            var more=await Run("sender-details",args,ct);
+            if(more.ValueKind==JsonValueKind.Object)
+            {
+                try
+                {
+                    await edge.Click(ElementId(more),ct);
+                    sender=await Wait(async ()=>(await Run("sender-details-value",args,ct)).GetString(),"direccion-del-remitente",2,ct);
+                }
+                catch(WebExportException e) when(e.Code=="direccion-del-remitente") { }
+                finally { await CloseDisclosure("sender-details-close",args); }
+            }
+        }
         if(sender.Length>0 && times.Length==1) return MessageFolders.Name(times[0],sender,title);
         // Read only From and Date in Outlook's message-details dialog; never inspect the signature.
         var details=await MessageDetails(ct);
         if(details.ValueKind==JsonValueKind.Object)
         {
-            if(!MimeKit.MailboxAddress.TryParse(details.GetProperty("sender").GetString(),out var address))
+            if(!MimeKit.MailboxAddress.TryParse(details.GetProperty("sender").GetString(),out var address) ||
+                sender.Length>0 && !sender.Equals(address.Address,StringComparison.OrdinalIgnoreCase))
                 throw Fault("direccion-del-remitente");
             if(!MimeKit.Utils.DateUtils.TryParse(details.GetProperty("date").GetString(),out var sent))
                 throw Fault("fecha-del-correo");

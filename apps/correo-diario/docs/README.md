@@ -10,13 +10,13 @@ Cada correo verificado tiene una carpeta directamente en el destino elegido, por
 
 Puedes marcar más filas de las que caben en pantalla. CorreoDiario coteja la selección con el contador de Outlook, abre cada correo en su propia ventana y comprueba la correspondencia entre el PDF, los adjuntos y el mensaje. Usa la opción **Descargar** del propio adjunto. Outlook puede marcar el correo como leído al abrirlo según la configuración del buzón.
 
-En una conversación, la aplicación identifica los mensajes por separado. Un correo anterior citado en el cuerpo queda dentro del PDF del mensaje que lo cita. Si Outlook solo muestra el nombre del remitente, CorreoDiario intenta obtener su dirección de la ficha del remitente o de los detalles del mensaje. Un correo cuya identidad, fecha, contenido o adjuntos no se puedan verificar queda en **Ver pendientes**. La ventana principal indica la hora de finalización y las cantidades. Consulta los pendientes del último lote antes de cerrar la aplicación.
+En una conversación, la aplicación identifica los mensajes por separado. Un correo anterior citado en el cuerpo queda dentro del PDF del mensaje que lo cita. Si Outlook solo muestra el nombre del remitente, CorreoDiario intenta obtener su dirección del campo De de la cabecera desplegada, de la ficha del remitente o de los detalles del mensaje. Un correo cuya identidad, fecha, contenido o adjuntos no se puedan verificar queda en **Ver pendientes**. La ventana principal indica la hora de finalización y las cantidades. Consulta los pendientes del último lote antes de cerrar la aplicación.
 
 Si Outlook no expone todas las filas marcadas, la aplicación puede usar una vista de borrador con los mensajes adjuntos. El diagnóstico indica cuántos elementos ha entregado Outlook. Puedes volver a la selección desde la pestaña de conversaciones al pie de Outlook.
 
 **Mostrar Outlook web** recupera la ventana para otro lote. **Cerrar ventana web** termina esa sesión. La primera apertura puede descargar de Microsoft el controlador firmado correspondiente al Edge instalado. Para este modo basta con que el equipo permita el controlador y que puedas acceder al buzón en esa ventana.
 
-**Copiar diagnóstico** recoge las fases, los contadores y los motivos técnicos. Los asuntos y direcciones solo se muestran localmente.
+Si queda un correo pendiente, ábrelo en la ventana de Edge de CorreoDiario y pulsa **Copiar diagnóstico** en la aplicación. Puedes hacerlo al terminar el lote. El informe incluye las cantidades de mensajes, citas y cabeceras que ve la aplicación. Los asuntos, direcciones y textos del correo quedan fuera del informe.
 
 ## Archivos locales
 

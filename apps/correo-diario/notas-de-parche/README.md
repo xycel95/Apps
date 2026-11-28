@@ -1,5 +1,14 @@
 # Notas de parche
 
+## 0.8.5 · 28/11/2026
+
+- Se reconoce un correo cuya fila cambia de aspecto al abrirse y cuyo asunto e identificador de Outlook siguen coincidiendo.
+- Las respuestas citadas pueden ocupar otra sección del PDF. Si Outlook presenta distintos mensajes con cabeceras propias, cada uno se archiva con sus adjuntos.
+- La dirección del remitente puede leerse en el campo **De** al desplegar la cabecera del propio correo.
+- **Copiar diagnóstico** examina un correo pendiente al abrirlo en la ventana de exportación. Incluye la estructura del panel y los motivos del último lote.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.5)
+
 ## 0.8.4 · 28/11/2026
 
 - La pantalla principal abre directamente con la selección desde Edge, el destino y los resultados. Se han retirado la conexión adicional a Microsoft 365 para exportar carpetas y el botón de pegar correos.

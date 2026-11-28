@@ -3,11 +3,20 @@ using System.Text.Json;
 
 namespace CorreoDiario.EdgeApp;
 
-internal sealed record WebRow(string Key, string Text, double Y, double Top, string? ParentKey=null, string[]? ParentTitles=null, string? PanelKey=null);
+internal sealed record WebRow(string Key, string Text, double Y, double Top, string? ParentKey=null, string[]? ParentTitles=null, string? PanelKey=null, string[]? Subjects=null, bool Changed=false,bool AlreadyOpen=false);
 internal sealed record FolderPage(double Top, double Height, bool End, WebRow[] Rows);
 
 internal sealed partial class OutlookSelection
 {
+    private static WebRow? ConfirmRow(WebRow original,WebRow current)
+    {
+        if(original.Text==current.Text && !original.Changed) return current;
+        var field=current.Key.Split('=',2)[0];
+        if(field is not ("data-item-id" or "data-itemid" or "data-message-id" or "data-convid" or "data-conversation-id" or "data-conversationid")) return null;
+        var common=(original.Subjects??[]).Intersect(current.Subjects??[],StringComparer.OrdinalIgnoreCase).ToArray();
+        return common.Length==0?null:current with {Subjects=common,Changed=true};
+    }
+
     private async Task<WebRow[]?> ReadSelectedRows(string token, int count, Action<string,string> log,
         IProgress<string> progress, CancellationToken ct)
     {
@@ -38,8 +47,10 @@ internal sealed partial class OutlookSelection
                 if (row.Key.Length==0 || row.Text.Length==0 || !inPage.Add(row.Key)) { ambiguous=true; break; }
                 if (!seen.TryGetValue(row.Key,out var first)) { seen.Add(row.Key,row); continue; }
                 // Text identities at distinct positions can be two different messages with the same subject.
-                if (first.Text!=row.Text || ((row.Key.StartsWith("texto=") || row.Key.StartsWith("etiqueta=") || row.Key.StartsWith("id=")) &&
+                var confirmed=ConfirmRow(first,row);
+                if (confirmed==null || ((row.Key.StartsWith("texto=") || row.Key.StartsWith("etiqueta=") || row.Key.StartsWith("id=")) &&
                     Math.Abs(first.Y-row.Y)>8)) { ambiguous=true; break; }
+                if(confirmed.Changed) seen[row.Key]=confirmed;
             }
             if (ambiguous || seen.Count>count) break;
             if (seen.Count!=before)
@@ -58,13 +69,14 @@ internal sealed partial class OutlookSelection
                     unchangedAtEnd=0;
                     continue;
                 }
-                if(!seen.All(pair=>firstPass.TryGetValue(pair.Key,out var original) && original.Text==pair.Value.Text))
+                var checkedRows=seen.Values.Select(row=>firstPass.TryGetValue(row.Key,out var original)?ConfirmRow(original,row):null).ToArray();
+                if(checkedRows.Any(row=>row==null))
                 {
                     log("Confirmar selección de la carpeta",$"selección {count} · identidades cambiadas entre lecturas");
                     throw Fault("cambio-seleccion");
                 }
                 log("Leer lista de la carpeta",$"selección {count} · filas identificadas {seen.Count} · dos lecturas coincidentes");
-                return seen.Values.OrderBy(r=>r.Y).ToArray();
+                return checkedRows.Select(row=>row!).OrderBy(row=>row.Y).ToArray();
             }
             if (page.End || page.Top==previousTop)
             {
@@ -86,7 +98,7 @@ internal sealed partial class OutlookSelection
     private WebRow? expandedByUs;
 
     private object RowArgs(string token, WebRow row, int count) =>
-        new {token,row.Key,row.Text,row.ParentKey,row.ParentTitles,first=selectionUntouched,count};
+        new {token,row.Key,row.Text,row.ParentKey,row.ParentTitles,row.Subjects,row.Changed,first=selectionUntouched,count};
 
     private async Task<JsonElement> LocateRow(string token, WebRow row, int count, CancellationToken ct)
     {
@@ -151,6 +163,12 @@ internal sealed partial class OutlookSelection
     private async Task<string[]?> OpenSelectedRow(string token, WebRow row, int count, JsonElement context, CancellationToken ct)
     {
         var args=RowArgs(token,row,count);
+        if(row.AlreadyOpen)
+        {
+            activeRow=context;
+            paneMember=null;
+            return await WaitForRow(token,row,null,ct);
+        }
         var before=(await Run("rows-before",args,ct)).GetString();
         paneMember=null;
         var element=await Run("rows-open",args,ct);

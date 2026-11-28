@@ -19,7 +19,7 @@ function accessibleName(e) {
 const isBody = e => /^(?:cuerpo (?:del |de este )?(?:mensaje|correo(?: electrónico)?)|(?:email |e-mail )?message body)(?:$|\s*[:,·–—-]\s*|\s+(?:de|from)\s)/i.test(accessibleName(e)) ||
     /^UniqueMessageBody(?:$|[_-]|\d)/i.test(e.id) || e.getAttribute("data-app-section")?.toLowerCase()==="messagebody";
 const folderControls='nav,[role="navigation"],[role="tree"],[role="listbox"],[role="menu"],[role="tablist"]';
-const mailRegion='[id="ReadingPaneContainerId" i],[aria-label*="panel de lectura" i],[aria-label*="reading pane" i],[data-app-section="ConversationContainer" i],[data-app-section="MailReadCompose" i]';
+const mailRegion='[id="ReadingPaneContainerId" i],[aria-label*="panel de lectura" i],[aria-label*="reading pane" i],[data-app-section="ConversationContainer" i],[data-app-section="MailReadCompose" i],[id="ConversationReadingPaneContainer" i],[id="ConversationReadingPaneContainerId" i]';
 const possibleBodies=all(document,bodySelector+',.allowTextSelection').filter(e=>{
     if(!display(e) || e.closest(editorSelector) || e.closest(folderControls)) return false;
     if(isBody(e)) return true;
@@ -50,6 +50,11 @@ const attachmentName = c => {
     const complete=names.find(n=>/^[^\n<>]+\.[\p{L}\d]{1,12}$/u.test(n) && !fileMenu.test(n) && !/^(?:vista previa|preview|abrir |open |descargar |download )/i.test(n));
     return complete || lines(c).find(v=>!fileMenu.test(v) && !/^(?:elemento de outlook|outlook item)$/i.test(v)) || "";
 };
+function fileIdentity(tile) {
+    const id=tile.getAttribute('data-attachment-id') || tile.getAttribute('data-attachmentid') || '';
+    const size=lines(tile).find(sizeLine) || '';
+    return JSON.stringify([id,attachmentName(tile),size]);
+}
 const editor = all(document,editorSelector).some(e=>display(e) && isBody(e));
 function selectionCount() {
     const re=/^(?:([\d.,\u00a0 ]+)\s+(?:(?:conversaciones?|mensajes?|elementos?)\s+seleccionad[oa]s?|(?:conversations?|items?|messages?)\s+selected)|(?:seleccionad[oa]s?|selected)\s*[:·]?\s*([\d.,\u00a0 ]+))\s*$/i;
@@ -74,16 +79,26 @@ const headerSelector='[role="heading"][aria-level="3"],h3,address,time,[datetime
 const dateLine=t=>/\b(?:\d{1,4}[-/.]\d{1,2}(?:[-/.]\d{1,4})?|\d{1,2}:\d{2})\b/.test(t);
 const recipient=t=>/^(?:para|to|cc)\s*:/i.test(t);
 const replyAction=/^(?:responder(?: a todos)?|reenviar|reply(?: all)?|forward)(?:$|\s*\()/i;
+const headerCards=new WeakMap();
 function normalCard(body) {
+    if(headerCards.has(body)) return headerCards.get(body);
+    const boundary=body.parentElement?.closest('[data-item-id],[data-itemid],[data-message-id],article,[role="article"],[role="listitem"],'+mailRegion);
+    let candidate=null;
     for(let p=body.parentElement;p && p!==document.body;p=p.parentElement) {
         if(all(p,'[data-correo-lista],nav,[role="tree"]').some(e=>!withinContent(e))) break;
-        if(buttons(p).some(e=>replyAction.test(label(e)))) return p;
+        if(buttons(p).some(e=>replyAction.test(label(e)))) {
+            candidate=candidate || p;
+            if(cardHeader(p,body)) {candidate=p;break;}
+        }
+        if(p===boundary) break;
     }
-    return null;
+    headerCards.set(body,candidate);
+    return candidate;
 }
 function visibleHeader(card,body) {
     // Only consider the region before the body, outside attachments and action bars.
     const attachmentLists=lists(card);
+    const sender=lower(cardHeader(card,body)?.sender);
     const before=e=>display(e) && !e.contains(body) && !withinContent(e) &&
         !!(e.compareDocumentPosition(body)&Node.DOCUMENT_POSITION_FOLLOWING) &&
         !e.closest('[role="toolbar"],[role="menu"],[role="menuitem"],[data-correo-lista]') &&
@@ -94,7 +109,7 @@ function visibleHeader(card,body) {
         const t=clean(e.innerText || accessibleName(e));
         if(!t || t.length>400 || replyAction.test(t) || fileMenu.test(t) || /^(?:resumir|summarize|reacciones|reactions|me gusta|like)(?:\s|$)/i.test(t)) continue;
         const control=e.closest('button,[role="button"]');
-        if(control && !recipient(t) && !e.closest('[aria-haspopup="dialog"],[data-app-section="Sender" i]') &&
+        if(control && lower(t)!==sender && !recipient(t) && !e.closest('[aria-haspopup="dialog"],[data-app-section="Sender" i]') &&
             !/(?:perfil|profile|contacto|contact card)/i.test(accessibleName(control))) continue;
         if(values.length===0 && /^[A-Z]{1,2}$/.test(t)) continue;
         if(!values.includes(t)) values.push(t);
@@ -131,6 +146,7 @@ function cardView(g) {
             titles=all(p,'span,div').filter(e=>!e.childElementCount && !card.contains(e) && !readingLayout().groups.some(other=>other!==g && other.area?.contains(e)) && display(e) &&
                 !e.closest('button,[role="button"],[role="toolbar"],[role="listbox"]') && wanted.includes(subjectKey(titleOf(e))));
         }
+        if(titles.length>1 && titles.every(e=>titleOf(e)===titleOf(titles[0]))) titles=[titles[0]];
         if(titles.length===1) {
             const title=titleOf(titles[0]);
             const area=multiple ? g.area : p;
@@ -187,7 +203,7 @@ function contents(v) {
     const denied=buttons(v.area).some(e=>/^(?:no reenviar|do not forward)$/i.test(label(e))) ||
         all(v.area,'[role="alert"],[role="status"]').some(e=>!withinContent(e) && display(e) && /(?:no (?:se )?pued[eas]* (?:imprimir|descargar)|printing is (?:disabled|not allowed)|cannot print|rights.protected)/i.test(clean(e.innerText)));
     if(denied) return fail("protegido");
-    const files=cards.map(c=>({name:attachmentName(c),key:cardKey(c),mail:mailCard(c)}));
+    const files=cards.map(c=>({name:attachmentName(c),key:fileIdentity(c),mail:mailCard(c)}));
     if(files.some(f=>!f.name)) return fail("nombre-adjunto");
     return {title:v.title,headers:v.headers,body:v.parts.map(p=>p.innerText || "").join("\n"),files,
         images:new Set(images.map(i=>i.currentSrc || i.src).filter(s=>!/^data:image\/svg\+xml/i.test(s) && !/\.svg(?:$|[?#])/i.test(s))).size};
@@ -199,6 +215,7 @@ function clearPrint(token) {
     for(const attr of ["data-cd-path","data-cd-part"])
         for(const el of all(document,"["+attr+'="'+token+'"]')) el.removeAttribute(attr);
 }
+if(operation==="probe-panel") return paneReport();
 if(operation.startsWith("details-") || operation.startsWith("file-") || operation.startsWith("sender-") || operation==="metadata" || operation==="control-clear") return outlookControls();
 if(operation.startsWith("rows-")) return folderRows();
 if(operation==="clear") { clearPrint(arg.token); return true; }
@@ -209,7 +226,7 @@ if(operation==="state") {
     if(editor) return {kind:"compose",count:lists(document).reduce((n,l)=>n+options(l).length,0),keys:[]};
     const count=selectionCount();
     if(count>1) return {kind:"selection",count,keys:[]};
-    return {kind:view()?"single":"empty",count,keys:[]};
+    return {kind:view()?"single":readingLayout().groups.length>1?"open-row":"empty",count,keys:[]};
 }
 if(operation==="forward") {
     if(editor || preview || selectionCount()!==arg.count) return fail("cambio-seleccion");
@@ -233,7 +250,7 @@ if(operation==="info") return contents(v);
 if(operation==="attachment") {
     const cards=attachmentCards(v);
     const c=cards?.[arg.index];
-    if(!c || cardKey(c)!==arg.key || mailCard(c)) return fail("cambio-adjunto");
+    if(!c || fileIdentity(c)!==arg.key || mailCard(c)) return fail("cambio-adjunto");
     return menus(c) || fail("acciones-adjunto");
 }
 if(operation==="print") {

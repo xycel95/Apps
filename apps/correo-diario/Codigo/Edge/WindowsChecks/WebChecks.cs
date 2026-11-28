@@ -175,6 +175,14 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
 </script></body></html>
 """;
 
+    private static readonly string PanelFixture=ReadPanelFixture();
+    private static string ReadPanelFixture()
+    {
+        using var stream=typeof(Program).Assembly.GetManifestResourceStream("CorreoDiario.PanelSamples.html")!;
+        using var reader=new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     private sealed class SampleSite : IDisposable
     {
         private readonly TcpListener server = new(IPAddress.Loopback,0);
@@ -211,7 +219,7 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
                     var first=await reader.ReadLineAsync(stop.Token);
                     if(first==null) return;
                     while(await reader.ReadLineAsync(stop.Token) is {Length:>0}) {}
-                    var bytes=first.StartsWith("GET /muestra")?Encoding.UTF8.GetBytes(WebFixture):Array.Empty<byte>();
+                    var bytes=first.StartsWith("GET /muestra")?Encoding.UTF8.GetBytes(first.StartsWith("GET /muestra?case=estructura-")?PanelFixture:WebFixture):Array.Empty<byte>();
                     var header=Encoding.ASCII.GetBytes("HTTP/1.1 "+(bytes.Length>0?"200 OK":"404 Not Found")+"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: "+bytes.Length+"\r\nConnection: close\r\n\r\n");
                     await data.WriteAsync(header,stop.Token);
                     await data.WriteAsync(bytes,stop.Token);
@@ -260,7 +268,11 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
         Button ButtonFor(string caption)=>Desc(form).OfType<Button>().Single(b=>b.Text==caption);
         bool Ui(Func<bool> test)=>(bool)form.Invoke(test);
         string Status()=>(string)form.Invoke(()=>Desc(form).OfType<Label>().Single(x=>x.AccessibleName=="Estado de la exportación").Text);
-        void Go(string caption)=>form.Invoke(()=>ButtonFor(caption).PerformClick());
+        void Go(string caption)
+        {
+            form.Invoke(()=>ButtonFor(caption).PerformClick());
+            if(caption=="Copiar diagnóstico" && !Wait(()=>Ui(()=>ButtonFor(caption).Enabled))) throw new TimeoutException("El diagnóstico no se ha completado.");
+        }
         try
         {
             form.Invoke(()=>Desc(form).OfType<TextBox>().Single(x=>x.AccessibleName=="Carpeta de destino").Text=destination);
@@ -425,6 +437,30 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
             Check(Ui(()=>ButtonFor("Ver pendientes").Enabled) && Directory.GetFiles(clean).Length==0 &&
                 Directory.GetDirectories(clean).Length==beforeMissing && Directory.GetDirectories(clean).All(d=>File.Exists(Path.Combine(d,"Correo.pdf"))),
                 "el destino acumula únicamente carpetas de correo y no usa una fecha o dirección citadas");
+            var varied=Directory.CreateDirectory(Path.Combine(sandbox,"paneles-diversos")).FullName;
+            form.Invoke(()=>Desc(form).OfType<TextBox>().Single(x=>x.AccessibleName=="Carpeta de destino").Text=varied);
+            Navigate("estructura-cita");Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("Panel abierto ahora") && Clipboard.GetText().Contains("secciones citadas 1") &&
+                !Clipboard.GetText().Contains("anterior@example.test") && !Directory.EnumerateFileSystemEntries(varied).Any(),
+                "el diagnóstico examina la estructura del correo abierto sin escribir archivos ni copiar su contenido");
+            Scenario("estructura-lote","Verificados 4 de 7");
+            string Dir(int minute,string address,int n)=>Path.Combine(varied,$"2026-11-28_09.{minute:00}_{address}@example.test_Caso de prueba {n}");
+            string TextOf(string dir) { using var pdf=PdfDocument.Open(Path.Combine(dir,"Correo.pdf"));return string.Join(" ",pdf.GetPages().Select(pg=>pg.Text)); }
+            string quoteDir=Dir(1,"ficha",1);
+            Check(TextOf(quoteDir).Contains("Persona de ejemplo") && TextOf(quoteDir).Contains("Cita completa conservada") && File.ReadAllText(Path.Combine(quoteDir,"informe de prueba.txt"))=="Archivo verificado 1",
+                "dos documentos de una respuesta forman un correo con su cita y su adjunto");
+            Check(TextOf(Dir(11,"origen11",2)).Contains("Contenido propio número 11") && !TextOf(Dir(11,"origen11",2)).Contains("Contenido propio número 12") &&
+                TextOf(Dir(12,"origen12",2)).Contains("Contenido propio número 12") && File.ReadAllText(Path.Combine(Dir(12,"origen12",2),"informe de prueba.txt"))=="Archivo verificado 12",
+                "dos tarjetas con cabeceras propias y sin ID visible conservan sus mensajes y adjuntos separados");
+            Check(Directory.Exists(Dir(3,"cabecera-detallada",3)) && Directory.GetDirectories(varied).Length==4 &&
+                Directory.GetFiles(varied).Length==0,"la fila tolera los indicadores de lectura y la cabecera desplegada identifica al remitente");
+            Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("fila-cambiada") && Clipboard.GetText().Contains("panel-hilo-incompleto") && Clipboard.GetText().Contains("cambio-mensaje") &&
+                !Clipboard.GetText().Contains("example.test") && !Clipboard.GetText().Contains("Caso de prueba"),"un cambio real, un hilo incompleto y un asunto sustituido quedan pendientes con diagnóstico anónimo");
+            Scenario("estructura-abierto","Verificados 2 de 2");
+            Check(Directory.GetDirectories(varied).Length==6,"la conversación individual ya abierta se desglosa sin volver a marcarla");
+            Scenario("estructura-solo-para","Verificados 0 de 1");
+            Check(Directory.GetDirectories(varied).Length==6,"el campo Para de una cabecera desplegada nunca sustituye al remitente");
             Go("Cerrar ventana web");
             Check(Wait(()=>Ui(()=>Desc(form).OfType<Button>().Any(b=>b.Text=="Abrir Outlook web" && b.Enabled)
                 && !ButtonFor("Exportar selección web").Enabled && !ButtonFor("Cerrar ventana web").Enabled),20),"la sesión dedicada se cierra desde la aplicación");

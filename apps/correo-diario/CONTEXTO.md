@@ -1,5 +1,11 @@
 # Continuar CorreoDiario
 
+## 0.8.5
+
+La identificación de filas admite cambios en el estado de lectura cuando coinciden el identificador estable de Outlook y el asunto de las dos lecturas con el del panel. El lector distingue secciones citadas contiguas y tarjetas con cabeceras, y comprueba el número y la identidad de los miembros antes y después de guardar cada correo. Las identidades ambiguas, las conversaciones incompletas y los cambios de contenido siguen pendientes.
+
+La dirección puede proceder del campo De en los detalles desplegables de la cabecera. Copiar diagnóstico examina la estructura del correo abierto en la sesión dedicada cuando está en reposo. El informe conserva una muestra por motivo de incidencia con cantidades y códigos fijos. Las pruebas de escritorio cubren las dos disposiciones del panel, los cambios de fila y del archivo adjunto, la lectura del remitente y la privacidad del diagnóstico.
+
 ## 0.8.4
 
 La aplicación de escritorio utiliza la sesión de Edge de la ventana de exportación. Se retiraron el diálogo de carpetas de Microsoft 365, el cliente de autenticación de la aplicación y la entrada de correos mediante portapapeles. Archivos locales se abre a petición del usuario y permite elegir EML o MSG. Copiar diagnóstico sigue disponible.
