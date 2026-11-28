@@ -4,11 +4,15 @@
 
 La aplicación de escritorio utiliza la sesión de Edge de la ventana de exportación. Se retiraron el diálogo de carpetas de Microsoft 365, el cliente de autenticación de la aplicación y la entrada de correos mediante portapapeles. Archivos locales se abre a petición del usuario y permite elegir EML o MSG. Copiar diagnóstico sigue disponible.
 
+Las cinco descargas públicas de 0.8.4 se verificaron por tamaño y SHA-256. En Windows pasaron 65 pruebas de archivo y 97 de escritorio. Se comprobó en el ejecutable la vista inicial centrada en el navegador, el selector de archivos opcional y la conservación del foco y el cursor durante la exportación de mensajes ficticios.
+
 ## 0.8.3
 
 Las exportaciones de la interfaz nativa publican cada carpeta terminada directamente en el destino. MessageFolders aplica el formato de fecha y hora, remitente y asunto, reserva nombres ante colisiones y publica mediante cambio de nombre. Las incidencias web quedan en memoria para Ver pendientes. FolderArchive guarda su estado de reanudación fuera del destino.
 
 El lector web asocia los cuerpos, citas y adjuntos a la tarjeta del mensaje. Cuando Outlook permite desglosar una conversación por el panel de lectura, coteja dos lecturas de las identidades antes de abrir sus miembros. Los datos del remitente y hora proceden de la cabecera, de la ficha del remitente o de los detalles oficiales del propio mensaje. El diagnóstico registra contadores y motivos técnicos.
+
+Las cinco descargas públicas de 0.8.3 se verificaron por tamaño y SHA-256. En Windows se completaron 65 comprobaciones de archivo y 106 de escritorio con mensajes ficticios.
 
 ## 0.8.2
 

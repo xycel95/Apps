@@ -26,7 +26,7 @@ Para convertir mensajes EML o MSG que ya tengas en el ordenador, despliega **Arc
 
 ### Comprobaciones de la versión
 
-Las pruebas usan un buzón ficticio, una selección de 106 elementos, mensajes citados, conversaciones y descargas con nombres coincidentes. El informe de Windows identifica la versión comprobada.
+En Windows se superaron 65 comprobaciones de lectura y archivo y 97 de escritorio. Se exportaron 106 mensajes ficticios mientras otra ventana conservaba el foco y el cursor. También se comprobaron el nombre de las carpetas, el contenido de los PDF y los adjuntos, las citas, los remitentes y la vista inicial centrada en el navegador. La comprobación en el buzón de trabajo queda pendiente.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 
