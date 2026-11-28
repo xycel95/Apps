@@ -54,7 +54,7 @@ La ventana principal también permite añadir mensajes EML o MSG existentes y re
 
 ### Comprobaciones de la versión
 
-En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 85 de escritorio. En la prueba de lectura directa se archivaron los 106 mensajes marcados de una carpeta ficticia con 123 filas y 13 visibles. Se comprobaron los PDF, sus adjuntos y el foco y el cursor de otra ventana. Para este lote la aplicación no abrió ningún borrador. También se probaron un panel con un mensaje equivocado y un borrador vacío. La prueba con el buzón de trabajo real queda pendiente.
+En Windows se ejecutaron 65 comprobaciones de lectura y archivo y 94 de escritorio. Se verificaron 106 mensajes marcados de una lista ficticia con 13 filas visibles, los PDF, los adjuntos y que otra ventana conservaba el foco y el cursor. Otra prueba reprodujo un panel normal con el asunto separado, dos mensajes en el mismo hilo, una conversación incompleta y un correo anterior que seguía en pantalla. Se comprobó que se guardaban únicamente los mensajes que correspondían y que el lote llegaba al último. Queda pendiente la confirmación con el buzón de trabajo.
 
 [Informe de Windows](VALIDACION-WINDOWS.json) · [Comprobación de las descargas](VALIDACION-PUBLICACION.json)
 
