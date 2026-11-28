@@ -64,6 +64,7 @@ internal sealed partial class MainWindow
         RefreshControls();
         try
         {
+            diagnostics.Event("Exportar selección web","inicio");
             status.Text = "Leyendo la selección de tu ventana de Outlook…";
             var result = await Task.Run(() => reader.Export(folder,progress,diagnostics,ct),ct);
             last = result.Folder;

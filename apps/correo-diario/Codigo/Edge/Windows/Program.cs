@@ -30,7 +30,7 @@ internal sealed partial class MainWindow : Form
     readonly Button update = Btn("Buscar actualizaciones");
     readonly Button cloud = Btn("Exportar carpetas de Outlook…");
     readonly Button paste = Btn("Pegar correos"), files = Btn("Añadir archivos…"), detect = Btn("Detectar Edge"),
-        countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar selección"),
+        countEdge = Btn("Ver selección en Edge"), choose = Btn("Elegir carpeta…"), export = Btn("Exportar archivos añadidos"),
         clear = Btn("Quitar marcados"), select = Btn("Marcar todos"), open = Btn("Abrir resultado"),
         stop = Btn("Cancelar"), copy = Btn("Copiar diagnóstico");
     bool busy, closeRequested;
@@ -254,7 +254,7 @@ internal sealed partial class MainWindow : Form
                 result += " " + difference + " Revisa la lista antes de exportar.";
             }
             lastSelectionCount = null;
-            status.Text = result + " Puedes cambiar de pestaña y pulsar Exportar selección.";
+            status.Text = result + " Pulsa Exportar archivos añadidos.";
         }
         catch (OperationCanceledException) { diagnostics.Event(phase, "cancelado"); status.Text = "Entrada cancelada."; }
         catch (Exception e) { Error(phase, e); }
@@ -298,7 +298,8 @@ internal sealed partial class MainWindow : Form
             lastSelectionCount = info.Total;
             var counts = $"filas visibles {info.Visible} · marcadas visibles {info.Marked} · contador de Outlook {info.Total?.ToString() ?? "sin dato"}";
             diagnostics.Event("Ver selección en Edge", counts);
-            status.Text = counts + ". Para exportar esta selección, márcala en la ventana que abre Abrir Outlook web.";
+            status.Text = counts + (webSession==null ? ". Pulsa Abrir Outlook web y marca los correos en esa ventana."
+                : ". Si los marcaste en la ventana de CorreoDiario, pulsa Exportar selección web arriba.");
         }
         catch (Exception e) { Error("Ver selección en Edge", e); }
         finally { End(); }

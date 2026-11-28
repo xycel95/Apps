@@ -1,5 +1,13 @@
 # Notas de parche
 
+## 0.8.1 · 28/11/2026
+
+- La selección web puede leerse directamente desde la carpeta aunque Outlook muestre solo parte de las filas. Antes de abrir un mensaje, el programa comprueba que ha identificado toda la selección. Mantiene Edge detrás de las demás ventanas para que Outlook pueda cargar cada tramo de filas.
+- Un panel que muestra otro mensaje, una conversación agrupada o una entrega incompleta quedan señalados. El diagnóstico indica cuántas filas o tarjetas reconoció Outlook.
+- El botón inferior se llama **Exportar archivos añadidos** para distinguirlo de **Exportar selección web**.
+
+[Descargas de esta versión](https://github.com/xycel95/Apps/releases/tag/correo-diario-v0.8.1)
+
 ## 0.8.0 · 27/11/2026
 
 - **Abrir Outlook web** y **Exportar selección web** permiten archivar los mensajes marcados en una ventana de Edge que se minimiza durante el lote.

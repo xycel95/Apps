@@ -8,22 +8,25 @@ using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 
 namespace CorreoDiario.EdgeApp;
 
-internal sealed record WebState(string Kind, int Count, string[] Keys);
+internal sealed record WebState(string Kind, int Count, string[] Keys)
+{
+    internal WebRow[] Rows { get; init; } = [];
+}
 internal sealed record WebFile(string Name, string Key, bool Mail);
 internal sealed record WebMessage(string Title, string[] Headers, string Body, WebFile[] Files, int Images);
 internal sealed record WebResult(string Folder, int Total, int Saved, int Attachments, bool Cancelled, string? Problem);
 
-internal sealed class OutlookSelection(EdgeSession session)
+internal sealed partial class OutlookSelection(EdgeSession session)
 {
     private readonly EdgeSession edge = session;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-    private static readonly string Page = LoadScript();
+    private static readonly string Page = LoadScript("OutlookPage.js") + "\n" + LoadScript("OutlookRows.js");
     private int expectedDraft;
     private string origin = "";
 
-    private static string LoadScript()
+    private static string LoadScript(string name)
     {
-        using var resource = typeof(OutlookSelection).Assembly.GetManifestResourceStream("CorreoDiario.OutlookPage.js")!;
+        using var resource = typeof(OutlookSelection).Assembly.GetManifestResourceStream("CorreoDiario." + name)!;
         using var reader = new StreamReader(resource);
         return reader.ReadToEnd();
     }
@@ -33,7 +36,12 @@ internal sealed class OutlookSelection(EdgeSession session)
         "fuera-del-correo" or "origen" => "Abre tu buzón en la ventana de exportación de Edge.",
         "reenviar" => "Outlook no muestra una acción única de Reenviar. Pulsa Reenviar en esa ventana y deja abierto el borrador con los mensajes adjuntos.",
         "cambio-seleccion" or "cambio-lote" => "La selección o el borrador ha cambiado. Comprueba los correos en la ventana de exportación.",
-        "cantidad" => "La cantidad de correos que entregó Outlook no coincide con la selección. Prueba con un lote más pequeño.",
+        "cantidad" => "La cantidad de correos que entregó Outlook no coincide con la selección. Consulta los dos contadores en el diagnóstico.",
+        "borrador-vacío" => "Outlook abrió un borrador sin correos adjuntos. Vuelve a la pestaña de conversaciones seleccionadas que aparece al pie de Outlook.",
+        "lista-cambiada" or "fila-cambiada" or "fila-ambigua" => "La lista de la carpeta cambió o contiene filas que no se pueden distinguir. Revisa la selección en Outlook.",
+        "fila-ausente" => "Outlook ya no muestra esta fila en la carpeta.",
+        "panel-fila" => "No se pudo confirmar que el panel de lectura correspondiera al mensaje marcado. Comprueba que el panel de lectura de Outlook esté visible.",
+        "hilo-agrupado" => "Outlook agrupa varios mensajes en una conversación. Para archivarlos individualmente, elige la vista por mensajes de Outlook y marca los pendientes.",
         "seleccion" => "Marca varios correos en la ventana de exportación de Edge o abre un único mensaje completo.",
         "borrador" => "El borrador debe contener la selección como elementos de Outlook. Vuelve a la carpeta, marca los correos y pulsa Exportar selección web.",
         "vista-abierta" => "Cierra la vista previa del adjunto hasta ver las tarjetas del borrador y vuelve a exportar.",
@@ -81,23 +89,25 @@ internal sealed class OutlookSelection(EdgeSession session)
         await edge.Click(element,ct);
     }
 
-    private async Task<WebState> Prepare(Action<string,string> log, CancellationToken ct)
+    private async Task<WebState> Prepare(string token, Action<string,string> log, IProgress<string> progress, CancellationToken ct)
     {
         var url = await edge.Current(ct);
         origin = url.IsFile ? "null" : url.GetLeftPart(UriPartial.Authority);
         var state = await State(ct);
         log("Reconocer vista de Outlook",$"vista {state.Kind} · contador {state.Count} · tarjetas {state.Keys.Length}");
-        if (state.Kind is "selection" or "draft" or "single") await edge.Minimize(ct);
+        if (state.Kind is "selection" or "draft" or "single") edge.SendToBackground(ct);
         if (state.Kind == "selection")
         {
-            expectedDraft = state.Count;
-            log("Preparar selección web", $"selección de Outlook {expectedDraft}");
-            await Click("forward",new { count=expectedDraft },"reenviar",ct);
-            state = await Wait(async () =>
+            var rows = await ReadSelectedRows(token,state.Count,log,progress,ct);
+            if (rows != null)
             {
-                var current = await State(ct);
-                return current.Kind == "draft" && current.Count == expectedDraft ? current : null;
-            },"cantidad",22,ct);
+                expectedDraft=0;
+                return state with { Kind="rows", Rows=rows };
+            }
+            expectedDraft = state.Count;
+            log("Preparar selección web", $"selección de Outlook {expectedDraft} · lectura mediante borrador");
+            await Click("forward",new { count=expectedDraft },"reenviar",ct);
+            state=await AwaitDraft(log,progress,ct);
         }
         if (state.Kind == "draft")
         {
@@ -106,7 +116,31 @@ internal sealed class OutlookSelection(EdgeSession session)
             return state;
         }
         if (state.Kind == "single") { expectedDraft = 0; return state with { Count = 1 }; }
-        throw Fault(state.Kind switch { "compose" => "borrador", "preview" => "vista-abierta", _ => "seleccion" });
+        throw Fault(state.Kind switch { "compose" when state.Count==0 => "borrador-vacío", "compose" => "borrador", "preview" => "vista-abierta", _ => "seleccion" });
+    }
+
+    private async Task<WebState> AwaitDraft(Action<string,string> log, IProgress<string> progress, CancellationToken ct)
+    {
+        var clock=Stopwatch.StartNew();
+        var idle=Stopwatch.StartNew();
+        int peak=0;
+        WebState last;
+        do
+        {
+            ct.ThrowIfCancellationRequested();
+            last=await State(ct);
+            if(last.Kind=="draft" && last.Count==expectedDraft) return last;
+            if(last.Kind=="draft" && last.Count>peak)
+            {
+                peak=last.Count;
+                idle.Restart();
+                progress.Report($"Outlook ha preparado {peak} de {expectedDraft} elementos…");
+            }
+            if(last.Kind=="draft" && last.Count>expectedDraft) break;
+            await Task.Delay(300,ct);
+        } while(idle.Elapsed.TotalSeconds<30 && clock.Elapsed.TotalMinutes<4);
+        log("Comprobar entrega del borrador",$"vista {last.Kind} · seleccionados {expectedDraft} · tarjetas {last.Keys.Length} · elementos en la lista {(last.Kind is "compose" or "draft" ? last.Count : 0)} · máximo {peak}");
+        throw Fault(last.Kind=="compose" && last.Count==0 && peak==0 ? "borrador-vacío" : "cantidad");
     }
 
     private async Task<WebMessage> Info(bool dialog, CancellationToken ct)
@@ -213,17 +247,31 @@ internal sealed class OutlookSelection(EdgeSession session)
 
     internal async Task<WebResult> Export(string destination, IProgress<string> progress, DiagnosticLog log, CancellationToken ct)
     {
-        // Reject an unwritable destination before creating a draft in Outlook.
+        var token=Guid.NewGuid().ToString("N");
+        try { return await ExportBatch(destination,progress,log,token,ct); }
+        finally
+        {
+            using var cleanup=new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            try { if(origin.Length>0 && !edge.Invalid) await Run("rows-clear",new {token},cleanup.Token); }
+            catch(Exception error) { log.Fault("Retirar marcas de lectura",error); }
+        }
+    }
+
+    private async Task<WebResult> ExportBatch(string destination,IProgress<string> progress,DiagnosticLog log,string token,CancellationToken ct)
+    {
+        // Check the destination before changing the selection in this window.
         Directory.CreateDirectory(destination);
         string runId=Guid.NewGuid().ToString("N");
         var probe=Path.Combine(destination,".CorreoDiario-"+runId+".tmp");
         using(var file=new FileStream(probe,FileMode.CreateNew,FileAccess.Write,FileShare.None,1,FileOptions.DeleteOnClose)) { }
-        var state=await Prepare(log.Event,ct);
+        var state=await Prepare(token,log.Event,progress,ct);
+        bool direct=state.Kind=="rows";
         bool draft=state.Kind=="draft";
         string root=Path.Combine(destination,"CorreoDiario_"+DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss")+"_"+runId[..8]);
         Directory.CreateDirectory(root);
         var pending=new List<string>();
         int saved=0,attachments=0,processed=0;
+        bool firstDirect=true;
         bool cancelled=false;
         string? problem=null;
         string phase="Preparar lote web";
@@ -238,6 +286,12 @@ internal sealed class OutlookSelection(EdgeSession session)
                 bool opened=false;
                 try
                 {
+                    if(direct)
+                    {
+                        phase="Abrir correo de la lista";
+                        await OpenSelectedRow(token,state.Rows[index],state.Count,firstDirect,ct);
+                        firstDirect=false;
+                    }
                     if(draft)
                     {
                         phase="Abrir vista previa de Outlook";
@@ -254,6 +308,7 @@ internal sealed class OutlookSelection(EdgeSession session)
                     phase="Descargar adjunto web";
                     for(int a=0;a<mail.Files.Length;a++) await SaveFile(mail.Files[a],a,draft,staging,ct);
                     if(!Same(mail,await Info(draft,ct))) throw Fault("cambio-mensaje");
+                    if(direct && !(await Run("rows-ready",new {token,state.Rows[index].Key,before=(string?)null},ct)).GetBoolean()) throw Fault("cambio-mensaje");
                     ct.ThrowIfCancellationRequested();
                     Directory.Move(staging,Path.Combine(root,$"{index+1:D3} - "+MailReader.SafeName(mail.Title,75)));
                     attachments+=mail.Files.Length;
@@ -262,10 +317,12 @@ internal sealed class OutlookSelection(EdgeSession session)
                 catch(OperationCanceledException) when(ct.IsCancellationRequested) { throw; }
                 catch(Exception error)
                 {
+                    if(direct && firstDirect && error is WebExportException {Code:"hilo-agrupado"})
+                        firstDirect=(await State(ct)).Kind=="selection";
                     log.Fault(phase,error);
                     problem=error is WebExportException ? error.Message : "Comprueba el diagnóstico de la operación.";
                     pending.Add($"{index+1}. {heading} · {problem}");
-                    if(!opened || edge.Invalid || error is not WebExportException || ((WebExportException)error).Code is "origen" or "cambio-lote" or "cambio-mensaje") {processed=index+1;break;}
+                    if((!direct && !opened) || edge.Invalid || error is not WebExportException || ((WebExportException)error).Code is "origen" or "cambio-lote" or "cambio-mensaje" or "lista-cambiada" or "cambio-seleccion" or "fila-cambiada" or "fila-ambigua" or "panel-fila") {processed=index+1;break;}
                 }
                 finally
                 {

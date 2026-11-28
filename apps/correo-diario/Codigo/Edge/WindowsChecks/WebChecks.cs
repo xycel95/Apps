@@ -32,7 +32,7 @@ function card(name,kind,action){const c=document.createElement('div');c.setAttri
   for(const t of [name,kind]){const line=document.createElement('div');line.textContent=t;c.append(line);}
   const b=document.createElement('button');b.setAttribute('aria-label','Más acciones');b.textContent='Más acciones';b.onclick=action;c.append(b);return c;}
 get('forward').onclick=()=>{get('selection').hidden=true;get('compose').hidden=false;
-  for(let n=1;n<=(mode==='partial'?12:total);n++)get('cards').append(card('Asunto ficticio '+n,'Elemento de Outlook',()=>menu('Vista previa',()=>openMail(n))));};
+  for(let n=1;n<=(mode==='partial'?12:mode==='empty'?0:total);n++)get('cards').append(card('Asunto ficticio '+n,'Elemento de Outlook',()=>menu('Vista previa',()=>openMail(n))));};
 function closePreview(){get('preview').hidden=true;get('message').replaceChildren();get('menu').replaceChildren();}
 function openMail(n){current=n;const msg=get('message');get('preview').hidden=false;
   msg.innerHTML='<div role="heading" aria-level="2">Asunto ficticio '+n+'</div><section><div role="heading" aria-level="3">De: Origen de prueba</div><div role="heading" aria-level="3">Para: Destino de prueba</div><div role="heading" aria-level="3">27/11/2026</div><div id="files" role="listbox" aria-label="archivos adjuntos"></div><div role="document" aria-label="Cuerpo del mensaje"><p>Cuerpo independiente '+n+'</p><table><tr><td>Tabla '+n+'</td></tr></table><img alt="Imagen de muestra" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFUlEQVR4nGPYx6BxwkaDAUhpuJ0AAB14BC+fQndGAAAAAElFTkSuQmCC" width="24" height="24"><button role="menuitem" onclick="clickCount++">Descargar</button></div></section>';
@@ -41,6 +41,35 @@ function openMail(n){current=n;const msg=get('message');get('preview').hidden=fa
     get('files').append(card(filename,'12 B',()=>menu(mode==='protected'?'Guardar en OneDrive':'Descargar',()=>{
       const link=document.createElement('a');link.download=filename;link.href=URL.createObjectURL(new Blob(['Adjunto '+n+'/'+a],{type:'text/plain'}));
       document.body.append(link);link.click();link.remove();})));}}
+// A large folder renders only one viewport and refuses to attach a bulk selection.
+let forwards=0;
+if(mode==='direct'||mode==='stale') {
+  const folder=get('folder'),main=document.querySelector('main'),article=get('message'),limit=mode==='stale'?2:123;
+  let opened=0;
+  folder.replaceChildren();folder.setAttribute('role','listbox');folder.setAttribute('aria-label','Lista de mensajes');
+  folder.style.cssText='position:relative;overflow:auto;height:416px;width:420px';
+  const spacer=document.createElement('div');spacer.style.height=(32*limit)+'px';folder.append(spacer);
+  main.append(article);
+  get('count').textContent=(mode==='stale'?2:106)+' conversaciones seleccionadas';
+  get('forward').onclick=()=>{forwards++;get('selection').hidden=true;get('compose').hidden=false;};
+  function subject(n){return n===2||n===3?'Asunto duplicado':'Asunto ficticio '+n;}
+  function render() {
+    for(const r of folder.querySelectorAll('[role=option]'))r.remove();
+    const start=Math.floor(folder.scrollTop/32)+1;
+    for(let n=start;n<=Math.min(limit,start+12);n++){
+      const r=document.createElement('div');r.setAttribute('role','option');r.setAttribute('data-convid','fila-ficticia-'+n);
+      r.setAttribute('aria-selected',String(opened===0?n%7!==0:n===opened));
+      r.style.cssText='position:absolute;left:0;right:0;top:'+((n-1)*32)+'px;height:32px';
+      const from=document.createElement('span');from.textContent='Remitente de ejemplo';r.append(from);
+      const title=document.createElement('span');title.textContent=subject(n);r.append(title);
+      r.onclick=()=>{opened=n;get('selection').hidden=true;render();
+        const show=()=>{openMail(n);get('preview').hidden=true;article.querySelector('[aria-level="2"]').textContent=mode==='stale'?'Mensaje distinto':subject(n);};
+        if(n===3)setTimeout(show,550);else show();};
+      folder.append(r);
+    }
+  }
+  folder.onscroll=()=>requestAnimationFrame(render);folder.scrollTop=(limit-13)*32;render();
+}
 if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1);const article=get('message');document.querySelector('main').append(article);get('preview').remove();}
 </script></body></html>
 """;
@@ -172,6 +201,45 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
             Go("Copiar diagnóstico");
             Check(Wait(()=>Clipboard.GetText().Contains("verificados 106/106"))&&!Clipboard.GetText().Contains("Asunto ficticio")&&!Clipboard.GetText().Contains(url.AbsoluteUri),"diagnóstico web con cantidades y sin información del correo ni rutas");
             void Navigate(string scenario)=>session.Command(HttpMethod.Post,"/url",new {url=url.AbsoluteUri+"?case="+scenario},default).GetAwaiter().GetResult();
+            var priorRoots=Directory.GetDirectories(destination);
+            Navigate("direct");
+            SetForegroundWindow(other);
+            Check(Wait(()=>GetForegroundWindow()==other,8),"la prueba de lista empieza con otra ventana delante");
+            var listCursor=Cursor.Position;
+            using var observeList=new CancellationTokenSource();
+            int focusChanges=0,cursorChanges=0;
+            var listMonitor=new Thread(()=>{while(!observeList.Token.WaitHandle.WaitOne(15)){
+                if(GetForegroundWindow()!=other)Interlocked.Increment(ref focusChanges);
+                if(Cursor.Position!=listCursor)Interlocked.Increment(ref cursorChanges);}});
+            listMonitor.Start();
+            bool completeList;
+            try
+            {
+                Go("Exportar selección web");
+                completeList=Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),340);
+            }
+            finally {observeList.Cancel();listMonitor.Join();}
+            Console.WriteLine("ESTADO LISTA DIRECTA "+Status());
+            if(!completeList || !Status().Contains("Verificados 106 de 106")) { Go("Copiar diagnóstico");Console.WriteLine(Clipboard.GetText()); }
+            Check(completeList && Status().Contains("Verificados 106 de 106"),"106 seleccionados entre 123 filas con 13 visibles y un borrador masivo vacío");
+            Check(focusChanges==0 && cursorChanges==0,"la lectura directa conserva el foco y el cursor durante los 106 correos");
+            Check((session.Evaluate("return forwards;",[],default).GetAwaiter().GetResult()).GetInt32()==0,"el lote directo no crea borradores ni pulsa Reenviar");
+            var directRoot=Directory.GetDirectories(destination).Except(priorRoots).Single();
+            var savedFolders=Directory.GetDirectories(directRoot).OrderBy(dir=>dir,StringComparer.Ordinal).ToArray();
+            var expectedRows=Enumerable.Range(1,123).Where(n=>n%7!=0).ToArray();
+            Check(savedFolders.Length==106 && !File.Exists(Path.Combine(directRoot,"Pendientes.txt")),"se guardan todas y solo las filas seleccionadas");
+            for(int i=0;i<savedFolders.Length;i++)
+            {
+                using var savedPdf=PdfDocument.Open(Path.Combine(savedFolders[i],"Correo.pdf"));
+                int n=expectedRows[i];
+                if(!savedPdf.GetPages().Any(pg=>pg.Text.Contains("Cuerpo independiente "+n)) ||
+                    File.ReadAllText(Path.Combine(savedFolders[i],"informe.txt"))!=$"Adjunto {n}/1")
+                    throw new Exception("El PDF o el adjunto no corresponde a la fila ficticia "+n);
+            }
+            Check(true,"cada PDF y adjunto corresponden a su fila, incluso con asuntos repetidos y actualización tardía del panel");
+            Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("filas identificadas 106") && !Clipboard.GetText().Contains("fila-ficticia-") &&
+                !Clipboard.GetText().Contains("Asunto duplicado"),"la comprobación de las filas solo registra contadores");
             Navigate("single");Go("Exportar selección web");
             Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),40) && Status().Contains("Verificados 1 de 1"),"un mensaje abierto se exporta sin crear borrador");
             Navigate("protected");Go("Exportar selección web");
@@ -179,6 +247,17 @@ if(mode==='single'||mode==='protected'){get('selection').hidden=true;openMail(1)
                 Directory.GetFiles(destination,"Pendientes.txt",SearchOption.AllDirectories).Length==1,"la ausencia de Descargar deja el mensaje pendiente y no publica un PDF suelto");
             Navigate("partial");Go("Exportar selección web");
             Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),38) && Status().Contains("no coincide"),"se rechaza un borrador incompleto con menos elementos que la selección");
+            Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("seleccionados 106 · tarjetas 12"),"el diagnóstico distingue cuántas tarjetas devolvió realmente el borrador");
+            Navigate("empty");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),45) && Status().Contains("borrador sin correos adjuntos"),
+                "un borrador con solo la firma identifica la entrega vacía de Outlook");
+            Go("Copiar diagnóstico");
+            Check(Clipboard.GetText().Contains("vista compose · seleccionados 106 · tarjetas 0") && Clipboard.GetText().Contains("borrador-vacío"),
+                "el diagnóstico conserva el contador y los cero elementos tras abrir el borrador");
+            Navigate("stale");Go("Exportar selección web");
+            Check(Wait(()=>Ui(()=>ButtonFor("Exportar selección web").Enabled),35) && Status().Contains("Verificados 0 de 2"),
+                "un panel que muestra otro asunto deja el lote pendiente sin publicar otro correo");
             Go("Cerrar ventana web");
             Check(Wait(()=>Ui(()=>Desc(form).OfType<Button>().Any(b=>b.Text=="Abrir Outlook web" && b.Enabled)
                 && !ButtonFor("Exportar selección web").Enabled && !ButtonFor("Cerrar ventana web").Enabled),20),"la sesión dedicada se cierra desde la aplicación");

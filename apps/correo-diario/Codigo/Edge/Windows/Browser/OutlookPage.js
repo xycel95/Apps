@@ -33,7 +33,7 @@ const editor = all(document,editorSelector).some(e=>display(e) && isBody(e));
 function selectionCount() {
     const re=/^(?:([\d.,\u00a0 ]+)\s+(?:(?:conversaciones?|mensajes?|elementos?)\s+seleccionad[oa]s?|(?:conversations?|items?|messages?)\s+selected)|(?:seleccionad[oa]s?|selected)\s*[:·]?\s*([\d.,\u00a0 ]+))\s*$/i;
     for (const e of all(document,"span,div,p,button,[role=status]")) {
-        if (e.childElementCount>1 || withinContent(e)) continue;
+        if (e.childElementCount>1 || withinContent(e) || e.closest('[role="tab"],[role="tablist"]')) continue;
         const text=e.textContent;
         if (!text || text.length>85) continue;
         const match=clean(text).match(re);
@@ -95,12 +95,13 @@ function clearPrint(token) {
     for(const attr of ["data-cd-path","data-cd-part"])
         for(const el of all(document,"["+attr+'="'+token+'"]')) el.removeAttribute(attr);
 }
+if(operation.startsWith("rows-")) return folderRows();
 if(operation==="clear") { clearPrint(arg.token); return true; }
 if(operation==="state") {
     if(preview) return {kind:"preview",count:0,keys:[]};
     const list=draft();
     if(editor && list.root) return {kind:"draft",count:list.cards.length,keys:list.cards.map(cardKey)};
-    if(editor) return {kind:"compose",count:0,keys:[]};
+    if(editor) return {kind:"compose",count:lists(document).reduce((n,l)=>n+options(l).length,0),keys:[]};
     const count=selectionCount();
     if(count>1) return {kind:"selection",count,keys:[]};
     return {kind:view()?"single":"empty",count,keys:[]};

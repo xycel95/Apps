@@ -186,7 +186,7 @@ internal static partial class Program
             Check(Wait(() => Named(form,"2 marcados de 2 correos recibidos") != null), "el ejecutable recibe dos mensajes virtuales del portapapeles de Windows");
             // Start a normal export, then switch to the browser while the worker is running.
             // UI Automation itself may focus the control it invokes, just like a user click.
-            Invoke(Named(form, "Exportar selección")!);
+            Invoke(Named(form, "Exportar archivos añadidos")!);
             Check(Wait(() => Named(form, "Cancelar")?.Current.IsEnabled == true, 10), "la exportación sigue en curso al cambiar de ventana");
             SetForegroundWindow(other);
             Check(Wait(() => GetForegroundWindow() == other, 5), "Edge recibe el foco mientras la aplicación trabaja");

@@ -97,7 +97,7 @@ internal sealed class EdgeSession : IAsyncDisposable
             var caps = new Dictionary<string, object>
             {
                 ["browserName"] = "MicrosoftEdge", ["pageLoadStrategy"] = "eager",
-                ["ms:edgeOptions"] = new { binary = edge, args = new[] { "--no-first-run", "--no-default-browser-check", "--user-data-dir=" + Path.Combine(dir, "perfil") }, prefs = preferences }
+                ["ms:edgeOptions"] = new { binary = edge, args = new[] { "--no-first-run", "--no-default-browser-check", "--disable-backgrounding-occluded-windows", "--disable-background-timer-throttling", "--disable-renderer-backgrounding", "--user-data-dir=" + Path.Combine(dir, "perfil") }, prefs = preferences }
             };
             var result = await instance.Request(HttpMethod.Post, "/session", new { capabilities = new { alwaysMatch = caps } }, ct);
             instance.session = "/session/" + Uri.EscapeDataString(result.GetProperty("sessionId").GetString()!);
@@ -135,8 +135,16 @@ internal sealed class EdgeSession : IAsyncDisposable
     }
     internal Task<JsonElement> Evaluate(string code, object[] args, CancellationToken ct) => Command(HttpMethod.Post,"/execute/sync",new { script = code, args },ct);
     internal Task Click(string id, CancellationToken ct) => Command(HttpMethod.Post, "/element/" + Uri.EscapeDataString(id) + "/click", new { }, ct);
-    internal Task Minimize(CancellationToken ct) => Command(HttpMethod.Post, "/window/minimize", new { }, ct);
-    internal Task Show(CancellationToken ct) => Command(HttpMethod.Post, "/window/maximize", new { }, ct);
+    internal void SendToBackground(CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        BackgroundWindow.BehindApplications(job ?? throw new ObjectDisposedException(nameof(EdgeSession)));
+    }
+    internal async Task Show(CancellationToken ct)
+    {
+        await Command(HttpMethod.Post, "/window/maximize", new { }, ct);
+        BackgroundWindow.ShowForUser(job ?? throw new ObjectDisposedException(nameof(EdgeSession)));
+    }
     internal async Task<byte[]> Pdf(CancellationToken ct)
     {
         var value = await Command(HttpMethod.Post, "/print", new { background = true, shrinkToFit = true, page = new { width = 21.0, height = 29.7 } }, ct);
