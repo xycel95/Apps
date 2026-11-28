@@ -6,6 +6,8 @@ La identificación de filas admite cambios en el estado de lectura cuando coinci
 
 La dirección puede proceder del campo De en los detalles desplegables de la cabecera. Copiar diagnóstico examina la estructura del correo abierto en la sesión dedicada cuando está en reposo. El informe conserva una muestra por motivo de incidencia con cantidades y códigos fijos. Las pruebas de escritorio cubren las dos disposiciones del panel, los cambios de fila y del archivo adjunto, la lectura del remitente y la privacidad del diagnóstico.
 
+Las cinco descargas públicas de 0.8.5 se verificaron por tamaño y SHA-256. En Windows pasaron 65 pruebas de archivo y 107 de escritorio. Las pruebas con mensajes ficticios comprobaron los PDF, sus adjuntos, la conservación del foco y el cursor, y los nuevos casos de lectura y diagnóstico.
+
 ## 0.8.4
 
 La aplicación de escritorio utiliza la sesión de Edge de la ventana de exportación. Se retiraron el diálogo de carpetas de Microsoft 365, el cliente de autenticación de la aplicación y la entrada de correos mediante portapapeles. Archivos locales se abre a petición del usuario y permite elegir EML o MSG. Copiar diagnóstico sigue disponible.
